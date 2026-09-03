@@ -4090,36 +4090,57 @@ button,
         font-size: 17px;
     }
 }@media (max-width: 900px) {
-    .admin-sidebar.mobile-open {
-        transform: translateX(0);
-        visibility: visible;
-    }
-}@media (max-width: 900px) {
     .admin-sidebar {
-        height: 100vh;
-        max-height: 100vh;
-        overflow-y: auto;
-        overflow-x: hidden;
-        padding-bottom: 20px;
+        width: 220px;
+        max-width: 78vw;
+        height: 100dvh;
+        max-height: 100dvh;
+        padding-bottom: 0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .sidebar-brand {
+        flex-shrink: 0;
     }
 
     .sidebar-menu {
         flex: 1;
         min-height: 0;
         overflow-y: auto;
+        overflow-x: hidden;
+        padding-bottom: 10px;
     }
 
     .sidebar-bottom {
         flex-shrink: 0;
-        padding-bottom: 20px;
+        position: relative;
+        z-index: 20;
+        padding: 12px 15px 16px;
+        background: var(--surface);
+        border-top: 1px solid var(--border);
     }
 
     .logout-button,
     .logout-btn {
+        position: relative;
+        z-index: 30;
         width: 100%;
-        min-height: 42px;
+        min-height: 40px;
         display: flex;
         align-items: center;
         justify-content: flex-start;
+    }
+}
+
+@media (max-width: 600px) {
+    .admin-sidebar {
+        width: 210px;
+        max-width: 76vw;
+    }
+
+    .sidebar-bottom {
+        padding: 10px 12px 14px;
     }
 }
