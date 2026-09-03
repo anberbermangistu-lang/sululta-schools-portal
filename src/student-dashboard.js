@@ -29,6 +29,7 @@ const accountStatus = document.getElementById("accountStatus");
 
 const logoutButton = document.getElementById("logoutButton");
 const sidebarToggle = document.getElementById("sidebarToggle");
+const sidebar = document.querySelector(".admin-sidebar");
 const studentMessage = document.getElementById("studentMessage");
 
 function showMessage(message, type = "error") {
@@ -99,7 +100,9 @@ async function loadStudentDashboard() {
 
         const { data: profile, error: profileError } = await supabase
             .from("profiles")
-            .select("id, first_name, last_name, email, role, phone, photo_url, status, student_id")
+            .select(
+                "id, first_name, last_name, email, role, phone, photo_url, status, student_id"
+            )
             .eq("id", user.id)
             .single();
 
@@ -116,17 +119,25 @@ async function loadStudentDashboard() {
             return;
         }
 
-        if (profile.status && profile.status.toLowerCase() !== "active") {
+        if (
+            profile.status &&
+            profile.status.toLowerCase() !== "active"
+        ) {
             await supabase.auth.signOut();
+
             showMessage("Your account is inactive.");
+
             setTimeout(() => {
                 window.location.replace("/login.html");
             }, 1500);
+
             return;
         }
 
         if (!profile.student_id) {
-            throw new Error("This student account is not linked to a student record.");
+            throw new Error(
+                "This student account is not linked to a student record."
+            );
         }
 
         const { data: student, error: studentError } = await supabase
@@ -157,83 +168,205 @@ async function loadStudentDashboard() {
             throw new Error("Student record was not found.");
         }
 
-        const fullName = `${student.first_name || profile.first_name || ""} ${student.last_name || profile.last_name || ""}`.trim();
+        const fullName =
+            `${student.first_name || profile.first_name || ""} ${student.last_name || profile.last_name || ""}`.trim();
 
-        setText(studentHeaderName, fullName || "Student");
-        setText(welcomeName, student.first_name || profile.first_name || "Student");
-        setText(profileName, fullName || "Student");
+        setText(
+            studentHeaderName,
+            fullName || "Student"
+        );
 
-        setText(studentIdElement, student.student_id);
-        setText(studentClass, student.class);
-        setText(studentSection, student.section);
-        setText(studentStatus, capitalize(student.status));
+        setText(
+            welcomeName,
+            student.first_name || profile.first_name || "Student"
+        );
 
-        setText(profileStudentId, student.student_id);
-        setText(profileStudentIdDetails, student.student_id);
-        setText(profileStatus, capitalize(student.status));
+        setText(
+            profileName,
+            fullName || "Student"
+        );
 
-        setText(firstName, student.first_name);
-        setText(lastName, student.last_name);
-        setText(gender, capitalize(student.gender));
-        setText(dateOfBirth, formatDate(student.date_of_birth));
-        setText(email, student.email || profile.email);
-        setText(phone, student.phone || profile.phone);
-        setText(className, student.class);
-        setText(section, student.section);
-        setText(address, student.address);
-        setText(accountStatus, capitalize(student.status));
+        setText(
+            studentIdElement,
+            student.student_id
+        );
 
-        const photoUrl = student.photo_url || profile.photo_url || "";
-        setAvatar(studentAvatar, fullName, photoUrl);
-        setAvatar(profileAvatar, fullName, photoUrl);
+        setText(
+            studentClass,
+            student.class
+        );
+
+        setText(
+            studentSection,
+            student.section
+        );
+
+        setText(
+            studentStatus,
+            capitalize(student.status)
+        );
+
+        setText(
+            profileStudentId,
+            student.student_id
+        );
+
+        setText(
+            profileStudentIdDetails,
+            student.student_id
+        );
+
+        setText(
+            profileStatus,
+            capitalize(student.status)
+        );
+
+        setText(
+            firstName,
+            student.first_name
+        );
+
+        setText(
+            lastName,
+            student.last_name
+        );
+
+        setText(
+            gender,
+            capitalize(student.gender)
+        );
+
+        setText(
+            dateOfBirth,
+            formatDate(student.date_of_birth)
+        );
+
+        setText(
+            email,
+            student.email || profile.email
+        );
+
+        setText(
+            phone,
+            student.phone || profile.phone
+        );
+
+        setText(
+            className,
+            student.class
+        );
+
+        setText(
+            section,
+            student.section
+        );
+
+        setText(
+            address,
+            student.address
+        );
+
+        setText(
+            accountStatus,
+            capitalize(student.status)
+        );
+
+        const photoUrl =
+            student.photo_url ||
+            profile.photo_url ||
+            "";
+
+        setAvatar(
+            studentAvatar,
+            fullName,
+            photoUrl
+        );
+
+        setAvatar(
+            profileAvatar,
+            fullName,
+            photoUrl
+        );
 
         if (studentMessage) {
             studentMessage.hidden = true;
         }
     } catch (error) {
-        console.error("Student dashboard error:", error);
-        showMessage(error.message || "Unable to load student information.");
+        console.error(
+            "Student dashboard error:",
+            error
+        );
+
+        showMessage(
+            error.message ||
+            "Unable to load student information."
+        );
     }
 }
 
 async function logout() {
+    if (!logoutButton) return;
+
     logoutButton.disabled = true;
 
     try {
-        const { error } = await supabase.auth.signOut();
+        const { error } =
+            await supabase.auth.signOut();
 
         if (error) {
             throw error;
         }
 
-        window.location.replace("/login.html");
+        window.location.replace(
+            "/login.html"
+        );
     } catch (error) {
-        console.error("Logout error:", error);
+        console.error(
+            "Logout error:",
+            error
+        );
+
         logoutButton.disabled = false;
-        showMessage("Unable to logout. Please try again.");
+
+        showMessage(
+            "Unable to logout. Please try again."
+        );
     }
 }
 
 if (logoutButton) {
-    logoutButton.addEventListener("click", logout);
+    logoutButton.addEventListener(
+        "click",
+        logout
+    );
 }
 
-if (sidebarToggle) {
-    sidebarToggle.addEventListener("click", () => {
-        document.body.classList.toggle("sidebar-collapsed");
-    });
+if (sidebarToggle && sidebar) {
+    sidebarToggle.addEventListener(
+        "click",
+        () => {
+            sidebar.classList.toggle(
+                "mobile-open"
+            );
+        }
+    );
 }
 
-window.addEventListener("pageshow", async event => {
-    if (event.persisted) {
-        const {
-            data: { session }
-        } = await supabase.auth.getSession();
+window.addEventListener(
+    "pageshow",
+    async event => {
+        if (event.persisted) {
+            const {
+                data: { session }
+            } = await supabase.auth.getSession();
 
-        if (!session) {
-            window.location.replace("/login.html");
+            if (!session) {
+                window.location.replace(
+                    "/login.html"
+                );
+            }
         }
     }
-});
+);
 
 loadStudentDashboard();
