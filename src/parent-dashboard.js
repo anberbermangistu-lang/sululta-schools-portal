@@ -146,6 +146,8 @@ async function loadChild(studentId) {
     displayChild(student);
 
 }
+
+
 function displayParent(parent) {
 
     const fullName =
@@ -348,7 +350,7 @@ function setupSidebar() {
         () => {
 
             sidebar?.classList.toggle(
-                "open"
+                "mobile-open"
             );
 
         }
