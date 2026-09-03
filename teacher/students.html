@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>
+        My Students | Sululta Secondary School
+    </title>
+
+    <link
+        rel="icon"
+        href="data:,">
+
+    <link
+        rel="stylesheet"
+        href="/src/style.css">
+
+</head>
+
+<body>
+
+<div class="admin-page">
+
+    <aside class="admin-sidebar">
+
+        <div class="sidebar-brand">
+
+            <div class="school-logo">
+                SS
+            </div>
+
+            <div class="school-info">
+
+                <strong>
+                    Sululta Secondary School
+                </strong>
+
+                <span>
+                    Teacher Portal
+                </span>
+
+            </div>
+
+        </div>
+
+        <nav class="sidebar-menu">
+
+            <div class="menu-title">
+                MAIN
+            </div>
+
+            <a
+                href="/teacher/dashboard.html"
+                class="sidebar-link">
+
+                <span>⌂</span>
+
+                <span>
+                    Dashboard
+                </span>
+
+            </a>
+
+            <div class="menu-title">
+                ACADEMIC
+            </div>
+
+            <a
+                href="/teacher/classes.html"
+                class="sidebar-link">
+
+                <span>🏫</span>
+
+                <span>
+                    My Classes
+                </span>
+
+            </a>
+
+            <a
+                href="/teacher/students.html"
+                class="sidebar-link active">
+
+                <span>👨‍🎓</span>
+
+                <span>
+                    My Students
+                </span>
+
+            </a>
+
+            <a
+                href="/teacher/attendance.html"
+                class="sidebar-link">
+
+                <span>✓</span>
+
+                <span>
+                    Attendance
+                </span>
+
+            </a>
+
+            <a
+                href="/teacher/results.html"
+                class="sidebar-link">
+
+                <span>📊</span>
+
+                <span>
+                    Results
+                </span>
+
+            </a>
+
+            <a
+                href="/timetable/dashboard.html"
+                class="sidebar-link">
+
+                <span>🗓</span>
+
+                <span>
+                    Timetable
+                </span>
+
+            </a>
+
+            <div class="menu-title">
+                ACCOUNT
+            </div>
+
+            <a
+                href="/teacher/profile.html"
+                class="sidebar-link">
+
+                <span>👤</span>
+
+                <span>
+                    My Profile
+                </span>
+
+            </a>
+
+            <a
+                href="/teacher/password.html"
+                class="sidebar-link">
+
+                <span>🔐</span>
+                <span>Change Password</span>
+
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <button
+                type="button"
+                class="logout-button"
+                id="logoutButton">
+
+                <span>↪</span>
+
+                <span>
+                    Sign Out
+                </span>
+
+            </button>
+
+        </div>
+
+    </aside>
+
+    <main class="admin-main">
+
+        <header class="admin-header">
+
+            <div class="header-left">
+
+                <button
+                    type="button"
+                    class="sidebar-toggle"
+                    id="sidebarToggle">
+
+                    ☰
+
+                </button>
+
+                <div>
+
+                    <span class="header-label">
+                        TEACHER PORTAL
+                    </span>
+
+                    <h1>
+                        My Students
+                    </h1>
+
+                </div>
+
+            </div>
+
+            <div class="admin-profile">
+
+                <div
+                    class="admin-avatar"
+                    id="teacherAvatar">
+
+                    T
+
+                </div>
+
+                <div class="admin-profile-info">
+
+                    <strong
+                        id="teacherHeaderName">
+
+                        Teacher
+
+                    </strong>
+
+                    <span>
+                        Teacher
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+        <section class="page-container">
+
+            <div class="page-header">
+
+                <div class="header-left">
+
+                    <div class="page-icon">
+                        👨‍🎓
+                    </div>
+
+                    <div>
+
+                        <h1>
+                            My Students
+                        </h1>
+
+                        <p>
+                            View students from your assigned classes
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="header-actions">
+
+                    <button
+                        type="button"
+                        id="refreshStudents"
+                        class="btn btn-secondary">
+
+                        ↻ Refresh
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div
+                id="studentsMessage"
+                class="form-message"
+                aria-live="polite">
+            </div>
+
+            <div class="stats-grid">
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        👨‍🎓
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            My Students
+                        </span>
+
+                        <strong id="totalStudents">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        👨
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Male
+                        </span>
+
+                        <strong id="maleStudents">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        👩
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Female
+                        </span>
+
+                        <strong id="femaleStudents">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        🏫
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            My Classes
+                        </span>
+
+                        <strong id="totalClasses">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <section class="results-records-card">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            Student Records
+                        </h2>
+
+                        <p>
+                            Students assigned to your classes
+                        </p>
+
+                    </div>
+
+                    <span
+                        class="panel-badge"
+                        id="recordBadge">
+
+                        0 Records
+
+                    </span>
+
+                </div>
+
+                <div class="results-filter-bar">
+
+                    <div class="search-box">
+
+                        <span>
+                            🔍
+                        </span>
+
+                        <input
+                            type="search"
+                            id="studentSearch"
+                            placeholder="Search student ID, name, phone or email..."
+                            autocomplete="off">
+
+                    </div>
+
+                    <select
+                        id="classFilter">
+
+                        <option value="">
+                            All Classes
+                        </option>
+
+                    </select>
+
+                    <select
+                        id="genderFilter">
+
+                        <option value="">
+                            All Gender
+                        </option>
+
+                        <option value="Male">
+                            Male
+                        </option>
+
+                        <option value="Female">
+                            Female
+                        </option>
+
+                    </select>
+
+                    <select
+                        id="statusFilter">
+
+                        <option value="">
+                            All Status
+                        </option>
+
+                        <option value="active">
+                            Active
+                        </option>
+
+                        <option value="inactive">
+                            Inactive
+                        </option>
+
+                    </select>
+
+                    <button
+                        type="button"
+                        id="clearFilters"
+                        class="btn btn-secondary">
+
+                        Clear
+
+                    </button>
+
+                </div>
+
+                <div class="results-toolbar">
+
+                    <span id="recordSummary">
+                        Showing 0 records
+                    </span>
+
+                    <button
+                        type="button"
+                        id="clearFiltersToolbar"
+                        class="results-clear-filter">
+
+                        Clear filters
+
+                    </button>
+
+                </div>
+
+                <div class="results-table-wrapper">
+
+                    <table class="results-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Student
+                                </th>
+
+                                <th>
+                                    Student ID
+                                </th>
+
+                                <th>
+                                    Gender
+                                </th>
+
+                                <th>
+                                    Class
+                                </th>
+
+                                <th>
+                                    Section
+                                </th>
+
+                                <th>
+                                    Phone
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody
+                            id="studentsTableBody">
+
+                            <tr>
+
+                                <td
+                                    colspan="7"
+                                    class="table-empty">
+
+                                    Loading students...
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                <div
+                    id="studentsEmptyState"
+                    class="results-empty-state"
+                    hidden>
+
+                    <div class="empty-icon">
+                        👨‍🎓
+                    </div>
+
+                    <strong>
+                        No Students Found
+                    </strong>
+
+                    <span>
+                        There are currently no students matching your search or filters.
+                    </span>
+
+                </div>
+
+            </section>
+
+        </section>
+
+        <footer class="admin-footer">
+
+            <span>
+                © 2026 Sululta Secondary School
+            </span>
+
+            <span>
+                Teacher Portal
+            </span>
+
+        </footer>
+
+    </main>
+
+</div>
+
+<script
+    type="module"
+    src="/src/teacher-students.js">
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>View Event | Sululta School Portal</title>
+
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="../src/style.css">
+</head>
+
+<body>
+
+<div class="admin-page">
+
+    <aside class="admin-sidebar">
+
+        <div class="sidebar-brand">
+            <div class="school-logo">SS</div>
+
+            <div class="school-info">
+                <strong>Sululta School</strong>
+                <span>Admin Portal</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-menu">
+
+            <div class="menu-title">Main</div>
+
+            <a href="../dashboard.html" class="sidebar-link">
+                <span>🏠</span>
+                <span>Dashboard</span>
+            </a>
+
+            <div class="menu-title">Academic Management</div>
+
+            <a href="../students/dashboard.html" class="sidebar-link">
+                <span>👨‍🎓</span>
+                <span>Students</span>
+            </a>
+
+            <a href="../teachers/dashboard.html" class="sidebar-link">
+                <span>👨‍🏫</span>
+                <span>Teachers</span>
+            </a>
+
+            <a href="../parents/dashboard.html" class="sidebar-link">
+                <span>👨‍👩‍👧</span>
+                <span>Parents</span>
+            </a>
+
+            <a href="../classes/dashboard.html" class="sidebar-link">
+                <span>🏫</span>
+                <span>Classes</span>
+            </a>
+
+            <a href="../subjects/dashboard.html" class="sidebar-link">
+                <span>📚</span>
+                <span>Subjects</span>
+            </a>
+
+            <a href="../exams/dashboard.html" class="sidebar-link">
+                <span>📝</span>
+                <span>Exams</span>
+            </a>
+
+            <a href="../attendance/dashboard.html" class="sidebar-link">
+                <span>📅</span>
+                <span>Attendance</span>
+            </a>
+
+            <a href="../timetable/dashboard.html" class="sidebar-link">
+                <span>🗓️</span>
+                <span>Timetable</span>
+            </a>
+
+            <a href="../results/dashboard.html" class="sidebar-link">
+                <span>📊</span>
+                <span>Results</span>
+            </a>
+
+            <a href="../books/dashboard.html" class="sidebar-link">
+                <span>📖</span>
+                <span>Books</span>
+            </a>
+
+            <a href="dashboard.html" class="sidebar-link active">
+                <span>🎉</span>
+                <span>Events</span>
+            </a>
+
+            <a href="../notices/dashboard.html" class="sidebar-link">
+                <span>📢</span>
+                <span>Notices</span>
+            </a>
+
+            <div class="menu-title">Finance</div>
+
+            <a href="../fees/dashboard.html" class="sidebar-link">
+                <span>💰</span>
+                <span>Fees</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <a href="../login.html" class="logout-button">
+                <span>↪</span>
+                <span>Logout</span>
+            </a>
+
+        </div>
+
+    </aside>
+
+    <main class="admin-main">
+
+        <header class="admin-header">
+
+            <div class="header-left">
+
+                <button
+                    type="button"
+                    class="sidebar-toggle"
+                    id="sidebarToggle"
+                    aria-label="Toggle sidebar">
+                    ☰
+                </button>
+
+                <div>
+                    <span class="header-label">
+                        Academic Management
+                    </span>
+
+                    <h1>View Event</h1>
+                </div>
+
+            </div>
+
+            <div class="admin-profile">
+
+                <div class="admin-avatar">
+                    A
+                </div>
+
+                <div class="admin-profile-info">
+                    <strong>Administrator</strong>
+                    <span>Admin</span>
+                </div>
+
+            </div>
+
+        </header>
+
+        <section class="page-container">
+
+            <div class="page-header">
+
+                <div class="header-left">
+
+                    <div class="page-icon">
+                        🎉
+                    </div>
+
+                    <div>
+                        <h1>Event Details</h1>
+
+                        <p>
+                            View complete information about this school event
+                        </p>
+                    </div>
+
+                </div>
+
+                <div class="header-actions">
+
+                    <a
+                        href="dashboard.html"
+                        class="btn btn-secondary">
+                        ← Back
+                    </a>
+
+                    <a
+                        href="#"
+                        id="editEventButton"
+                        class="btn btn-primary">
+                        Edit Event
+                    </a>
+
+                </div>
+
+            </div>
+
+            <div id="eventLoading" class="event-view-card">
+
+                <div class="event-view-loading">
+                    <div class="event-view-icon">
+                        ⏳
+                    </div>
+
+                    <strong>Loading event...</strong>
+
+                    <span>
+                        Please wait while event information is loaded.
+                    </span>
+                </div>
+
+            </div>
+
+            <div
+                id="eventError"
+                class="event-view-card"
+                hidden>
+
+                <div class="event-view-loading">
+
+                    <div class="event-view-icon">
+                        ⚠️
+                    </div>
+
+                    <strong>Unable to load event</strong>
+
+                    <span id="eventErrorMessage">
+                        The requested event could not be loaded.
+                    </span>
+
+                    <a
+                        href="dashboard.html"
+                        class="btn btn-primary">
+                        Back to Events
+                    </a>
+
+                </div>
+
+            </div>
+
+            <section
+                id="eventDetails"
+                class="event-view-card"
+                hidden>
+
+                <div class="event-view-header">
+
+                    <div class="event-view-title">
+
+                        <div class="event-large-icon">
+                            🎉
+                        </div>
+
+                        <div>
+
+                            <span
+                                id="eventType"
+                                class="event-type-badge">
+                                Event
+                            </span>
+
+                            <h2 id="eventName">
+                                Event Name
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="event-view-content">
+
+                    <div class="event-detail-grid">
+
+                        <div class="event-detail-item">
+
+                            <span class="event-detail-label">
+                                📅 Event Date
+                            </span>
+
+                            <strong id="eventDate">
+                                —
+                            </strong>
+
+                        </div>
+
+                        <div class="event-detail-item">
+
+                            <span class="event-detail-label">
+                                🕐 Start Time
+                            </span>
+
+                            <strong id="eventStartTime">
+                                —
+                            </strong>
+
+                        </div>
+
+                        <div class="event-detail-item">
+
+                            <span class="event-detail-label">
+                                🕐 End Time
+                            </span>
+
+                            <strong id="eventEndTime">
+                                —
+                            </strong>
+
+                        </div>
+
+                        <div class="event-detail-item">
+
+                            <span class="event-detail-label">
+                                📍 Location
+                            </span>
+
+                            <strong id="eventLocation">
+                                —
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="event-description-section">
+
+                        <div class="event-description-title">
+                            📝 Description
+                        </div>
+
+                        <div
+                            id="eventDescription"
+                            class="event-description">
+                            No description provided.
+                        </div>
+
+                    </div>
+
+                    <div class="event-meta">
+
+                        <div>
+
+                            <span>
+                                Created
+                            </span>
+
+                            <strong id="eventCreatedAt">
+                                —
+                            </strong>
+
+                        </div>
+
+                        <div>
+
+                            <span>
+                                Last Updated
+                            </span>
+
+                            <strong id="eventUpdatedAt">
+                                —
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </section>
+
+        <footer class="admin-footer">
+
+            <span>
+                © 2026 Sululta School Portal
+            </span>
+
+            <span>
+                School Management System
+            </span>
+
+        </footer>
+
+    </main>
+
+</div>
+
+<script type="module" src="../src/events-view.js"></script>
+
+</body>
+
+</html>

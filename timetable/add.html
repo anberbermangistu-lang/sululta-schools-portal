@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Add Timetable | Sululta School Portal</title>
+
+    <link
+        rel="icon"
+        href="data:,"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../src/style.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<div class="admin-page">
+
+
+    <aside class="admin-sidebar">
+
+
+        <div class="sidebar-brand">
+
+            <div class="school-logo">
+                🏫
+            </div>
+
+            <div class="school-info">
+
+                <strong>
+                    Sululta School
+                </strong>
+
+                <span>
+                    School Portal
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <nav class="sidebar-menu">
+
+
+            <a
+                href="../dashboard.html"
+                class="sidebar-link"
+            >
+
+                <span>🏠</span>
+
+                <span>
+                    Dashboard
+                </span>
+
+            </a>
+
+
+            <a
+                href="dashboard.html"
+                class="sidebar-link active"
+            >
+
+                <span>🗓️</span>
+
+                <span>
+                    Timetable
+                </span>
+
+            </a>
+
+
+            <a
+                href="../classes/dashboard.html"
+                class="sidebar-link"
+            >
+
+                <span>🏫</span>
+
+                <span>
+                    Classes
+                </span>
+
+            </a>
+
+
+            <a
+                href="../students/dashboard.html"
+                class="sidebar-link"
+            >
+
+                <span>👨‍🎓</span>
+
+                <span>
+                    Students
+                </span>
+
+            </a>
+
+
+            <a
+                href="../teachers/dashboard.html"
+                class="sidebar-link"
+            >
+
+                <span>👨‍🏫</span>
+
+                <span>
+                    Teachers
+                </span>
+
+            </a>
+
+
+        </nav>
+
+
+    </aside>
+
+
+
+    <main class="admin-main">
+
+
+        <header class="admin-header">
+
+
+            <div class="header-left">
+
+
+                <button
+                    type="button"
+                    class="sidebar-toggle"
+                    id="sidebarToggle"
+                >
+                    ☰
+                </button>
+
+
+                <div>
+
+                    <span class="header-label">
+                        Academic Management
+                    </span>
+
+                    <h1>
+                        Timetable
+                    </h1>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="admin-profile">
+
+
+                <div class="admin-avatar">
+                    A
+                </div>
+
+
+                <div class="admin-profile-info">
+
+                    <strong>
+                        Administrator
+                    </strong>
+
+                    <span>
+                        Admin
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+        </header>
+
+
+
+        <section class="page-container">
+
+
+            <div class="page-header">
+
+
+                <div class="header-left">
+
+
+                    <div class="page-icon">
+                        🗓️
+                    </div>
+
+
+                    <div>
+
+                        <h1>
+                            Add Timetable
+                        </h1>
+
+                        <p>
+                            Create a new class timetable schedule
+                        </p>
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="header-actions">
+
+                    <a
+                        href="dashboard.html"
+                        class="btn btn-secondary"
+                    >
+                        ← Back
+                    </a>
+
+                </div>
+
+
+            </div>
+
+
+
+            <div
+                id="message"
+                class="message"
+                hidden
+            ></div>
+
+
+
+            <div class="content-card">
+
+
+                <div class="form-header">
+
+                    <h2>
+                        Timetable Information
+                    </h2>
+
+                    <p>
+                        Enter the class, subject, schedule and room information.
+                    </p>
+
+                </div>
+
+
+
+                <form
+                    id="timetableForm"
+                    class="form-grid"
+                >
+
+
+                    <div class="form-group">
+
+                        <label for="className">
+                            Class <span>*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="className"
+                            name="class_name"
+                            placeholder="Example: grade 9"
+                            required
+                        >
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label for="section">
+                            Section <span>*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="section"
+                            name="section"
+                            placeholder="Example: A"
+                            required
+                        >
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label for="subjectCode">
+                            Subject Code <span>*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="subjectCode"
+                            name="subject_code"
+                            placeholder="Example: MATH001"
+                            required
+                        >
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label for="subjectName">
+                            Subject Name <span>*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="subjectName"
+                            name="subject_name"
+                            placeholder="Example: Mathematics"
+                            required
+                        >
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label for="day">
+                            Day <span>*</span>
+                        </label>
+
+                        <select
+                            id="day"
+                            name="day"
+                            required
+                        >
+
+                            <option value="">
+                                Select Day
+                            </option>
+
+                            <option value="Monday">
+                                Monday
+                            </option>
+
+                            <option value="Tuesday">
+                                Tuesday
+                            </option>
+
+                            <option value="Wednesday">
+                                Wednesday
+                            </option>
+
+                            <option value="Thursday">
+                                Thursday
+                            </option>
+
+                            <option value="Friday">
+                                Friday
+                            </option>
+
+                            <option value="Saturday">
+                                Saturday
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label for="academicYear">
+                            Academic Year <span>*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="academicYear"
+                            name="academic_year"
+                            placeholder="Example: 2026/2027"
+                            required
+                        >
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label for="startTime">
+                            Start Time <span>*</span>
+                        </label>
+
+                        <input
+                            type="time"
+                            id="startTime"
+                            name="start_time"
+                            required
+                        >
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label for="endTime">
+                            End Time <span>*</span>
+                        </label>
+
+                        <input
+                            type="time"
+                            id="endTime"
+                            name="end_time"
+                            required
+                        >
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label for="roomNumber">
+                            Room Number
+                        </label>
+
+                        <input
+                            type="text"
+                            id="roomNumber"
+                            name="room_number"
+                            placeholder="Example: 101"
+                        >
+
+                    </div>
+
+
+
+                    <div class="form-actions">
+
+                        <a
+                            href="dashboard.html"
+                            class="btn btn-secondary"
+                        >
+                            Cancel
+                        </a>
+
+
+                        <button
+                            type="submit"
+                            id="saveTimetable"
+                            class="btn btn-primary"
+                        >
+                            💾 Save Timetable
+                        </button>
+
+                    </div>
+
+
+                </form>
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <footer class="admin-footer">
+
+            <span>
+                © 2026 Sululta School Portal
+            </span>
+
+            <span>
+                School Management System
+            </span>
+
+        </footer>
+
+
+    </main>
+
+
+</div>
+
+
+
+<script
+    type="module"
+    src="../src/timetable-add.js"
+></script>
+
+
+</body>
+
+</html>

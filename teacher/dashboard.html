@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Teacher Dashboard | Sululta Secondary School
+    </title>
+
+    <link
+        rel="icon"
+        href="data:,">
+
+    <link
+        rel="stylesheet"
+        href="/src/style.css">
+
+</head>
+
+<body>
+
+<div class="admin-page">
+
+    <aside class="admin-sidebar">
+
+        <div class="sidebar-brand">
+
+            <div class="school-logo">
+                SS
+            </div>
+
+            <div class="school-info">
+
+                <strong>
+                    Sululta Secondary School
+                </strong>
+
+                <span>
+                    Teacher Portal
+                </span>
+
+            </div>
+
+        </div>
+
+        <nav class="sidebar-menu">
+
+            <div class="menu-title">
+                MAIN
+            </div>
+
+            <a
+                href="/teacher/dashboard.html"
+                class="sidebar-link active">
+
+                <span>⌂</span>
+
+                <span>
+                    Dashboard
+                </span>
+
+            </a>
+
+            <div class="menu-title">
+                ACADEMIC
+            </div>
+
+            <a
+                href="/teacher/classes.html"
+                class="sidebar-link">
+
+                <span>🏫</span>
+
+                <span>
+                    My Classes
+                </span>
+
+            </a>
+
+            <a
+                href="/teacher/students.html"
+                class="sidebar-link">
+
+                <span>👨‍🎓</span>
+
+                <span>
+                    My Students
+                </span>
+
+            </a>
+
+            <a
+                href="/teacher/attendance.html"
+                class="sidebar-link">
+
+                <span>✓</span>
+
+                <span>
+                    Attendance
+                </span>
+
+            </a>
+
+            <a
+                href="/teacher/results.html"
+                class="sidebar-link">
+
+                <span>📊</span>
+
+                <span>
+                    Results
+                </span>
+
+            </a>
+
+            <a
+                href="/teacher/timetable.html"
+                class="sidebar-link">
+
+                <span>🗓</span>
+
+                <span>
+                    Timetable
+                </span>
+
+            </a>
+
+            <div class="menu-title">
+                ACCOUNT
+            </div>
+
+            <a
+                href="/teacher/profile.html"
+                class="sidebar-link">
+
+                <span>👤</span>
+
+                <span>
+                    My Profile
+                </span>
+
+            </a>
+
+            <a
+                href="/teacher/password.html"
+                class="sidebar-link">
+
+                <span>🔐</span>
+
+                <span>
+                    Change Password
+                </span>
+
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <button
+                type="button"
+                class="logout-button"
+                id="logoutButton">
+
+                <span>↪</span>
+
+                <span>
+                    Sign Out
+                </span>
+
+            </button>
+
+        </div>
+
+    </aside>
+
+    <main class="admin-main">
+
+        <header class="admin-header">
+
+            <div class="header-left">
+
+                <button
+                    type="button"
+                    class="sidebar-toggle"
+                    id="sidebarToggle"
+                    aria-label="Toggle sidebar">
+
+                    ☰
+
+                </button>
+
+                <div>
+
+                    <span class="header-label">
+                        TEACHER PORTAL
+                    </span>
+
+                    <h1>
+                        Dashboard
+                    </h1>
+
+                </div>
+
+            </div>
+
+            <div class="admin-profile">
+
+                <div
+                    class="admin-avatar"
+                    id="teacherAvatar">
+
+                    T
+
+                </div>
+
+                <div class="admin-profile-info">
+
+                    <strong id="teacherHeaderName">
+                        Teacher
+                    </strong>
+
+                    <span>
+                        Teacher
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+        <section class="dashboard-content">
+
+            <div class="welcome-card">
+
+                <div>
+
+                    <span class="welcome-label">
+                        WELCOME BACK
+                    </span>
+
+                    <h2 id="teacherWelcome">
+                        Hello, Teacher
+                    </h2>
+
+                    <p>
+                        Manage your classes, students,
+                        attendance and academic results
+                        from your teacher portal.
+                    </p>
+
+                </div>
+
+                <div class="welcome-decoration">
+                    SS
+                </div>
+
+            </div>
+
+            <div class="stats-grid">
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        🏫
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            My Classes
+                        </span>
+
+                        <strong id="myClasses">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        👨‍🎓
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            My Students
+                        </span>
+
+                        <strong id="myStudents">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        ✓
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Attendance
+                        </span>
+
+                        <strong>
+                            Manage
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        📊
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Results
+                        </span>
+
+                        <strong>
+                            Manage
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="dashboard-layout">
+
+                <section class="dashboard-panel">
+
+                    <div class="panel-header">
+
+                        <div>
+
+                            <h2>
+                                Teacher Information
+                            </h2>
+
+                            <p>
+                                Information controlled by
+                                the school administration
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="overview-grid">
+
+                        <div class="overview-item">
+
+                            <span>
+                                👤
+                            </span>
+
+                            <div>
+
+                                <strong>
+                                    Name
+                                </strong>
+
+                                <small id="teacherName">
+                                    Loading...
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                        <div class="overview-item">
+
+                            <span>
+                                🆔
+                            </span>
+
+                            <div>
+
+                                <strong>
+                                    Teacher ID
+                                </strong>
+
+                                <small id="teacherId">
+                                    Loading...
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                        <div class="overview-item">
+
+                            <span>
+                                ✉
+                            </span>
+
+                            <div>
+
+                                <strong>
+                                    Email
+                                </strong>
+
+                                <small id="teacherEmail">
+                                    Loading...
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                        <div class="overview-item">
+
+                            <span>
+                                📞
+                            </span>
+
+                            <div>
+
+                                <strong>
+                                    Phone
+                                </strong>
+
+                                <small id="teacherPhone">
+                                    Not provided
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                        <div class="overview-item">
+
+                            <span>
+                                🎓
+                            </span>
+
+                            <div>
+
+                                <strong>
+                                    Qualification
+                                </strong>
+
+                                <small id="teacherQualification">
+                                    Loading...
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                        <div class="overview-item">
+
+                            <span>
+                                ✓
+                            </span>
+
+                            <div>
+
+                                <strong>
+                                    Account Status
+                                </strong>
+
+                                <small id="teacherStatus">
+                                    Active
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <section class="dashboard-panel">
+
+                    <div class="panel-header">
+
+                        <div>
+
+                            <h2>
+                                Quick Actions
+                            </h2>
+
+                            <p>
+                                Teacher tools
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="quick-actions">
+
+                        <a
+                            href="/teacher/classes.html"
+                            class="quick-action">
+
+                            <div class="quick-action-icon">
+                                🏫
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    My Classes
+                                </strong>
+
+                                <small>
+                                    View assigned classes
+                                </small>
+
+                            </div>
+
+                        </a>
+
+                        <a
+                            href="/teacher/students.html"
+                            class="quick-action">
+
+                            <div class="quick-action-icon">
+                                👨‍🎓
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    My Students
+                                </strong>
+
+                                <small>
+                                    View assigned students
+                                </small>
+
+                            </div>
+
+                        </a>
+
+                        <a
+                            href="/teacher/attendance.html"
+                            class="quick-action">
+
+                            <div class="quick-action-icon">
+                                ✓
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Attendance
+                                </strong>
+
+                                <small>
+                                    Record attendance
+                                </small>
+
+                            </div>
+
+                        </a>
+
+                        <a
+                            href="/teacher/results.html"
+                            class="quick-action">
+
+                            <div class="quick-action-icon">
+                                📊
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Results
+                                </strong>
+
+                                <small>
+                                    Manage student results
+                                </small>
+
+                            </div>
+
+                        </a>
+
+                        <a
+                            href="/teacher/timetable.html"
+                            class="quick-action">
+
+                            <div class="quick-action-icon">
+                                🗓
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Timetable
+                                </strong>
+
+                                <small>
+                                    View class timetable
+                                </small>
+
+                            </div>
+
+                        </a>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+        </section>
+
+        <footer class="admin-footer">
+
+            <span>
+                © 2026 Sululta Secondary School
+            </span>
+
+            <span>
+                Teacher Portal
+            </span>
+
+        </footer>
+
+    </main>
+
+</div>
+
+<script
+    type="module"
+    src="/src/teacher-dashboard.js">
+</script>
+
+</body>
+
+</html>

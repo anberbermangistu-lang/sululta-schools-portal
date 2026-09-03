@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Class Details | Sululta School Portal</title>
+
+    <link
+        rel="stylesheet"
+        href="../src/style.css"
+    >
+
+</head>
+
+<body>
+
+<div class="admin-page">
+
+    <aside class="admin-sidebar">
+
+        <div class="sidebar-brand">
+
+            <div class="school-logo">
+                SS
+            </div>
+
+            <div class="school-info">
+
+                <strong>
+                    Sululta School
+                </strong>
+
+                <span>
+                    Admin Portal
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <nav class="sidebar-menu">
+
+            <div class="menu-title">
+                Main
+            </div>
+
+
+            <a
+                href="../admin/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>🏠</span>
+                <span>Dashboard</span>
+            </a>
+
+
+            <div class="menu-title">
+                Management
+            </div>
+
+
+            <a
+                href="../students/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>👨‍🎓</span>
+                <span>Students</span>
+            </a>
+
+
+            <a
+                href="../teachers/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>👨‍🏫</span>
+                <span>Teachers</span>
+            </a>
+
+
+            <a
+                href="../parents/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>👨‍👩‍👧</span>
+                <span>Parents</span>
+            </a>
+
+
+            <a
+                href="dashboard.html"
+                class="sidebar-link active"
+            >
+                <span>🏫</span>
+                <span>Classes</span>
+            </a>
+
+
+            <a
+                href="../subjects/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>📚</span>
+                <span>Subjects</span>
+            </a>
+
+
+            <a
+                href="../exams/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>📝</span>
+                <span>Exams</span>
+            </a>
+
+
+            <a
+                href="../notices/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>📢</span>
+                <span>Notices</span>
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <a
+                href="../login.html"
+                class="logout-button"
+            >
+                <span>↪</span>
+                <span>Logout</span>
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <main class="admin-main">
+
+
+        <header class="admin-header">
+
+            <div class="header-left">
+
+                <button
+                    type="button"
+                    class="sidebar-toggle"
+                    onclick="document.querySelector('.admin-sidebar').classList.toggle('open')"
+                >
+                    ☰
+                </button>
+
+
+                <div>
+
+                    <span class="header-label">
+                        Academic Management
+                    </span>
+
+                    <h1>
+                        Classes
+                    </h1>
+
+                </div>
+
+            </div>
+
+
+            <div class="admin-profile">
+
+                <div class="admin-avatar">
+                    A
+                </div>
+
+
+                <div class="admin-profile-info">
+
+                    <strong>
+                        Administrator
+                    </strong>
+
+                    <span>
+                        Admin
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <section class="page-container">
+
+
+            <div class="page-header">
+
+                <div class="header-left">
+
+                    <div class="page-icon">
+                        🏫
+                    </div>
+
+
+                    <div>
+
+                        <h1>
+                            Class Details
+                        </h1>
+
+                        <p>
+                            View complete class information
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="header-actions">
+
+                    <a
+                        href="dashboard.html"
+                        class="btn btn-secondary"
+                    >
+                        ← Back
+                    </a>
+
+
+                    <a
+                        id="editClassButton"
+                        href="#"
+                        class="btn btn-primary"
+                    >
+                        ✎ Edit Class
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="message"
+                class="message"
+            ></div>
+
+
+            <div class="student-profile-card">
+
+                <div class="student-profile-left">
+
+
+                    <div class="student-profile-photo">
+                        🏫
+                    </div>
+
+
+                    <div class="student-profile-name">
+
+                        <h2 id="className">
+                            Loading...
+                        </h2>
+
+
+                        <p>
+
+                            Section
+                            <strong id="classSection">
+                                -
+                            </strong>
+
+                            • Room
+                            <strong id="classRoom">
+                                -
+                            </strong>
+
+                            • Academic Year
+                            <strong id="classAcademicYear">
+                                -
+                            </strong>
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="details-card">
+
+
+                <div class="details-header">
+
+                    <div class="page-icon">
+                        🏫
+                    </div>
+
+
+                    <div>
+
+                        <h2>
+                            Class Information
+                        </h2>
+
+                        <p>
+                            Basic information about this class
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="details-grid">
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Class Name
+                        </span>
+
+                        <strong id="classNameDetail">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Section
+                        </span>
+
+                        <strong id="classSectionDetail">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Room Number
+                        </span>
+
+                        <strong id="classRoomDetail">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Academic Year
+                        </span>
+
+                        <strong id="classAcademicYearDetail">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Class Teacher
+                        </span>
+
+                        <strong id="classTeacher">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Students
+                        </span>
+
+                        <strong id="classStudents">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Status
+                        </span>
+
+                        <strong id="classStatus">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Created
+                        </span>
+
+                        <strong id="classCreated">
+                            -
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="content-card">
+
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            👨‍🎓 Students in This Class
+                        </h2>
+
+                        <p>
+                            Students currently assigned to this class
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="table-responsive">
+
+                    <table class="data-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    #
+                                </th>
+
+                                <th>
+                                    Student
+                                </th>
+
+                                <th>
+                                    Gender
+                                </th>
+
+                                <th>
+                                    Section
+                                </th>
+
+                                <th>
+                                    Phone
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="studentsTable">
+
+                            <tr>
+
+                                <td
+                                    colspan="6"
+                                    class="table-empty"
+                                >
+                                    Loading students...
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+
+        <footer class="admin-footer">
+
+            <span>
+                © 2026 Sululta School Portal
+            </span>
+
+            <span>
+                School Management System
+            </span>
+
+        </footer>
+
+    </main>
+
+</div>
+
+
+<script
+    type="module"
+    src="../src/view-class.js"
+></script>
+
+</body>
+
+</html>

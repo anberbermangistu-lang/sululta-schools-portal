@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Add User Account | Sululta Secondary School
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="/src/style.css"
+    >
+
+</head>
+
+<body>
+
+<div class="admin-page">
+
+    <aside class="admin-sidebar">
+
+        <div class="sidebar-brand">
+
+            <div class="school-logo">
+                SS
+            </div>
+
+            <div class="school-info">
+
+                <strong>
+                    Sululta Secondary School
+                </strong>
+
+                <span>
+                    Admin Portal
+                </span>
+
+            </div>
+
+        </div>
+
+        <nav class="sidebar-menu">
+
+            <div class="menu-title">
+                MAIN
+            </div>
+
+            <a
+                href="/admin/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>⌂</span>
+                <span>Dashboard</span>
+            </a>
+
+            <div class="menu-title">
+                MANAGEMENT
+            </div>
+
+            <a
+                href="/admin/users.html"
+                class="sidebar-link active"
+            >
+                <span>👤</span>
+                <span>User Accounts</span>
+            </a>
+
+            <a
+                href="/students/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>👨‍🎓</span>
+                <span>Students</span>
+            </a>
+
+            <a
+                href="/teachers/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>👨‍🏫</span>
+                <span>Teachers</span>
+            </a>
+
+            <a
+                href="/parents/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>👨‍👩‍👧</span>
+                <span>Parents</span>
+            </a>
+
+            <a
+                href="/classes/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>🏫</span>
+                <span>Classes</span>
+            </a>
+
+            <a
+                href="/subjects/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>📚</span>
+                <span>Subjects</span>
+            </a>
+
+            <div class="menu-title">
+                ACADEMIC
+            </div>
+
+            <a
+                href="/attendance/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>✓</span>
+                <span>Attendance</span>
+            </a>
+
+            <a
+                href="/results/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>📊</span>
+                <span>Results</span>
+            </a>
+
+            <div class="menu-title">
+                SCHOOL
+            </div>
+
+            <a
+                href="/library/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>📖</span>
+                <span>Library</span>
+            </a>
+
+            <a
+                href="/fees/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>💰</span>
+                <span>Fees</span>
+            </a>
+
+            <a
+                href="/events/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>📅</span>
+                <span>Events</span>
+            </a>
+
+            <a
+                href="/notices/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>🔔</span>
+                <span>Notices</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <button
+                type="button"
+                class="logout-button"
+                id="logoutButton"
+            >
+                <span>↪</span>
+                <span>Sign Out</span>
+            </button>
+
+        </div>
+
+    </aside>
+
+    <main class="admin-main">
+
+        <header class="admin-header">
+
+            <div class="header-left">
+
+                <button
+                    type="button"
+                    class="sidebar-toggle"
+                    id="sidebarToggle"
+                >
+                    ☰
+                </button>
+
+                <div>
+
+                    <span class="header-label">
+                        USER MANAGEMENT
+                    </span>
+
+                    <h1>
+                        Add Account
+                    </h1>
+
+                </div>
+
+            </div>
+
+            <div class="admin-profile">
+
+                <div class="admin-avatar">
+                    A
+                </div>
+
+                <div class="admin-profile-info">
+
+                    <strong>
+                        Administrator
+                    </strong>
+
+                    <span>
+                        Admin
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+        <section class="dashboard-content">
+
+            <div class="page-header">
+
+                <div>
+
+                    <span class="welcome-label">
+                        USER MANAGEMENT
+                    </span>
+
+                    <h2>
+                        Create User Account
+                    </h2>
+
+                    <p>
+                        Create a login account for a school user.
+                    </p>
+
+                </div>
+
+                <a
+                    href="/admin/users.html"
+                    class="btn btn-secondary"
+                >
+                    ← Back
+                </a>
+
+            </div>
+
+            <div
+                id="message"
+                class="message"
+                hidden
+            ></div>
+
+            <section class="dashboard-panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            Account Information
+                        </h2>
+
+                        <p>
+                            Enter the user's login and profile information.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <form
+                    id="userForm"
+                    class="form-grid"
+                >
+
+                    <div class="form-group">
+
+                        <label for="firstName">
+                            First Name *
+                        </label>
+
+                        <input
+                            type="text"
+                            id="firstName"
+                            required
+                        >
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="lastName">
+                            Last Name *
+                        </label>
+
+                        <input
+                            type="text"
+                            id="lastName"
+                            required
+                        >
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="email">
+                            Email *
+                        </label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            required
+                        >
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="username">
+                            Username
+                        </label>
+
+                        <input
+                            type="text"
+                            id="username"
+                            placeholder="Optional"
+                        >
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="phone">
+                            Phone
+                        </label>
+
+                        <input
+                            type="tel"
+                            id="phone"
+                            placeholder="Optional"
+                        >
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="role">
+                            Role *
+                        </label>
+
+                        <select
+                            id="role"
+                            required
+                        >
+
+                            <option value="">
+                                Select Role
+                            </option>
+
+                            <option value="teacher">
+                                Teacher
+                            </option>
+
+                            <option value="student">
+                                Student
+                            </option>
+
+                            <option value="parent">
+                                Parent
+                            </option>
+
+                            <option value="librarian">
+                                Librarian
+                            </option>
+
+                            <option value="finance">
+                                Finance
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div
+                        class="form-group"
+                        id="studentSelectGroup"
+                        hidden
+                    >
+
+                        <label for="studentId">
+                            Select Student *
+                        </label>
+
+                        <select id="studentId">
+
+                            <option value="">
+                                Loading students...
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="password">
+                            Temporary Password *
+                        </label>
+
+                        <input
+                            type="password"
+                            id="password"
+                            minlength="6"
+                            required
+                        >
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="confirmPassword">
+                            Confirm Password *
+                        </label>
+
+                        <input
+                            type="password"
+                            id="confirmPassword"
+                            minlength="6"
+                            required
+                        >
+
+                    </div>
+
+                    <div class="form-actions">
+
+                        <a
+                            href="/admin/users.html"
+                            class="btn btn-secondary"
+                        >
+                            Cancel
+                        </a>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                            id="saveUserButton"
+                        >
+                            Create Account
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+        </section>
+
+        <footer class="admin-footer">
+
+            <span>
+                © 2026 Sululta Secondary School
+            </span>
+
+            <span>
+                School Management Portal
+            </span>
+
+        </footer>
+
+    </main>
+
+</div>
+
+<script
+    type="module"
+    src="/src/admin-user-add.js"
+></script>
+
+</body>
+
+</html>

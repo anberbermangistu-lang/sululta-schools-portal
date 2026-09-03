@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        View Timetable | Sululta Secondary School
+    </title>
+
+    <link
+        rel="icon"
+        href="data:,"
+    >
+
+    <link
+        rel="stylesheet"
+        href="/src/style.css"
+    >
+
+</head>
+
+<body>
+
+<div class="admin-page">
+
+    <aside class="admin-sidebar">
+
+        <div class="sidebar-brand">
+
+            <div class="school-logo">
+                SS
+            </div>
+
+            <div class="school-info">
+
+                <strong>
+                    Sululta Secondary School
+                </strong>
+
+                <span>
+                    School Management Portal
+                </span>
+
+            </div>
+
+        </div>
+
+        <nav class="sidebar-menu">
+
+            <div class="menu-title">
+                MAIN
+            </div>
+
+            <a
+                href="/admin/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>🏠</span>
+                <span>Dashboard</span>
+            </a>
+
+            <div class="menu-title">
+                MANAGEMENT
+            </div>
+
+            <a
+                href="/students/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>👨‍🎓</span>
+                <span>Students</span>
+            </a>
+
+            <a
+                href="/teachers/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>👨‍🏫</span>
+                <span>Teachers</span>
+            </a>
+
+            <a
+                href="/parents/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>👨‍👩‍👧</span>
+                <span>Parents</span>
+            </a>
+
+            <a
+                href="/classes/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>🏫</span>
+                <span>Classes</span>
+            </a>
+
+            <a
+                href="/subjects/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>📚</span>
+                <span>Subjects</span>
+            </a>
+
+            <div class="menu-title">
+                ACADEMIC
+            </div>
+
+            <a
+                href="/exams/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>📝</span>
+                <span>Exams</span>
+            </a>
+
+            <a
+                href="/attendance/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>📅</span>
+                <span>Attendance</span>
+            </a>
+
+            <a
+                href="/results/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>📊</span>
+                <span>Results</span>
+            </a>
+
+            <a
+                href="/timetable/dashboard.html"
+                class="sidebar-link active"
+            >
+                <span>🗓️</span>
+                <span>Timetable</span>
+            </a>
+
+            <div class="menu-title">
+                SCHOOL
+            </div>
+
+            <a
+                href="/library/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>📖</span>
+                <span>Books</span>
+            </a>
+
+            <a
+                href="/fees/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>💰</span>
+                <span>Fees</span>
+            </a>
+
+            <a
+                href="/events/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>🎉</span>
+                <span>Events</span>
+            </a>
+
+            <a
+                href="/notices/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>🔔</span>
+                <span>Notices</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <button
+                type="button"
+                class="logout-button"
+                id="logoutButton"
+            >
+                <span>↪</span>
+                <span>Sign Out</span>
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <main class="admin-main">
+
+        <header class="admin-header">
+
+            <div class="header-left">
+
+                <button
+                    type="button"
+                    class="sidebar-toggle"
+                    id="sidebarToggle"
+                    aria-label="Toggle sidebar"
+                >
+                    ☰
+                </button>
+
+                <div>
+
+                    <span class="header-label">
+                        ACADEMIC MANAGEMENT
+                    </span>
+
+                    <h1>
+                        Timetable
+                    </h1>
+
+                </div>
+
+            </div>
+
+            <div class="admin-profile">
+
+                <div
+                    class="admin-avatar"
+                    id="adminAvatar"
+                >
+                    A
+                </div>
+
+                <div class="admin-profile-info">
+
+                    <strong id="adminHeaderName">
+                        Administrator
+                    </strong>
+
+                    <span>
+                        Admin
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <section class="dashboard-content">
+
+            <div class="page-header">
+
+                <div>
+
+                    <span class="welcome-label">
+                        TIMETABLE RECORD
+                    </span>
+
+                    <h1>
+                        View Timetable
+                    </h1>
+
+                    <p>
+                        View timetable schedule information.
+                    </p>
+
+                </div>
+
+                <div class="header-actions">
+
+                    <a
+                        href="/timetable/dashboard.html"
+                        class="btn btn-secondary"
+                    >
+                        ← Back
+                    </a>
+
+                    <a
+                        href="#"
+                        id="editButton"
+                        class="btn btn-primary"
+                    >
+                        Edit
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="message"
+                class="message"
+                hidden
+            ></div>
+
+
+            <section
+                id="loadingCard"
+                class="dashboard-panel"
+            >
+
+                <div class="table-empty">
+                    Loading timetable...
+                </div>
+
+            </section>
+
+
+            <section
+                id="viewCard"
+                class="dashboard-panel"
+                hidden
+            >
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            Timetable Information
+                        </h2>
+
+                        <p>
+                            Details of this timetable schedule.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="details-grid">
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Class
+                        </span>
+
+                        <strong id="className">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Section
+                        </span>
+
+                        <strong id="section">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Subject Code
+                        </span>
+
+                        <strong id="subjectCode">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Subject Name
+                        </span>
+
+                        <strong id="subjectName">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Day
+                        </span>
+
+                        <strong id="day">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Academic Year
+                        </span>
+
+                        <strong id="academicYear">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Start Time
+                        </span>
+
+                        <strong id="startTime">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            End Time
+                        </span>
+
+                        <strong id="endTime">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Room Number
+                        </span>
+
+                        <strong id="roomNumber">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Created At
+                        </span>
+
+                        <strong id="createdAt">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <span class="detail-label">
+                            Updated At
+                        </span>
+
+                        <strong id="updatedAt">
+                            —
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-actions">
+
+                    <a
+                        href="/timetable/dashboard.html"
+                        class="btn btn-secondary"
+                    >
+                        Back to Timetable
+                    </a>
+
+                    <a
+                        href="#"
+                        id="editButtonBottom"
+                        class="btn btn-primary"
+                    >
+                        Edit Timetable
+                    </a>
+
+                </div>
+
+            </section>
+
+        </section>
+
+
+        <footer class="admin-footer">
+
+            <span>
+                © 2026 Sululta Secondary School
+            </span>
+
+            <span>
+                School Management Portal
+            </span>
+
+        </footer>
+
+    </main>
+
+</div>
+
+
+<script
+    type="module"
+    src="/src/timetable-view.js"
+></script>
+
+</body>
+
+</html>

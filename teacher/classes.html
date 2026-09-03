@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>My Classes | Sululta Secondary School</title>
+
+    <link
+        rel="icon"
+        href="data:,">
+
+    <link
+        rel="stylesheet"
+        href="/src/style.css">
+
+</head>
+
+<body>
+
+<div class="admin-page">
+
+    <aside class="admin-sidebar">
+
+        <div class="sidebar-brand">
+
+            <div class="school-logo">
+                SS
+            </div>
+
+            <div class="school-info">
+
+                <strong>
+                    Sululta Secondary School
+                </strong>
+
+                <span>
+                    Teacher Portal
+                </span>
+
+            </div>
+
+        </div>
+
+        <nav class="sidebar-menu">
+
+            <div class="menu-title">
+                MAIN
+            </div>
+
+            <a
+                href="/teacher/dashboard.html"
+                class="sidebar-link">
+
+                <span>⌂</span>
+                <span>Dashboard</span>
+
+            </a>
+
+            <div class="menu-title">
+                ACADEMIC
+            </div>
+
+            <a
+                href="/teacher/classes.html"
+                class="sidebar-link active">
+
+                <span>🏫</span>
+                <span>My Classes</span>
+
+            </a>
+
+            <a
+                href="/teacher/students.html"
+                class="sidebar-link">
+
+                <span>👨‍🎓</span>
+                <span>My Students</span>
+
+            </a>
+
+            <a
+                href="/teacher/attendance.html"
+                class="sidebar-link">
+
+                <span>✓</span>
+                <span>Attendance</span>
+
+            </a>
+
+            <a
+                href="/teacher/results.html"
+                class="sidebar-link">
+
+                <span>📊</span>
+                <span>Results</span>
+
+            </a>
+
+            <a
+                href="/teacher/timetable.html"
+                class="sidebar-link">
+
+                <span>🗓</span>
+                <span>Timetable</span>
+
+            </a>
+
+            <div class="menu-title">
+                ACCOUNT
+            </div>
+
+            <a
+                href="/teacher/profile.html"
+                class="sidebar-link">
+
+                <span>👤</span>
+                <span>My Profile</span>
+
+            </a>
+
+            <a
+                href="/teacher/password.html"
+                class="sidebar-link">
+
+                <span>🔐</span>
+                <span>Change Password</span>
+
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <button
+                type="button"
+                class="logout-button"
+                id="logoutButton">
+
+                <span>↪</span>
+                <span>Sign Out</span>
+
+            </button>
+
+        </div>
+
+    </aside>
+
+    <main class="admin-main">
+
+        <header class="admin-header">
+
+            <div class="header-left">
+
+                <button
+                    type="button"
+                    class="sidebar-toggle"
+                    id="sidebarToggle">
+
+                    ☰
+
+                </button>
+
+                <div>
+
+                    <span class="header-label">
+                        TEACHER PORTAL
+                    </span>
+
+                    <h1>
+                        My Classes
+                    </h1>
+
+                </div>
+
+            </div>
+
+            <div class="admin-profile">
+
+                <div
+                    class="admin-avatar"
+                    id="teacherAvatar">
+
+                    T
+
+                </div>
+
+                <div class="admin-profile-info">
+
+                    <strong id="teacherHeaderName">
+                        Teacher
+                    </strong>
+
+                    <span>
+                        Teacher
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+        <section class="page-container">
+
+            <div class="page-header">
+
+                <div class="header-left">
+
+                    <div class="page-icon">
+                        🏫
+                    </div>
+
+                    <div>
+
+                        <h1>
+                            My Classes
+                        </h1>
+
+                        <p>
+                            View classes assigned to you by the school administration
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="header-actions">
+
+                    <button
+                        type="button"
+                        id="refreshClasses"
+                        class="btn btn-secondary">
+
+                        ↻ Refresh
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div class="stats-grid">
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        🏫
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            My Classes
+                        </span>
+
+                        <strong id="totalClasses">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        👨‍🎓
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            My Students
+                        </span>
+
+                        <strong id="totalStudents">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        📚
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Academic Year
+                        </span>
+
+                        <strong id="academicYear">
+                            —
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        ✓
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Status
+                        </span>
+
+                        <strong id="classStatus">
+                            —
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <section class="results-records-card">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            Assigned Classes
+                        </h2>
+
+                        <p>
+                            Classes assigned to your teacher account
+                        </p>
+
+                    </div>
+
+                    <span
+                        class="panel-badge"
+                        id="recordBadge">
+
+                        0 Records
+
+                    </span>
+
+                </div>
+
+                <div class="results-toolbar">
+
+                    <span id="recordSummary">
+                        Showing 0 records
+                    </span>
+
+                </div>
+
+                <div class="results-table-wrapper">
+
+                    <table class="results-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Class
+                                </th>
+
+                                <th>
+                                    Section
+                                </th>
+
+                                <th>
+                                    Room
+                                </th>
+
+                                <th>
+                                    Academic Year
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="classesTableBody">
+
+                            <tr>
+
+                                <td
+                                    colspan="5"
+                                    class="table-empty">
+
+                                    Loading assigned classes...
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                <div
+                    id="classesEmptyState"
+                    class="results-empty-state"
+                    hidden>
+
+                    <div class="empty-icon">
+                        🏫
+                    </div>
+
+                    <strong>
+                        No Classes Assigned
+                    </strong>
+
+                    <span>
+                        No classes have been assigned to your teacher account.
+                    </span>
+
+                </div>
+
+            </section>
+
+        </section>
+
+        <footer class="admin-footer">
+
+            <span>
+                © 2026 Sululta Secondary School
+            </span>
+
+            <span>
+                Teacher Portal
+            </span>
+
+        </footer>
+
+    </main>
+
+</div>
+
+<script
+    type="module"
+    src="/src/teacher-classes.js">
+</script>
+
+</body>
+
+</html>

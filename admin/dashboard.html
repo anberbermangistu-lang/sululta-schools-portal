@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Admin Dashboard | Sululta Secondary School
+    </title>
+
+    <link
+        rel="icon"
+        href="data:,"
+    >
+
+    <link
+        rel="stylesheet"
+        href="/src/style.css"
+    >
+
+</head>
+
+<body>
+
+<div class="admin-page">
+
+    <aside class="admin-sidebar">
+
+        <div class="sidebar-brand">
+
+            <div class="school-logo">
+                SS
+            </div>
+
+            <div class="school-info">
+
+                <strong>
+                    Sululta Secondary School
+                </strong>
+
+                <span>
+                    School Management Portal
+                </span>
+
+            </div>
+
+        </div>
+
+        <nav class="sidebar-menu">
+
+            <div class="menu-title">
+                MAIN
+            </div>
+
+            <a
+                href="/admin/dashboard.html"
+                class="sidebar-link active"
+            >
+                <span>🏠</span>
+                <span>Dashboard</span>
+            </a>
+
+            <div class="menu-title">
+                MANAGEMENT
+            </div>
+
+            <a
+                href="/students/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>👨‍🎓</span>
+                <span>Students</span>
+            </a>
+
+            <a
+                href="/teachers/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>👨‍🏫</span>
+                <span>Teachers</span>
+            </a>
+
+            <a
+                href="/parents/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>👨‍👩‍👧</span>
+                <span>Parents</span>
+            </a>
+
+            <a
+                href="/classes/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>🏫</span>
+                <span>Classes</span>
+            </a>
+
+            <a
+                href="/subjects/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>📚</span>
+                <span>Subjects</span>
+            </a>
+
+            <div class="menu-title">
+                ACADEMIC
+            </div>
+
+            <a
+                href="/exams/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>📝</span>
+                <span>Exams</span>
+            </a>
+
+            <a
+                href="/attendance/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>📅</span>
+                <span>Attendance</span>
+            </a>
+
+            <a
+                href="/results/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>📊</span>
+                <span>Results</span>
+            </a>
+
+            <a
+                href="/timetable/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>🗓️</span>
+                <span>Timetable</span>
+            </a>
+
+            <div class="menu-title">
+                SCHOOL
+            </div>
+
+            <a
+                href="/library/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>📖</span>
+                <span>Books</span>
+            </a>
+
+            <a
+                href="/fees/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>💰</span>
+                <span>Fees</span>
+            </a>
+
+            <a
+                href="/events/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>🎉</span>
+                <span>Events</span>
+            </a>
+
+            <a
+                href="/notices/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>🔔</span>
+                <span>Notices</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <button
+                type="button"
+                class="logout-button"
+                id="logoutButton"
+            >
+                <span>↪</span>
+                <span>Sign Out</span>
+            </button>
+
+        </div>
+
+    </aside>
+
+    <main class="admin-main">
+
+        <header class="admin-header">
+
+            <div class="header-left">
+
+                <button
+                    type="button"
+                    class="sidebar-toggle"
+                    id="sidebarToggle"
+                    aria-label="Toggle sidebar"
+                >
+                    ☰
+                </button>
+
+                <div>
+
+                    <span class="header-label">
+                        ADMINISTRATION
+                    </span>
+
+                    <h1>
+                        Dashboard
+                    </h1>
+
+                </div>
+
+            </div>
+
+            <div class="admin-profile">
+
+                <div
+                    class="admin-avatar"
+                    id="adminAvatar"
+                >
+                    A
+                </div>
+
+                <div class="admin-profile-info">
+
+                    <strong id="adminHeaderName">
+                        Administrator
+                    </strong>
+
+                    <span>
+                        Admin
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+        <section class="dashboard-content">
+
+            <div class="welcome-card">
+
+                <div>
+
+                    <span class="welcome-label">
+                        WELCOME BACK
+                    </span>
+
+                    <h2 id="welcomeTitle">
+                        Hello, Administrator
+                    </h2>
+
+                    <p>
+                        Manage students, teachers, classes,
+                        academic results and school activities
+                        from your administration dashboard.
+                    </p>
+
+                </div>
+
+                <div class="welcome-decoration">
+                    SS
+                </div>
+
+            </div>
+
+            <div class="stats-grid">
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        👨‍🎓
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Total Students
+                        </span>
+
+                        <strong id="totalStudents">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        👨‍🏫
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Total Teachers
+                        </span>
+
+                        <strong id="totalTeachers">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        🏫
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Total Classes
+                        </span>
+
+                        <strong id="totalClasses">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        👨‍👩‍👧
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Total Parents
+                        </span>
+
+                        <strong id="totalParents">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="dashboard-layout">
+
+                <section class="dashboard-panel">
+
+                    <div class="panel-header">
+
+                        <div>
+
+                            <h2>
+                                Recent Students
+                            </h2>
+
+                            <p>
+                                Recently registered students
+                            </p>
+
+                        </div>
+
+                        <a
+                            href="/students/dashboard.html"
+                            class="view-all"
+                        >
+                            View All
+                        </a>
+
+                    </div>
+
+                    <div
+                        class="empty-dashboard"
+                        id="recentStudents"
+                    >
+                        Loading students...
+                    </div>
+
+                </section>
+
+                <section class="dashboard-panel">
+
+                    <div class="panel-header">
+
+                        <div>
+
+                            <h2>
+                                Quick Actions
+                            </h2>
+
+                            <p>
+                                Frequently used management tools
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="quick-actions">
+
+                        <a
+                            href="/students/dashboard.html"
+                            class="quick-action"
+                        >
+
+                            <div class="quick-action-icon">
+                                👨‍🎓
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Students
+                                </strong>
+
+                                <small>
+                                    Manage students
+                                </small>
+
+                            </div>
+
+                        </a>
+
+                        <a
+                            href="/teachers/dashboard.html"
+                            class="quick-action"
+                        >
+
+                            <div class="quick-action-icon">
+                                👨‍🏫
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Teachers
+                                </strong>
+
+                                <small>
+                                    Manage teachers
+                                </small>
+
+                            </div>
+
+                        </a>
+
+                        <a
+                            href="/students/add.html"
+                            class="quick-action"
+                        >
+
+                            <div class="quick-action-icon">
+                                ➕
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Add Student
+                                </strong>
+
+                                <small>
+                                    Register student
+                                </small>
+
+                            </div>
+
+                        </a>
+
+                        <a
+                            href="/results/dashboard.html"
+                            class="quick-action"
+                        >
+
+                            <div class="quick-action-icon">
+                                📊
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Results
+                                </strong>
+
+                                <small>
+                                    Manage results
+                                </small>
+
+                            </div>
+
+                        </a>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+            <section class="dashboard-panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            School Overview
+                        </h2>
+
+                        <p>
+                            Current portal statistics
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="overview-grid">
+
+                    <div class="overview-item">
+
+                        <span>
+                            👨‍🎓
+                        </span>
+
+                        <div>
+
+                            <strong>
+                                Students
+                            </strong>
+
+                            <small id="overviewStudents">
+                                0 registered
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                    <div class="overview-item">
+
+                        <span>
+                            👨‍🏫
+                        </span>
+
+                        <div>
+
+                            <strong>
+                                Teachers
+                            </strong>
+
+                            <small id="overviewTeachers">
+                                0 registered
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                    <div class="overview-item">
+
+                        <span>
+                            🏫
+                        </span>
+
+                        <div>
+
+                            <strong>
+                                Classes
+                            </strong>
+
+                            <small id="overviewClasses">
+                                0 available
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                    <div class="overview-item">
+
+                        <span>
+                            👨‍👩‍👧
+                        </span>
+
+                        <div>
+
+                            <strong>
+                                Parents
+                            </strong>
+
+                            <small id="overviewParents">
+                                0 registered
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </section>
+
+        <footer class="admin-footer">
+
+            <span>
+                © 2026 Sululta Secondary School
+            </span>
+
+            <span>
+                School Management Portal
+            </span>
+
+        </footer>
+
+    </main>
+
+</div>
+
+<script
+    type="module"
+    src="/src/main.js"
+></script>
+
+</body>
+
+</html>

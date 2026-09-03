@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Attendance | Sululta School Portal
+    </title>
+
+    <link
+        rel="icon"
+        href="data:,"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../src/style.css"
+    >
+
+</head>
+
+<body>
+
+<div class="admin-page">
+
+    <aside class="admin-sidebar">
+
+        <div class="sidebar-brand">
+
+            <div class="school-logo">
+                SS
+            </div>
+
+            <div class="school-info">
+
+                <strong>
+                    Sululta School
+                </strong>
+
+                <span>
+                    Admin Portal
+                </span>
+
+            </div>
+
+        </div>
+
+        <nav class="sidebar-menu">
+
+            <div class="menu-title">
+                MAIN
+            </div>
+
+            <a
+                href="../admin/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>🏠</span>
+                <span>Dashboard</span>
+            </a>
+
+            <div class="menu-title">
+                MANAGEMENT
+            </div>
+
+            <a
+                href="../students/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>👨‍🎓</span>
+                <span>Students</span>
+            </a>
+
+            <a
+                href="../teachers/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>👨‍🏫</span>
+                <span>Teachers</span>
+            </a>
+
+            <a
+                href="../parents/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>👨‍👩‍👧</span>
+                <span>Parents</span>
+            </a>
+
+            <a
+                href="../classes/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>🏫</span>
+                <span>Classes</span>
+            </a>
+
+            <a
+                href="../subjects/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>📚</span>
+                <span>Subjects</span>
+            </a>
+
+            <a
+                href="../exams/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>📝</span>
+                <span>Exams</span>
+            </a>
+
+            <div class="menu-title">
+                ACADEMIC
+            </div>
+
+            <a
+                href="dashboard.html"
+                class="sidebar-link active"
+            >
+                <span>✓</span>
+                <span>Attendance</span>
+            </a>
+
+            <a
+                href="../results/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>📊</span>
+                <span>Results</span>
+            </a>
+
+            <a
+                href="../timetable/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>🗓️</span>
+                <span>Timetable</span>
+            </a>
+
+            <div class="menu-title">
+                SCHOOL
+            </div>
+
+            <a
+                href="../library/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>📖</span>
+                <span>Books</span>
+            </a>
+
+            <a
+                href="../fees/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>💰</span>
+                <span>Fees</span>
+            </a>
+
+            <a
+                href="../events/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>🎉</span>
+                <span>Events</span>
+            </a>
+
+            <a
+                href="../notices/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>📢</span>
+                <span>Notices</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <button
+                type="button"
+                class="logout-button"
+                id="logoutButton"
+            >
+                <span>↪</span>
+                <span>Sign Out</span>
+            </button>
+
+        </div>
+
+    </aside>
+
+    <main class="admin-main">
+
+        <header class="admin-header">
+
+            <div class="header-left">
+
+                <button
+                    type="button"
+                    class="sidebar-toggle"
+                    id="sidebarToggle"
+                    aria-label="Toggle sidebar"
+                >
+                    ☰
+                </button>
+
+                <div>
+
+                    <span class="header-label">
+                        ACADEMIC MANAGEMENT
+                    </span>
+
+                    <h1>
+                        Attendance
+                    </h1>
+
+                </div>
+
+            </div>
+
+            <div class="admin-profile">
+
+                <div class="admin-avatar">
+                    A
+                </div>
+
+                <div class="admin-profile-info">
+
+                    <strong>
+                        Administrator
+                    </strong>
+
+                    <span>
+                        Admin
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+        <section class="page-container">
+
+            <div class="page-header">
+
+                <div class="header-left">
+
+                    <div class="page-icon">
+                        ✓
+                    </div>
+
+                    <div>
+
+                        <h1>
+                            Attendance
+                        </h1>
+
+                        <p>
+                            Record and manage student attendance
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="header-actions">
+
+                    <button
+                        type="button"
+                        id="refreshAttendance"
+                        class="btn btn-secondary"
+                    >
+                        ↻ Refresh
+                    </button>
+
+                    <a
+                        href="add.html"
+                        class="btn btn-primary"
+                    >
+                        ＋ Record Attendance
+                    </a>
+
+                </div>
+
+            </div>
+
+            <div
+                id="message"
+                class="message"
+                hidden
+            ></div>
+
+            <div class="stats-grid">
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        ✓
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Total Records
+                        </span>
+
+                        <strong id="totalAttendance">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        ✅
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Present
+                        </span>
+
+                        <strong id="presentCount">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        ❌
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Absent
+                        </span>
+
+                        <strong id="absentCount">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        ⏰
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Late
+                        </span>
+
+                        <strong id="lateCount">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <section class="content-card">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            Attendance Records
+                        </h2>
+
+                        <p>
+                            View and manage student attendance records
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="student-toolbar">
+
+                    <div class="search-box">
+
+                        <input
+                            type="search"
+                            id="attendanceSearch"
+                            placeholder="Search student, ID or class..."
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+                    <input
+                        type="date"
+                        id="dateFilter"
+                        class="filter-select"
+                    >
+
+                    <select
+                        id="statusFilter"
+                    >
+
+                        <option value="">
+                            All Status
+                        </option>
+
+                        <option value="present">
+                            Present
+                        </option>
+
+                        <option value="absent">
+                            Absent
+                        </option>
+
+                        <option value="late">
+                            Late
+                        </option>
+
+                        <option value="excused">
+                            Excused
+                        </option>
+
+                    </select>
+
+                    <button
+                        type="button"
+                        id="clearFilters"
+                        class="btn btn-secondary"
+                    >
+                        Clear
+                    </button>
+
+                </div>
+
+                <div class="table-wrapper">
+
+                    <div class="table-responsive">
+
+                        <table class="data-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        #
+                                    </th>
+
+                                    <th>
+                                        Date
+                                    </th>
+
+                                    <th>
+                                        Student ID
+                                    </th>
+
+                                    <th>
+                                        Student
+                                    </th>
+
+                                    <th>
+                                        Class
+                                    </th>
+
+                                    <th>
+                                        Status
+                                    </th>
+
+                                    <th>
+                                        Remarks
+                                    </th>
+
+                                    <th>
+                                        Actions
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="attendanceTableBody">
+
+                                <tr>
+
+                                    <td
+                                        colspan="8"
+                                        class="table-empty"
+                                    >
+                                        Loading attendance...
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </section>
+
+        <footer class="admin-footer">
+
+            <span>
+                © 2026 Sululta School Portal
+            </span>
+
+            <span>
+                School Management System
+            </span>
+
+        </footer>
+
+    </main>
+
+</div>
+
+<script
+    type="module"
+    src="../src/attendance-dashboard.js"
+></script>
+
+</body>
+
+</html>

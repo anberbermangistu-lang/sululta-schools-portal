@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Events | Sululta School
+    </title>
+
+    <link
+        rel="icon"
+        href="data:,"
+    >
+
+    <link
+        rel="stylesheet"
+        href="/src/style.css"
+    >
+
+</head>
+
+<body>
+
+<div class="admin-page">
+
+    <aside class="admin-sidebar">
+
+        <div class="sidebar-brand">
+
+            <div class="school-logo">
+                SS
+            </div>
+
+            <div class="school-info">
+
+                <strong>
+                    Sululta School
+                </strong>
+
+                <span>
+                    Student Portal
+                </span>
+
+            </div>
+
+        </div>
+
+        <nav class="sidebar-menu">
+
+            <div class="menu-title">
+                MAIN
+            </div>
+
+            <a
+                href="/student/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>🏠</span>
+                <span>My Dashboard</span>
+            </a>
+
+            <div class="menu-title">
+                ACADEMIC
+            </div>
+
+            <a
+                href="/student/results.html"
+                class="sidebar-link"
+            >
+                <span>📊</span>
+                <span>My Results</span>
+            </a>
+
+            <a
+                href="/student/attendance.html"
+                class="sidebar-link"
+            >
+                <span>📅</span>
+                <span>Attendance</span>
+            </a>
+
+            <a
+                href="/student/timetable.html"
+                class="sidebar-link"
+            >
+                <span>🗓️</span>
+                <span>My Timetable</span>
+            </a>
+
+            <a
+                href="/student/subjects.html"
+                class="sidebar-link"
+            >
+                <span>📚</span>
+                <span>My Subjects</span>
+            </a>
+
+            <div class="menu-title">
+                LIBRARY
+            </div>
+
+            <a
+                href="/student/books.html"
+                class="sidebar-link"
+            >
+                <span>📖</span>
+                <span>My Books</span>
+            </a>
+            <div class="menu-title">
+                FINANCE
+            </div>
+
+            <a
+                href="/student/fees.html"
+                class="sidebar-link"
+            >
+                <span>💰</span>
+                <span>My Fees</span>
+            </a>
+            <div class="menu-title">
+                SCHOOL
+            </div>
+
+            <a
+                href="/student/notices.html"
+                class="sidebar-link"
+            >
+                <span>📢</span>
+                <span>Notices</span>
+            </a>
+
+            <a
+                href="/student/events.html"
+                class="sidebar-link active"
+            >
+                <span>🎉</span>
+                <span>Events</span>
+            </a>
+
+            <div class="menu-title">
+                ACCOUNT
+            </div>
+
+            <a
+                href="/student/profile.html"
+                class="sidebar-link"
+            >
+                <span>👤</span>
+                <span>My Profile</span>
+            </a>
+
+            <a
+                href="/student/change-password.html"
+                class="sidebar-link"
+            >
+                <span>🔐</span>
+                <span>Change Password</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <button
+                type="button"
+                class="logout-button"
+                id="logoutButton"
+            >
+                <span>↪</span>
+                <span>Logout</span>
+            </button>
+
+        </div>
+
+    </aside>
+
+    <main class="admin-main">
+
+        <header class="admin-header">
+
+            <div class="header-left">
+
+                <button
+                    type="button"
+                    class="sidebar-toggle"
+                    id="sidebarToggle"
+                >
+                    ☰
+                </button>
+
+                <div>
+
+                    <span class="header-label">
+                        STUDENT PORTAL
+                    </span>
+
+                    <h1>
+                        Events
+                    </h1>
+
+                </div>
+
+            </div>
+
+            <div class="admin-profile">
+
+                <div
+                    class="admin-avatar"
+                    id="studentAvatar"
+                >
+                    S
+                </div>
+
+                <div class="admin-profile-info">
+
+                    <strong id="studentHeaderName">
+                        Student
+                    </strong>
+
+                    <span>
+                        Student
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+        <section class="dashboard-content">
+
+            <div class="page-header">
+
+                <div>
+
+                    <span class="welcome-label">
+                        SCHOOL EVENTS
+                    </span>
+
+                    <h2>
+                        School Events
+                    </h2>
+
+                    <p>
+                        View upcoming and previous school events.
+                    </p>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    id="refreshEvents"
+                >
+                    ↻ Refresh
+                </button>
+
+            </div>
+
+            <div
+                id="eventsMessage"
+                class="message"
+                hidden
+            ></div>
+
+            <div class="stats-grid">
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        🎉
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Total Events
+                        </span>
+
+                        <strong id="totalEvents">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        📅
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Upcoming
+                        </span>
+
+                        <strong id="upcomingEvents">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        ✓
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Past Events
+                        </span>
+
+                        <strong id="pastEvents">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        📍
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Locations
+                        </span>
+
+                        <strong id="totalLocations">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <section class="dashboard-panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            School Events
+                        </h2>
+
+                        <p>
+                            Events and activities organized by the school.
+                        </p>
+
+                    </div>
+
+                    <span
+                        class="record-badge"
+                        id="eventsBadge"
+                    >
+                        0 Events
+                    </span>
+
+                </div>
+
+                <div class="table-toolbar">
+
+                    <div class="search-box">
+
+                        <span>
+                            🔍
+                        </span>
+
+                        <input
+                            type="search"
+                            id="eventSearch"
+                            placeholder="Search events..."
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+                    <select
+                        id="eventTypeFilter"
+                        class="filter-select"
+                    >
+                        <option value="all">
+                            All Types
+                        </option>
+                    </select>
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        id="clearEventFilters"
+                    >
+                        Clear
+                    </button>
+
+                </div>
+
+                <div class="table-responsive">
+
+                    <table class="data-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    #
+                                </th>
+
+                                <th>
+                                    Event
+                                </th>
+
+                                <th>
+                                    Type
+                                </th>
+
+                                <th>
+                                    Date
+                                </th>
+
+                                <th>
+                                    Time
+                                </th>
+
+                                <th>
+                                    Location
+                                </th>
+
+                                <th>
+                                    Description
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="eventsTableBody">
+
+                            <tr>
+
+                                <td
+                                    colspan="7"
+                                    class="table-empty"
+                                >
+                                    Loading events...
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                <div
+                    class="table-footer"
+                    id="eventsSummary"
+                >
+                    Showing 0 events
+                </div>
+
+                <div
+                    id="eventsEmptyState"
+                    class="empty-state"
+                    hidden
+                >
+
+                    <div class="empty-state-icon">
+                        🎉
+                    </div>
+
+                    <h3>
+                        No Events Found
+                    </h3>
+
+                    <p>
+                        No school events match your search or filters.
+                    </p>
+
+                </div>
+
+            </section>
+
+        </section>
+
+        <footer class="admin-footer">
+
+            <span>
+                © 2026 Sululta School
+            </span>
+
+            <span>
+                Student Portal
+            </span>
+
+        </footer>
+
+    </main>
+
+</div>
+
+<script
+    type="module"
+    src="/src/student-events.js"
+></script>
+
+</body>
+
+</html>

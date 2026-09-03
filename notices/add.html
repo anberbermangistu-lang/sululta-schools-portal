@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Add Notice | Sululta School Portal</title>
+
+    <link rel="stylesheet" href="../src/style.css">
+</head>
+
+<body>
+
+<div class="admin-page">
+
+    <aside class="admin-sidebar">
+
+        <div class="sidebar-brand">
+
+            <div class="school-logo">
+                SS
+            </div>
+
+            <div class="school-info">
+                <strong>Sululta School</strong>
+                <span>Admin Portal</span>
+            </div>
+
+        </div>
+
+
+        <nav class="sidebar-menu">
+
+            <div class="menu-title">
+                Main
+            </div>
+
+            <a href="../admin/dashboard.html" class="sidebar-link">
+                <span>🏠</span>
+                <span>Dashboard</span>
+            </a>
+
+
+            <div class="menu-title">
+                Management
+            </div>
+
+            <a href="../students/dashboard.html" class="sidebar-link">
+                <span>👨‍🎓</span>
+                <span>Students</span>
+            </a>
+
+            <a href="../teachers/dashboard.html" class="sidebar-link">
+                <span>👨‍🏫</span>
+                <span>Teachers</span>
+            </a>
+
+            <a href="../parents/dashboard.html" class="sidebar-link">
+                <span>👨‍👩‍👧</span>
+                <span>Parents</span>
+            </a>
+
+            <a href="../classes/dashboard.html" class="sidebar-link">
+                <span>🏫</span>
+                <span>Classes</span>
+            </a>
+
+            <a href="../subjects/dashboard.html" class="sidebar-link">
+                <span>📚</span>
+                <span>Subjects</span>
+            </a>
+
+            <a href="../exams/dashboard.html" class="sidebar-link">
+                <span>📝</span>
+                <span>Exams</span>
+            </a>
+
+            <a href="dashboard.html" class="sidebar-link active">
+                <span>📢</span>
+                <span>Notices</span>
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <a href="../login.html" class="logout-button">
+                <span>↪</span>
+                <span>Logout</span>
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <main class="admin-main">
+
+        <header class="admin-header">
+
+            <div class="header-left">
+
+                <button
+                    type="button"
+                    class="sidebar-toggle"
+                    onclick="document.querySelector('.admin-sidebar').classList.toggle('open')">
+                    ☰
+                </button>
+
+                <div>
+
+                    <span class="header-label">
+                        Academic Management
+                    </span>
+
+                    <h1>
+                        Add Notice
+                    </h1>
+
+                </div>
+
+            </div>
+
+
+            <div class="admin-profile">
+
+                <div class="admin-avatar">
+                    A
+                </div>
+
+                <div class="admin-profile-info">
+
+                    <strong>
+                        Administrator
+                    </strong>
+
+                    <span>
+                        Admin
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <section class="page-container">
+
+            <div class="page-header">
+
+                <div class="header-left">
+
+                    <div class="page-icon">
+                        📢
+                    </div>
+
+                    <div>
+
+                        <h1>
+                            Add Notice
+                        </h1>
+
+                        <p>
+                            Create a new school announcement or notice
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="header-actions">
+
+                    <a
+                        href="dashboard.html"
+                        class="btn btn-secondary">
+                        ← Back
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <div class="content-card">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            Notice Information
+                        </h2>
+
+                        <p>
+                            Enter the announcement details below
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <form id="noticeForm">
+
+                    <div class="form-grid">
+
+                        <div class="form-group form-group-full">
+
+                            <label for="title">
+                                Notice Title
+                                <span>*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                id="title"
+                                name="title"
+                                maxlength="200"
+                                placeholder="Enter notice title"
+                                required>
+
+                        </div>
+
+
+                        <div class="form-group form-group-full">
+
+                            <label for="message">
+                                Notice Message
+                                <span>*</span>
+                            </label>
+
+                            <textarea
+                                id="message"
+                                name="message"
+                                rows="7"
+                                placeholder="Write the notice message..."
+                                required></textarea>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="audience">
+                                Audience
+                                <span>*</span>
+                            </label>
+
+                            <select
+                                id="audience"
+                                name="audience"
+                                required>
+
+                                <option value="">
+                                    Select Audience
+                                </option>
+
+                                <option value="All">
+                                    All
+                                </option>
+
+                                <option value="Students">
+                                    Students
+                                </option>
+
+                                <option value="Teachers">
+                                    Teachers
+                                </option>
+
+                                <option value="Parents">
+                                    Parents
+                                </option>
+
+                                <option value="Students & Teachers">
+                                    Students & Teachers
+                                </option>
+
+                                <option value="Teachers & Parents">
+                                    Teachers & Parents
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="publish_date">
+                                Publish Date
+                                <span>*</span>
+                            </label>
+
+                            <input
+                                type="date"
+                                id="publish_date"
+                                name="publish_date"
+                                required>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="expiry_date">
+                                Expiry Date
+                            </label>
+
+                            <input
+                                type="date"
+                                id="expiry_date"
+                                name="expiry_date">
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="formMessage"
+                        class="form-message">
+                    </div>
+
+
+                    <div class="form-actions">
+
+                        <a
+                            href="dashboard.html"
+                            class="btn btn-secondary">
+                            Cancel
+                        </a>
+
+                        <button
+                            type="submit"
+                            id="saveButton"
+                            class="btn btn-primary">
+                            💾 Save Notice
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </section>
+
+
+        <footer class="admin-footer">
+
+            <span>
+                © 2026 Sululta School Portal
+            </span>
+
+            <span>
+                School Management System
+            </span>
+
+        </footer>
+
+    </main>
+
+</div>
+
+
+<script
+    type="module"
+    src="../src/notices-add.js">
+</script>
+
+</body>
+</html>

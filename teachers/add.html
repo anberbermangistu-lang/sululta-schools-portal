@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Add Teacher | Sululta Secondary School
+    </title>
+
+    <link
+        rel="icon"
+        href="data:,">
+
+    <link
+        rel="stylesheet"
+        href="/src/style.css">
+
+</head>
+
+<body>
+
+<div class="admin-page">
+
+    <aside class="admin-sidebar">
+
+        <div class="sidebar-brand">
+
+            <div class="school-logo">
+                SS
+            </div>
+
+            <div class="school-info">
+
+                <strong>
+                    Sululta Secondary School
+                </strong>
+
+                <span>
+                    School Management Portal
+                </span>
+
+            </div>
+
+        </div>
+
+        <nav class="sidebar-menu">
+
+            <div class="menu-title">
+                MAIN
+            </div>
+
+            <a
+                href="/admin/dashboard.html"
+                class="sidebar-link">
+
+                <span>🏠</span>
+                <span>Dashboard</span>
+
+            </a>
+
+            <div class="menu-title">
+                MANAGEMENT
+            </div>
+
+            <a
+                href="/students/dashboard.html"
+                class="sidebar-link">
+
+                <span>👨‍🎓</span>
+                <span>Students</span>
+
+            </a>
+
+            <a
+                href="/teachers/dashboard.html"
+                class="sidebar-link active">
+
+                <span>👨‍🏫</span>
+                <span>Teachers</span>
+
+            </a>
+
+            <a
+                href="/parents/dashboard.html"
+                class="sidebar-link">
+
+                <span>👨‍👩‍👧</span>
+                <span>Parents</span>
+
+            </a>
+
+            <a
+                href="/classes/dashboard.html"
+                class="sidebar-link">
+
+                <span>🏫</span>
+                <span>Classes</span>
+
+            </a>
+
+            <a
+                href="/subjects/dashboard.html"
+                class="sidebar-link">
+
+                <span>📚</span>
+                <span>Subjects</span>
+
+            </a>
+
+            <a
+                href="/exams/dashboard.html"
+                class="sidebar-link">
+
+                <span>📝</span>
+                <span>Exams</span>
+
+            </a>
+
+            <div class="menu-title">
+                ACADEMIC
+            </div>
+
+            <a
+                href="/attendance/dashboard.html"
+                class="sidebar-link">
+
+                <span>📅</span>
+                <span>Attendance</span>
+
+            </a>
+
+            <a
+                href="/results/dashboard.html"
+                class="sidebar-link">
+
+                <span>📊</span>
+                <span>Results</span>
+
+            </a>
+
+            <a
+                href="/timetable/dashboard.html"
+                class="sidebar-link">
+
+                <span>🗓️</span>
+                <span>Timetable</span>
+
+            </a>
+
+            <div class="menu-title">
+                SCHOOL
+            </div>
+
+            <a
+                href="/library/dashboard.html"
+                class="sidebar-link">
+
+                <span>📖</span>
+                <span>Library</span>
+
+            </a>
+
+            <a
+                href="/events/dashboard.html"
+                class="sidebar-link">
+
+                <span>🎉</span>
+                <span>Events</span>
+
+            </a>
+
+            <a
+                href="/notices/dashboard.html"
+                class="sidebar-link">
+
+                <span>🔔</span>
+                <span>Notices</span>
+
+            </a>
+
+            <div class="menu-title">
+                FINANCE
+            </div>
+
+            <a
+                href="/fees/dashboard.html"
+                class="sidebar-link">
+
+                <span>💰</span>
+                <span>Fees</span>
+
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <button
+                type="button"
+                class="logout-button"
+                id="logoutButton">
+
+                <span>↪</span>
+
+                <span>
+                    Sign Out
+                </span>
+
+            </button>
+
+        </div>
+
+    </aside>
+
+    <main class="admin-main">
+
+        <header class="admin-header">
+
+            <div class="header-left">
+
+                <button
+                    type="button"
+                    class="sidebar-toggle"
+                    id="sidebarToggle">
+
+                    ☰
+
+                </button>
+
+                <div>
+
+                    <span class="header-label">
+                        MANAGEMENT
+                    </span>
+
+                    <h1>
+                        Add Teacher
+                    </h1>
+
+                </div>
+
+            </div>
+
+            <div class="admin-profile">
+
+                <div class="admin-avatar">
+                    A
+                </div>
+
+                <div class="admin-profile-info">
+
+                    <strong>
+                        Administrator
+                    </strong>
+
+                    <span>
+                        Admin
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+        <section class="page-container">
+
+            <div class="page-header">
+
+                <div class="header-left">
+
+                    <div class="page-icon">
+                        👨‍🏫
+                    </div>
+
+                    <div>
+
+                        <h1>
+                            Add Teacher
+                        </h1>
+
+                        <p>
+                            Register a new teacher and professional information
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="header-actions">
+
+                    <a
+                        href="/teachers/dashboard.html"
+                        class="btn btn-secondary">
+
+                        ← Back
+
+                    </a>
+
+                </div>
+
+            </div>
+
+            <div
+                id="messageBox"
+                class="message"
+                hidden>
+            </div>
+
+            <section class="form-card">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            Teacher Information
+                        </h2>
+
+                        <p>
+                            Enter the teacher's personal and professional information.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <form id="teacherForm">
+
+                    <div class="form-grid">
+
+                        <div class="form-group">
+
+                            <label for="teacherId">
+                                Teacher ID
+                                <span>*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                id="teacherId"
+                                name="teacher_id"
+                                placeholder="Example: TCH001"
+                                maxlength="50"
+                                required>
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="firstName">
+                                First Name
+                                <span>*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                id="firstName"
+                                name="first_name"
+                                placeholder="Enter first name"
+                                maxlength="100"
+                                required>
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="lastName">
+                                Last Name
+                                <span>*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                id="lastName"
+                                name="last_name"
+                                placeholder="Enter last name"
+                                maxlength="100"
+                                required>
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="gender">
+                                Gender
+                                <span>*</span>
+                            </label>
+
+                            <select
+                                id="gender"
+                                name="gender"
+                                required>
+
+                                <option value="">
+                                    Select Gender
+                                </option>
+
+                                <option value="male">
+                                    Male
+                                </option>
+
+                                <option value="female">
+                                    Female
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="phone">
+                                Phone
+                            </label>
+
+                            <input
+                                type="tel"
+                                id="phone"
+                                name="phone"
+                                placeholder="Example: 0911000000"
+                                maxlength="30">
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="email">
+                                Email
+                            </label>
+
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                placeholder="teacher@example.com"
+                                maxlength="150">
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="qualification">
+                                Qualification
+                                <span>*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                id="qualification"
+                                name="qualification"
+                                placeholder="Example: BSc Mathematics"
+                                maxlength="150"
+                                required>
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="status">
+                                Status
+                                <span>*</span>
+                            </label>
+
+                            <select
+                                id="status"
+                                name="status"
+                                required>
+
+                                <option value="active">
+                                    Active
+                                </option>
+
+                                <option value="inactive">
+                                    Inactive
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="photo">
+                            Teacher Photo
+                        </label>
+
+                        <input
+                            type="file"
+                            id="photo"
+                            name="photo"
+                            accept="image/jpeg,image/png,image/webp">
+
+                        <small>
+                            JPG, PNG or WEBP. Maximum size: 2 MB.
+                        </small>
+
+                    </div>
+
+                    <div
+                        id="photoPreview"
+                        style="display:none; margin-top:15px;">
+
+                        <img
+                            id="previewImage"
+                            src=""
+                            alt="Teacher photo preview"
+                            style="
+                                width:120px;
+                                height:120px;
+                                object-fit:cover;
+                                border-radius:12px;
+                                border:1px solid #ddd;
+                            ">
+
+                    </div>
+
+                    <div class="form-actions">
+
+                        <a
+                            href="/teachers/dashboard.html"
+                            class="btn btn-secondary">
+
+                            Cancel
+
+                        </a>
+
+                        <button
+                            type="submit"
+                            id="saveButton"
+                            class="btn btn-primary">
+
+                            Save Teacher
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+        </section>
+
+        <footer class="admin-footer">
+
+            <span>
+                © 2026 Sululta Secondary School
+            </span>
+
+            <span>
+                School Management Portal
+            </span>
+
+        </footer>
+
+    </main>
+
+</div>
+
+<script
+    type="module"
+    src="/src/teacher-add.js">
+</script>
+
+</body>
+
+</html>

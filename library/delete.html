@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Delete Book | Sululta School Portal</title>
+
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="../src/style.css">
+</head>
+
+<body>
+
+<div class="admin-page">
+
+    <aside class="admin-sidebar">
+
+        <div class="sidebar-brand">
+
+            <div class="school-logo">
+                SS
+            </div>
+
+            <div class="school-info">
+                <strong>Sululta School</strong>
+                <span>Admin Portal</span>
+            </div>
+
+        </div>
+
+        <nav class="sidebar-menu">
+
+            <div class="menu-title">
+                Main
+            </div>
+
+            <a href="../dashboard.html" class="sidebar-link">
+                <span>🏠</span>
+                <span>Dashboard</span>
+            </a>
+
+            <div class="menu-title">
+                Academic Management
+            </div>
+
+            <a href="../students/dashboard.html" class="sidebar-link">
+                <span>👨‍🎓</span>
+                <span>Students</span>
+            </a>
+
+            <a href="../teachers/dashboard.html" class="sidebar-link">
+                <span>👨‍🏫</span>
+                <span>Teachers</span>
+            </a>
+
+            <a href="../parents/dashboard.html" class="sidebar-link">
+                <span>👨‍👩‍👧</span>
+                <span>Parents</span>
+            </a>
+
+            <a href="../classes/dashboard.html" class="sidebar-link">
+                <span>🏫</span>
+                <span>Classes</span>
+            </a>
+
+            <a href="../subjects/dashboard.html" class="sidebar-link">
+                <span>📚</span>
+                <span>Subjects</span>
+            </a>
+
+            <a href="../exams/dashboard.html" class="sidebar-link">
+                <span>📝</span>
+                <span>Exams</span>
+            </a>
+
+            <a href="../attendance/dashboard.html" class="sidebar-link">
+                <span>📅</span>
+                <span>Attendance</span>
+            </a>
+
+            <a href="../timetable/dashboard.html" class="sidebar-link">
+                <span>🗓️</span>
+                <span>Timetable</span>
+            </a>
+
+            <a href="../results/dashboard.html" class="sidebar-link">
+                <span>📊</span>
+                <span>Results</span>
+            </a>
+
+            <a href="dashboard.html" class="sidebar-link active">
+                <span>📖</span>
+                <span>Books</span>
+            </a>
+
+            <a href="../events/dashboard.html" class="sidebar-link">
+                <span>🎉</span>
+                <span>Events</span>
+            </a>
+
+            <a href="../notices/dashboard.html" class="sidebar-link">
+                <span>📢</span>
+                <span>Notices</span>
+            </a>
+
+            <div class="menu-title">
+                Finance
+            </div>
+
+            <a href="../fees/dashboard.html" class="sidebar-link">
+                <span>💰</span>
+                <span>Fees</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <a href="../login.html" class="logout-button">
+                <span>↪</span>
+                <span>Logout</span>
+            </a>
+
+        </div>
+
+    </aside>
+
+    <main class="admin-main">
+
+        <header class="admin-header">
+
+            <div class="header-left">
+
+                <button
+                    type="button"
+                    class="sidebar-toggle"
+                    id="sidebarToggle"
+                    aria-label="Toggle sidebar">
+                    ☰
+                </button>
+
+                <div>
+
+                    <span class="header-label">
+                        Academic Management
+                    </span>
+
+                    <h1>
+                        Books
+                    </h1>
+
+                </div>
+
+            </div>
+
+            <div class="admin-profile">
+
+                <div class="admin-avatar">
+                    A
+                </div>
+
+                <div class="admin-profile-info">
+                    <strong>Administrator</strong>
+                    <span>Admin</span>
+                </div>
+
+            </div>
+
+        </header>
+
+        <section class="page-container">
+
+            <div class="page-header">
+
+                <div class="header-left">
+
+                    <div class="page-icon">
+                        📖
+                    </div>
+
+                    <div>
+
+                        <h1>
+                            Delete Book
+                        </h1>
+
+                        <p>
+                            Remove a library book from the system
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="header-actions">
+
+                    <a
+                        href="dashboard.html"
+                        class="btn btn-secondary">
+                        ← Back
+                    </a>
+
+                </div>
+
+            </div>
+
+            <div
+                id="messageBox"
+                class="message">
+            </div>
+
+            <section
+                id="loadingState"
+                class="form-card">
+
+                <div class="empty-state">
+
+                    <div class="empty-icon">
+                        ⏳
+                    </div>
+
+                    <strong>
+                        Loading book information...
+                    </strong>
+
+                    <span>
+                        Please wait.
+                    </span>
+
+                </div>
+
+            </section>
+
+            <section
+                id="errorState"
+                class="form-card"
+                hidden>
+
+                <div class="empty-state">
+
+                    <div class="empty-icon">
+                        ⚠️
+                    </div>
+
+                    <strong>
+                        Unable to Load Book
+                    </strong>
+
+                    <span
+                        id="errorMessage">
+                        Unable to load the requested book.
+                    </span>
+
+                    <button
+                        type="button"
+                        id="retryButton"
+                        class="btn btn-primary">
+                        Try Again
+                    </button>
+
+                </div>
+
+            </section>
+
+            <section
+                id="deleteContent"
+                class="form-card"
+                hidden>
+
+                <div class="delete-confirmation">
+
+                    <div class="delete-icon">
+                        🗑️
+                    </div>
+
+                    <h2>
+                        Delete This Book?
+                    </h2>
+
+                    <p>
+                        You are about to permanently remove this book
+                        from the school library.
+                    </p>
+
+                    <div class="delete-book-info">
+
+                        <div class="delete-book-icon">
+                            📖
+                        </div>
+
+                        <div>
+
+                            <strong id="bookTitle">
+                                —
+                            </strong>
+
+                            <span id="bookCode">
+                                —
+                            </span>
+
+                            <span id="bookAuthor">
+                                —
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="delete-warning">
+
+                        <strong>
+                            This action cannot be undone.
+                        </strong>
+
+                        <span>
+                            The book record will be permanently removed.
+                        </span>
+
+                    </div>
+
+                    <div class="form-actions">
+
+                        <a
+                            href="dashboard.html"
+                            class="btn btn-secondary">
+                            Cancel
+                        </a>
+
+                        <button
+                            type="button"
+                            id="deleteBookButton"
+                            class="btn btn-danger">
+                            🗑 Delete Book
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </section>
+
+        <footer class="admin-footer">
+
+            <span>
+                © 2026 Sululta School Portal
+            </span>
+
+            <span>
+                School Management System
+            </span>
+
+        </footer>
+
+    </main>
+
+</div>
+
+<script
+    type="module"
+    src="../src/books-delete.js">
+</script>
+
+</body>
+
+</html>

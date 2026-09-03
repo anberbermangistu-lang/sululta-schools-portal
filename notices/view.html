@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Notice Details | Sululta School Portal</title>
+
+    <link rel="stylesheet" href="../src/style.css">
+</head>
+
+<body>
+
+<div class="admin-page">
+
+    <aside class="admin-sidebar">
+
+        <div class="sidebar-brand">
+
+            <div class="school-logo">
+                SS
+            </div>
+
+            <div class="school-info">
+                <strong>Sululta School</strong>
+                <span>Admin Portal</span>
+            </div>
+
+        </div>
+
+
+        <nav class="sidebar-menu">
+
+            <div class="menu-title">
+                Main
+            </div>
+
+            <a href="../admin/dashboard.html" class="sidebar-link">
+                <span>🏠</span>
+                <span>Dashboard</span>
+            </a>
+
+
+            <div class="menu-title">
+                Management
+            </div>
+
+            <a href="../students/dashboard.html" class="sidebar-link">
+                <span>👨‍🎓</span>
+                <span>Students</span>
+            </a>
+
+            <a href="../teachers/dashboard.html" class="sidebar-link">
+                <span>👨‍🏫</span>
+                <span>Teachers</span>
+            </a>
+
+            <a href="../parents/dashboard.html" class="sidebar-link">
+                <span>👨‍👩‍👧</span>
+                <span>Parents</span>
+            </a>
+
+            <a href="../classes/dashboard.html" class="sidebar-link">
+                <span>🏫</span>
+                <span>Classes</span>
+            </a>
+
+            <a href="../subjects/dashboard.html" class="sidebar-link">
+                <span>📚</span>
+                <span>Subjects</span>
+            </a>
+
+            <a href="../exams/dashboard.html" class="sidebar-link">
+                <span>📝</span>
+                <span>Exams</span>
+            </a>
+
+            <a href="dashboard.html" class="sidebar-link active">
+                <span>📢</span>
+                <span>Notices</span>
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <a href="../login.html" class="logout-button">
+                <span>↪</span>
+                <span>Logout</span>
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <main class="admin-main">
+
+        <header class="admin-header">
+
+            <div class="header-left">
+
+                <button
+                    type="button"
+                    class="sidebar-toggle"
+                    onclick="document.querySelector('.admin-sidebar').classList.toggle('open')">
+                    ☰
+                </button>
+
+                <div>
+
+                    <span class="header-label">
+                        Academic Management
+                    </span>
+
+                    <h1>
+                        Notice Details
+                    </h1>
+
+                </div>
+
+            </div>
+
+
+            <div class="admin-profile">
+
+                <div class="admin-avatar">
+                    A
+                </div>
+
+                <div class="admin-profile-info">
+
+                    <strong>
+                        Administrator
+                    </strong>
+
+                    <span>
+                        Admin
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <section class="page-container">
+
+            <div class="page-header">
+
+                <div class="header-left">
+
+                    <div class="page-icon">
+                        📢
+                    </div>
+
+                    <div>
+
+                        <h1>
+                            Notice Details
+                        </h1>
+
+                        <p>
+                            View complete information about this notice
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="header-actions">
+
+                    <a
+                        href="dashboard.html"
+                        class="btn btn-secondary">
+                        ← Back
+                    </a>
+
+                    <a
+                        href="#"
+                        id="editButton"
+                        class="btn btn-primary">
+                        ✏️ Edit Notice
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="loading"
+                class="content-card">
+
+                <div class="table-empty">
+                    Loading notice...
+                </div>
+
+            </div>
+
+
+            <div
+                id="noticeContent"
+                style="display:none;">
+
+                <div class="content-card notice-detail-card">
+
+                    <div class="notice-detail-header">
+
+                        <div class="notice-detail-icon">
+                            📢
+                        </div>
+
+                        <div class="notice-detail-heading">
+
+                            <h2 id="noticeTitle">
+                                —
+                            </h2>
+
+                            <span
+                                id="noticeAudience"
+                                class="notice-badge">
+                                —
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="notice-message-section">
+
+                        <h3>
+                            Notice Message
+                        </h3>
+
+                        <div
+                            id="noticeMessage"
+                            class="notice-message">
+                            —
+                        </div>
+
+                    </div>
+
+
+                    <div class="notice-info-section">
+
+                        <h3>
+                            Notice Information
+                        </h3>
+
+
+                        <div class="detail-grid">
+
+                            <div class="detail-item">
+
+                                <span class="detail-label">
+                                    Audience
+                                </span>
+
+                                <strong
+                                    id="noticeAudienceDetails">
+                                    —
+                                </strong>
+
+                            </div>
+
+
+                            <div class="detail-item">
+
+                                <span class="detail-label">
+                                    Publish Date
+                                </span>
+
+                                <strong
+                                    id="noticePublishDate">
+                                    —
+                                </strong>
+
+                            </div>
+
+
+                            <div class="detail-item">
+
+                                <span class="detail-label">
+                                    Expiry Date
+                                </span>
+
+                                <strong
+                                    id="noticeExpiryDate">
+                                    —
+                                </strong>
+
+                            </div>
+
+
+                            <div class="detail-item">
+
+                                <span class="detail-label">
+                                    Created At
+                                </span>
+
+                                <strong
+                                    id="noticeCreatedAt">
+                                    —
+                                </strong>
+
+                            </div>
+
+
+                            <div class="detail-item">
+
+                                <span class="detail-label">
+                                    Updated At
+                                </span>
+
+                                <strong
+                                    id="noticeUpdatedAt">
+                                    —
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="errorCard"
+                class="content-card"
+                style="display:none;">
+
+                <div class="table-empty">
+                    Notice could not be loaded.
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <footer class="admin-footer">
+
+            <span>
+                © 2026 Sululta School Portal
+            </span>
+
+            <span>
+                School Management System
+            </span>
+
+        </footer>
+
+    </main>
+
+</div>
+
+
+<script
+    type="module"
+    src="../src/notices-view.js">
+</script>
+
+</body>
+</html>

@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Add Student | Sululta Secondary School
+    </title>
+
+    <link
+        rel="icon"
+        href="data:,"
+    >
+
+    <link
+        rel="stylesheet"
+        href="/src/style.css"
+    >
+
+</head>
+
+<body>
+
+<div class="admin-page">
+
+    <aside class="admin-sidebar">
+
+        <div class="sidebar-brand">
+
+            <div class="school-logo">
+                SS
+            </div>
+
+            <div class="school-info">
+
+                <strong>
+                    Sululta Secondary School
+                </strong>
+
+                <span>
+                    School Management Portal
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <nav class="sidebar-menu">
+
+            <div class="menu-title">
+                MAIN
+            </div>
+
+
+            <a
+                href="/admin/dashboard.html"
+                class="sidebar-link"
+            >
+
+                <span>
+                    🏠
+                </span>
+
+                <span>
+                    Dashboard
+                </span>
+
+            </a>
+
+
+            <div class="menu-title">
+                MANAGEMENT
+            </div>
+
+
+            <a
+                href="/students/dashboard.html"
+                class="sidebar-link active"
+            >
+
+                <span>
+                    👨‍🎓
+                </span>
+
+                <span>
+                    Students
+                </span>
+
+            </a>
+
+
+            <a
+                href="/teachers/dashboard.html"
+                class="sidebar-link"
+            >
+
+                <span>
+                    👨‍🏫
+                </span>
+
+                <span>
+                    Teachers
+                </span>
+
+            </a>
+
+
+            <a
+                href="/parents/dashboard.html"
+                class="sidebar-link"
+            >
+
+                <span>
+                    👨‍👩‍👧
+                </span>
+
+                <span>
+                    Parents
+                </span>
+
+            </a>
+
+
+            <a
+                href="/classes/dashboard.html"
+                class="sidebar-link"
+            >
+
+                <span>
+                    🏫
+                </span>
+
+                <span>
+                    Classes
+                </span>
+
+            </a>
+
+
+            <a
+                href="/subjects/dashboard.html"
+                class="sidebar-link"
+            >
+
+                <span>
+                    📚
+                </span>
+
+                <span>
+                    Subjects
+                </span>
+
+            </a>
+
+
+            <div class="menu-title">
+                ACADEMIC
+            </div>
+
+
+            <a
+                href="/exams/dashboard.html"
+                class="sidebar-link"
+            >
+
+                <span>
+                    📝
+                </span>
+
+                <span>
+                    Exams
+                </span>
+
+            </a>
+
+
+            <a
+                href="/attendance/dashboard.html"
+                class="sidebar-link"
+            >
+
+                <span>
+                    📅
+                </span>
+
+                <span>
+                    Attendance
+                </span>
+
+            </a>
+
+
+            <a
+                href="/results/dashboard.html"
+                class="sidebar-link"
+            >
+
+                <span>
+                    📊
+                </span>
+
+                <span>
+                    Results
+                </span>
+
+            </a>
+
+
+            <a
+                href="/timetable/dashboard.html"
+                class="sidebar-link"
+            >
+
+                <span>
+                    🗓️
+                </span>
+
+                <span>
+                    Timetable
+                </span>
+
+            </a>
+
+
+            <div class="menu-title">
+                SCHOOL
+            </div>
+
+
+            <a
+                href="/library/dashboard.html"
+                class="sidebar-link"
+            >
+
+                <span>
+                    📖
+                </span>
+
+                <span>
+                    Books
+                </span>
+
+            </a>
+
+
+            <a
+                href="/fees/dashboard.html"
+                class="sidebar-link"
+            >
+
+                <span>
+                    💰
+                </span>
+
+                <span>
+                    Fees
+                </span>
+
+            </a>
+
+
+            <a
+                href="/events/dashboard.html"
+                class="sidebar-link"
+            >
+
+                <span>
+                    🎉
+                </span>
+
+                <span>
+                    Events
+                </span>
+
+            </a>
+
+
+            <a
+                href="/notices/dashboard.html"
+                class="sidebar-link"
+            >
+
+                <span>
+                    🔔
+                </span>
+
+                <span>
+                    Notices
+                </span>
+
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <button
+                type="button"
+                class="logout-button"
+                id="logoutButton"
+            >
+
+                <span>
+                    ↪
+                </span>
+
+                <span>
+                    Sign Out
+                </span>
+
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <main class="admin-main">
+
+
+        <header class="admin-header">
+
+            <div class="header-left">
+
+                <button
+                    type="button"
+                    class="sidebar-toggle"
+                    id="sidebarToggle"
+                    aria-label="Toggle sidebar"
+                >
+                    ☰
+                </button>
+
+
+                <div>
+
+                    <span class="header-label">
+                        SCHOOL MANAGEMENT
+                    </span>
+
+                    <h1>
+                        Add Student
+                    </h1>
+
+                </div>
+
+            </div>
+
+
+            <div class="admin-profile">
+
+                <div
+                    class="admin-avatar"
+                    id="adminAvatar"
+                >
+                    A
+                </div>
+
+
+                <div class="admin-profile-info">
+
+                    <strong id="adminHeaderName">
+                        Administrator
+                    </strong>
+
+                    <span>
+                        Admin
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <section class="dashboard-content">
+
+
+            <div class="student-management-card">
+
+                <div class="student-management-content">
+
+                    <span class="student-management-label">
+                        STUDENT MANAGEMENT
+                    </span>
+
+                    <h2>
+                        Add Student
+                    </h2>
+
+                    <p>
+                        Register a new student and assign the student to a class.
+                    </p>
+
+                </div>
+
+
+                <div class="student-management-icon">
+                    👨‍🎓
+                </div>
+
+            </div>
+
+
+            <div
+                id="messageBox"
+                class="message"
+                hidden
+            ></div>
+
+
+            <div class="page-header">
+
+                <div>
+
+                    <span class="welcome-label">
+                        STUDENT RECORDS
+                    </span>
+
+                    <h1>
+                        Add Student
+                    </h1>
+
+                    <p>
+                        Enter the student's personal and academic information.
+                    </p>
+
+                </div>
+
+
+                <div class="header-actions">
+
+                    <a
+                        href="/students/dashboard.html"
+                        class="btn btn-secondary"
+                    >
+                        ← Back
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <section class="dashboard-panel">
+
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            Student Information
+                        </h2>
+
+                        <p>
+                            Enter the student's personal and academic information.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <form
+                    id="studentForm"
+                    enctype="multipart/form-data"
+                >
+
+
+                    <div class="form-grid">
+
+
+                        <div class="form-group">
+
+                            <label for="studentId">
+
+                                Student ID
+
+                                <span>
+                                    *
+                                </span>
+
+                            </label>
+
+
+                            <input
+                                type="text"
+                                id="studentId"
+                                name="student_id"
+                                placeholder="Example: STU001"
+                                maxlength="50"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="firstName">
+
+                                First Name
+
+                                <span>
+                                    *
+                                </span>
+
+                            </label>
+
+
+                            <input
+                                type="text"
+                                id="firstName"
+                                name="first_name"
+                                placeholder="Enter first name"
+                                maxlength="100"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="lastName">
+
+                                Last Name
+
+                                <span>
+                                    *
+                                </span>
+
+                            </label>
+
+
+                            <input
+                                type="text"
+                                id="lastName"
+                                name="last_name"
+                                placeholder="Enter last name"
+                                maxlength="100"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="gender">
+
+                                Gender
+
+                                <span>
+                                    *
+                                </span>
+
+                            </label>
+
+
+                            <select
+                                id="gender"
+                                name="gender"
+                                required
+                            >
+
+                                <option value="">
+                                    Select Gender
+                                </option>
+
+                                <option value="male">
+                                    Male
+                                </option>
+
+                                <option value="female">
+                                    Female
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="dateOfBirth">
+                                Date of Birth
+                            </label>
+
+
+                            <input
+                                type="date"
+                                id="dateOfBirth"
+                                name="date_of_birth"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="phone">
+                                Phone
+                            </label>
+
+
+                            <input
+                                type="tel"
+                                id="phone"
+                                name="phone"
+                                placeholder="Example: 0911000000"
+                                maxlength="30"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="email">
+                                Email
+                            </label>
+
+
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                placeholder="student@example.com"
+                                maxlength="150"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="classId">
+
+                                Class
+
+                                <span>
+                                    *
+                                </span>
+
+                            </label>
+
+
+                            <select
+                                id="classId"
+                                name="class_id"
+                                required
+                            >
+
+                                <option value="">
+                                    Loading classes...
+                                </option>
+
+                            </select>
+
+
+                            <small class="form-help">
+                                Select the class assigned to this student.
+                            </small>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="section">
+                                Section
+                            </label>
+
+
+                            <input
+                                type="text"
+                                id="section"
+                                name="section"
+                                placeholder="Example: A"
+                                maxlength="20"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="status">
+
+                                Status
+
+                                <span>
+                                    *
+                                </span>
+
+                            </label>
+
+
+                            <select
+                                id="status"
+                                name="status"
+                                required
+                            >
+
+                                <option value="active">
+                                    Active
+                                </option>
+
+                                <option value="inactive">
+                                    Inactive
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+
+                        <label for="photo">
+                            Student Photo
+                        </label>
+
+
+                        <input
+                            type="file"
+                            id="photo"
+                            name="photo"
+                            accept="image/jpeg,image/png,image/webp"
+                        >
+
+
+                        <small class="form-help">
+                            JPG, PNG or WEBP. Maximum size: 5 MB.
+                        </small>
+
+                    </div>
+
+
+                    <div
+                        id="photoPreview"
+                        hidden
+                    >
+
+                        <img
+                            id="previewImage"
+                            src=""
+                            alt="Student photo preview"
+                        >
+
+                    </div>
+
+
+                    <div class="form-actions">
+
+
+                        <a
+                            href="/students/dashboard.html"
+                            class="btn btn-secondary"
+                        >
+                            Cancel
+                        </a>
+
+
+                        <button
+                            type="submit"
+                            id="saveButton"
+                            class="btn btn-primary"
+                        >
+                            Save Student
+                        </button>
+
+
+                    </div>
+
+
+                </form>
+
+            </section>
+
+        </section>
+
+
+        <footer class="admin-footer">
+
+            <span>
+                © 2026 Sululta Secondary School
+            </span>
+
+            <span>
+                School Management Portal
+            </span>
+
+        </footer>
+
+    </main>
+
+</div>
+<script
+    type="module"
+    src="/src/student-add.js"
+></script>
+</body>
+
+</html>

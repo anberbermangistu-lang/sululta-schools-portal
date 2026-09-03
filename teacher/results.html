@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Results | Sululta School
+    </title>
+
+    <link
+        rel="icon"
+        href="data:,"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../src/style.css"
+    >
+
+</head>
+
+<body>
+
+<div class="admin-page">
+
+    <aside class="admin-sidebar">
+
+        <div class="sidebar-brand">
+
+            <div class="school-logo">
+                SS
+            </div>
+
+            <div class="school-info">
+
+                <strong>
+                    Sululta School
+                </strong>
+
+                <span>
+                    Teacher Portal
+                </span>
+
+            </div>
+
+        </div>
+
+        <nav class="sidebar-menu">
+
+            <div class="menu-title">
+                MAIN
+            </div>
+
+            <a
+                href="/teacher/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>🏠</span>
+                <span>Dashboard</span>
+            </a>
+
+            <div class="menu-title">
+                ACADEMIC
+            </div>
+
+            <a
+                href="/teacher/classes.html"
+                class="sidebar-link"
+            >
+                <span>🏫</span>
+                <span>My Classes</span>
+            </a>
+
+            <a
+                href="/teacher/students.html"
+                class="sidebar-link"
+            >
+                <span>👨‍🎓</span>
+                <span>My Students</span>
+            </a>
+
+            <a
+                href="/teacher/attendance.html"
+                class="sidebar-link"
+            >
+                <span>📅</span>
+                <span>Attendance</span>
+            </a>
+
+            <a
+                href="/teacher/results.html"
+                class="sidebar-link active"
+            >
+                <span>📊</span>
+                <span>Results</span>
+            </a>
+
+            <a
+                href="/teacher/timetable.html"
+                class="sidebar-link"
+            >
+                <span>🗓️</span>
+                <span>Timetable</span>
+            </a>
+
+            <div class="menu-title">
+                ACCOUNT
+            </div>
+
+            <a
+                href="/teacher/profile.html"
+                class="sidebar-link"
+            >
+                <span>👤</span>
+                <span>My Profile</span>
+            </a>
+
+            <a
+                href="/teacher/password.html"
+                class="sidebar-link"
+            >
+                <span>🔐</span>
+                <span>Change Password</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <button
+                type="button"
+                class="logout-button"
+                id="logoutButton"
+            >
+                <span>↪</span>
+                <span>Logout</span>
+            </button>
+
+        </div>
+
+    </aside>
+
+    <main class="admin-main">
+
+        <header class="admin-header">
+
+            <div class="header-left">
+
+                <button
+                    type="button"
+                    class="sidebar-toggle"
+                    id="sidebarToggle"
+                    aria-label="Toggle sidebar"
+                >
+                    ☰
+                </button>
+
+                <div>
+
+                    <span class="header-label">
+                        TEACHER PORTAL
+                    </span>
+
+                    <h1>
+                        Results
+                    </h1>
+
+                </div>
+
+            </div>
+
+            <div class="admin-profile">
+
+                <div
+                    class="admin-avatar"
+                    id="teacherAvatar"
+                >
+                    T
+                </div>
+
+                <div class="admin-profile-info">
+
+                    <strong id="teacherHeaderName">
+                        Teacher
+                    </strong>
+
+                    <span>
+                        Teacher
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+        <section class="page-container">
+
+            <div class="page-header">
+
+                <div class="header-left">
+
+                    <div class="page-icon">
+                        📊
+                    </div>
+
+                    <div>
+
+                        <span class="welcome-label">
+                            ACADEMIC PERFORMANCE
+                        </span>
+
+                        <h1>
+                            Student Results
+                        </h1>
+
+                        <p>
+                            Enter and manage academic results for your students.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="header-actions">
+
+                    <button
+                        type="button"
+                        id="refreshResults"
+                        class="btn btn-secondary"
+                    >
+                        ↻ Refresh
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div
+                id="resultsMessage"
+                class="message"
+                hidden
+            ></div>
+
+            <section class="students-records-card">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            Select Class
+                        </h2>
+
+                        <p>
+                            Select one of your assigned classes and subject.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="students-filter-bar">
+
+                    <select id="classSelect">
+
+                        <option value="">
+                            Select Class
+                        </option>
+
+                    </select>
+
+                    <select id="subjectSelect">
+
+                        <option value="">
+                            Select Subject
+                        </option>
+
+                    </select>
+
+                    <select id="examType">
+
+                        <option value="">
+                            Select Exam Type
+                        </option>
+
+                        <option value="Midterm">
+                            Midterm
+                        </option>
+
+                        <option value="Final">
+                            Final
+                        </option>
+
+                        <option value="Quiz">
+                            Quiz
+                        </option>
+
+                        <option value="Assignment">
+                            Assignment
+                        </option>
+
+                    </select>
+
+                    <button
+                        type="button"
+                        id="loadStudents"
+                        class="btn btn-primary"
+                    >
+                        Load Students
+                    </button>
+
+                </div>
+
+            </section>
+
+            <section
+                class="students-records-card"
+                id="resultsPanel"
+                hidden
+            >
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2 id="selectedClassTitle">
+                            Student Results
+                        </h2>
+
+                        <p>
+                            Enter marks for your students.
+                        </p>
+
+                    </div>
+
+                    <span
+                        class="panel-badge"
+                        id="studentCount"
+                    >
+                        0 Students
+                    </span>
+
+                </div>
+
+                <div class="students-toolbar">
+
+                    <span>
+                        Enter marks from 0 to 100
+                    </span>
+
+                    <button
+                        type="button"
+                        id="saveResults"
+                        class="btn btn-primary"
+                    >
+                        Save Results
+                    </button>
+
+                </div>
+
+                <div class="students-table-wrapper">
+
+                    <table class="students-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    #
+                                </th>
+
+                                <th>
+                                    Student
+                                </th>
+
+                                <th>
+                                    Student ID
+                                </th>
+
+                                <th>
+                                    Mark
+                                </th>
+
+                                <th>
+                                    Grade
+                                </th>
+
+                                <th>
+                                    Remark
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="resultsTableBody">
+
+                            <tr>
+
+                                <td
+                                    colspan="6"
+                                    class="table-empty"
+                                >
+                                    Select a class, subject and exam type,
+                                    then click Load Students.
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </section>
+
+        <footer class="admin-footer">
+
+            <span>
+                © 2026 Sululta School Portal
+            </span>
+
+            <span>
+                Teacher Portal
+            </span>
+
+        </footer>
+
+    </main>
+
+</div>
+
+<script
+    type="module"
+    src="../src/teacher-results.js"
+></script>
+
+</body>
+
+</html>

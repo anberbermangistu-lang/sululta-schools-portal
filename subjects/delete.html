@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Delete Subject | Sululta School Portal</title>
+
+    <link rel="stylesheet" href="../src/style.css">
+</head>
+
+<body>
+
+<div class="admin-page">
+
+    <aside class="admin-sidebar">
+
+        <div class="sidebar-brand">
+            <div class="school-logo">SS</div>
+
+            <div class="school-info">
+                <strong>Sululta School</strong>
+                <span>Admin Portal</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-menu">
+
+            <div class="menu-title">Main</div>
+
+            <a href="../admin/dashboard.html" class="sidebar-link">
+                <span>🏠</span>
+                <span>Dashboard</span>
+            </a>
+
+            <div class="menu-title">Management</div>
+
+            <a href="../students/dashboard.html" class="sidebar-link">
+                <span>👨‍🎓</span>
+                <span>Students</span>
+            </a>
+
+            <a href="../teachers/dashboard.html" class="sidebar-link">
+                <span>👨‍🏫</span>
+                <span>Teachers</span>
+            </a>
+
+            <a href="../parents/dashboard.html" class="sidebar-link">
+                <span>👨‍👩‍👧</span>
+                <span>Parents</span>
+            </a>
+
+            <a href="../classes/dashboard.html" class="sidebar-link">
+                <span>🏫</span>
+                <span>Classes</span>
+            </a>
+
+            <a href="dashboard.html" class="sidebar-link active">
+                <span>📚</span>
+                <span>Subjects</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <a href="../login.html" class="logout-button">
+                <span>↪</span>
+                <span>Logout</span>
+            </a>
+
+        </div>
+
+    </aside>
+
+    <main class="admin-main">
+
+        <header class="admin-header">
+
+            <div class="header-left">
+
+                <button
+                    type="button"
+                    class="sidebar-toggle">
+                    ☰
+                </button>
+
+                <div>
+                    <span class="header-label">
+                        Academic Management
+                    </span>
+
+                    <h1>Delete Subject</h1>
+                </div>
+
+            </div>
+
+            <div class="admin-profile">
+
+                <div class="admin-avatar">
+                    A
+                </div>
+
+                <div class="admin-profile-info">
+                    <strong>Administrator</strong>
+                    <span>Admin</span>
+                </div>
+
+            </div>
+
+        </header>
+
+        <div class="page-container">
+
+            <div class="page-header">
+
+                <div class="header-left">
+
+                    <div class="page-icon">
+                        🗑️
+                    </div>
+
+                    <div>
+                        <h1>Delete Subject</h1>
+
+                        <p>
+                            Remove this subject from the school portal
+                        </p>
+                    </div>
+
+                </div>
+
+                <div class="header-actions">
+
+                    <a
+                        href="dashboard.html"
+                        class="btn btn-secondary">
+                        ← Back
+                    </a>
+
+                </div>
+
+            </div>
+
+            <div
+                id="message"
+                class="message"
+                style="display:none;">
+            </div>
+
+            <div
+                id="loading"
+                class="loading">
+
+                <div class="loading-spinner"></div>
+
+                <span style="margin-left:10px;">
+                    Loading subject...
+                </span>
+
+            </div>
+
+            <div
+                id="deleteCard"
+                class="form-card"
+                style="display:none;">
+
+                <div
+                    style="
+                        text-align:center;
+                        padding:20px 10px;
+                    ">
+
+                    <div
+                        style="
+                            width:70px;
+                            height:70px;
+                            margin:0 auto 18px;
+                            display:flex;
+                            align-items:center;
+                            justify-content:center;
+                            border-radius:50%;
+                            background:#fef2f2;
+                            color:#dc2626;
+                            font-size:30px;
+                        ">
+                        🗑️
+                    </div>
+
+                    <h2
+                        id="subjectName"
+                        style="
+                            margin-bottom:8px;
+                            color:#0f172a;
+                            font-size:22px;
+                            font-weight:800;
+                        ">
+                        Subject
+                    </h2>
+
+                    <p
+                        id="subjectCode"
+                        style="
+                            margin-bottom:18px;
+                            color:#64748b;
+                            font-size:13px;
+                            font-weight:600;
+                        ">
+                    </p>
+
+                    <div
+                        style="
+                            max-width:600px;
+                            margin:0 auto 24px;
+                            padding:14px 16px;
+                            border:1px solid #fecaca;
+                            border-radius:10px;
+                            background:#fef2f2;
+                            color:#991b1b;
+                            font-size:12px;
+                            line-height:1.6;
+                        ">
+
+                        <strong>Warning:</strong>
+
+                        Deleting this subject is permanent.
+                        The subject will be removed from the
+                        Supabase database.
+
+                    </div>
+
+                    <div
+                        class="form-actions"
+                        style="
+                            justify-content:center;
+                            border-top:0;
+                            padding-top:0;
+                        ">
+
+                        <a
+                            href="dashboard.html"
+                            class="btn btn-secondary">
+                            Cancel
+                        </a>
+
+                        <button
+                            type="button"
+                            id="deleteButton"
+                            class="btn btn-danger">
+                            🗑️ Delete Subject
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <footer class="admin-footer">
+
+            <span>
+                © 2026 Sululta School Portal
+            </span>
+
+            <span>
+                School Management System
+            </span>
+
+        </footer>
+
+    </main>
+
+</div>
+
+<script type="module" src="../src/subjects-delete.js"></script>
+
+</body>
+</html>
