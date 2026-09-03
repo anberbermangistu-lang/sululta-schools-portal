@@ -47,7 +47,7 @@ function setupLogout() {
             return;
         }
 
-        window.location.href = "/login.html";
+        window.location.replace("/login.html");
     });
 }
 
@@ -58,7 +58,7 @@ async function checkAdmin() {
     } = await supabase.auth.getUser();
 
     if (error || !user) {
-        window.location.href = "/login.html";
+        window.location.replace("/login.html");
         return false;
     }
 
@@ -81,7 +81,7 @@ async function checkAdmin() {
 
     if (profileError || !profile) {
         await supabase.auth.signOut();
-        window.location.href = "/login.html";
+        window.location.replace("/login.html");
         return false;
     }
 
@@ -90,7 +90,7 @@ async function checkAdmin() {
         String(profile.status).toLowerCase() !== "active"
     ) {
         await supabase.auth.signOut();
-        window.location.href = "/login.html";
+        window.location.replace("/login.html");
         return false;
     }
 
@@ -132,7 +132,7 @@ function updateAdminProfile(profile) {
 }
 
 async function loadStudents() {
-    if (!studentSelect) return;
+    if (!studentSelect) return false;
 
     studentSelect.innerHTML = "";
 
@@ -171,15 +171,14 @@ async function loadStudents() {
         const option = document.createElement("option");
         option.value = "";
         option.textContent = "Unable to load students";
-
         studentSelect.appendChild(option);
 
         showMessage(
-            "Unable to load students: " + error.message,
+            `Unable to load students: ${error.message}`,
             "error"
         );
 
-        return;
+        return false;
     }
 
     students = data || [];
@@ -194,11 +193,13 @@ async function loadStudents() {
     students.forEach(student => {
         const option = document.createElement("option");
 
-        option.value = student.id;
+        option.value = String(student.id);
+
+        const name =
+            `${student.first_name || ""} ${student.last_name || ""}`.trim();
 
         option.textContent =
-            `${student.student_id || "No ID"} - ` +
-            `${student.first_name || ""} ${student.last_name || ""}`.trim();
+            `${student.student_id || "No ID"} - ${name || "Unnamed Student"}`;
 
         studentSelect.appendChild(option);
     });
@@ -212,6 +213,8 @@ async function loadStudents() {
 
         studentSelect.appendChild(option);
     }
+
+    return true;
 }
 
 function handleRoleChange() {
@@ -221,8 +224,6 @@ function handleRoleChange() {
 
     if (role === "student") {
         studentSelectGroup.hidden = false;
-
-        loadStudents();
     } else {
         studentSelectGroup.hidden = true;
 
@@ -235,12 +236,12 @@ function handleRoleChange() {
 function handleStudentChange() {
     if (!studentSelect) return;
 
-    const studentId = Number(studentSelect.value);
+    const selectedId = studentSelect.value;
 
-    if (!studentId) return;
+    if (!selectedId) return;
 
     const student = students.find(
-        item => Number(item.id) === studentId
+        item => String(item.id) === String(selectedId)
     );
 
     if (!student) return;
@@ -453,8 +454,9 @@ form?.addEventListener(
             }
 
             setTimeout(() => {
-                window.location.href =
-                    "/admin/users.html";
+                window.location.replace(
+                    "/admin/users.html"
+                );
             }, 1200);
 
         } catch (error) {
@@ -487,6 +489,10 @@ async function initialize() {
     if (!isAdmin) {
         return;
     }
+
+    await loadStudents();
+
+    handleRoleChange();
 }
 
 initialize();
