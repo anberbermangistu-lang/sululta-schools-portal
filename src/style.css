@@ -4045,5 +4045,210 @@ img {
     .dashboard-content,
     .page-container {
         padding: 12px;
+    }@media (max-width: 900px) {
+    .admin-page {
+        width: 100%;
+        min-width: 0;
     }
+
+    .admin-main {
+        width: 100%;
+        min-width: 0;
+        margin-left: 0;
+    }
+
+    .dashboard-content {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .page-header {
+        width: 100%;
+        min-width: 0;
+        gap: 16px;
+    }
+
+    .page-header > div {
+        min-width: 0;
+    }
+
+    .page-header h2 {
+        overflow-wrap: anywhere;
+    }
+
+    .dashboard-panel {
+        width: 100%;
+        min-width: 0;
+    }
+
+    #userForm {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .form-group {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    .form-actions {
+        width: 100%;
+        display: flex;
+        gap: 10px;
+    }
+
+    .form-actions .btn {
+        min-width: 0;
+    }
+}
+
+@media (max-width: 600px) {
+    .admin-header {
+        width: 100%;
+        height: 64px;
+        padding: 0 14px;
+    }
+
+    .header-left {
+        min-width: 0;
+        gap: 10px;
+    }
+
+    .header-left > div {
+        min-width: 0;
+    }
+
+    .header-label {
+        font-size: 10px;
+    }
+
+    .admin-header h1 {
+        font-size: 20px;
+        white-space: nowrap;
+    }
+
+    .admin-profile {
+        gap: 8px;
+        min-width: 0;
+    }
+
+    .admin-profile-info {
+        display: none;
+    }
+
+    .dashboard-content {
+        padding: 16px;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+    }
+
+    .page-header h2 {
+        font-size: 22px;
+        line-height: 1.3;
+    }
+
+    .page-header p {
+        font-size: 14px;
+    }
+
+    .page-header > .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .dashboard-panel {
+        border-radius: 12px;
+    }
+
+    .panel-header {
+        padding: 18px 16px;
+    }
+
+    .panel-header h2 {
+        font-size: 18px;
+    }
+
+    .panel-header p {
+        font-size: 13px;
+    }
+
+    #userForm {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        padding: 16px;
+    }
+
+    .form-group {
+        grid-column: 1 / -1;
+    }
+
+    .form-group label {
+        font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        height: 44px;
+        font-size: 16px;
+    }
+
+    .form-actions {
+        grid-column: 1 / -1;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 4px;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+        min-height: 44px;
+        justify-content: center;
+    }
+
+    .admin-footer {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 6px;
+        padding: 18px 14px;
+    }
+}
+
+@media (max-width: 380px) {
+    .dashboard-content {
+        padding: 12px;
+    }
+
+    .admin-header {
+        padding: 0 10px;
+    }
+
+    .admin-header h1 {
+        font-size: 18px;
+    }
+
+    .page-header h2 {
+        font-size: 20px;
+    }
+
+    .panel-header {
+        padding: 16px 14px;
+    }
+
+    #userForm {
+        padding: 14px;
+    }
+}
 }
