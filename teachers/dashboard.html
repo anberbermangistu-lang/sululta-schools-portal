@@ -1,16 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Teachers | Sululta Secondary School</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <link rel="icon" href="data:,">
-    <link rel="stylesheet" href="/src/style.css">
+    <title>
+        Teachers | Sululta Secondary School
+    </title>
+
+    <link
+        rel="icon"
+        href="data:,"
+    >
+
+    <link
+        rel="stylesheet"
+        href="/src/style.css"
+    >
+
 </head>
 
 <body>
+
 <div class="admin-page">
 
     <aside class="admin-sidebar">
@@ -41,7 +58,10 @@
                 MAIN
             </div>
 
-            <a href="/admin/dashboard.html" class="sidebar-link">
+            <a
+                href="/admin/dashboard.html"
+                class="sidebar-link"
+            >
                 <span>🏠</span>
                 <span>Dashboard</span>
             </a>
@@ -50,51 +70,78 @@
                 MANAGEMENT
             </div>
 
-            <a href="/students/dashboard.html" class="sidebar-link">
+            <a
+                href="/students/dashboard.html"
+                class="sidebar-link"
+            >
                 <span>👨‍🎓</span>
                 <span>Students</span>
             </a>
 
-            <a href="/teachers/dashboard.html" class="sidebar-link active">
+            <a
+                href="/teachers/dashboard.html"
+                class="sidebar-link active"
+            >
                 <span>👨‍🏫</span>
                 <span>Teachers</span>
             </a>
 
-            <a href="/parents/dashboard.html" class="sidebar-link">
+            <a
+                href="/parents/dashboard.html"
+                class="sidebar-link"
+            >
                 <span>👨‍👩‍👧</span>
                 <span>Parents</span>
             </a>
 
-            <a href="/classes/dashboard.html" class="sidebar-link">
+            <a
+                href="/classes/dashboard.html"
+                class="sidebar-link"
+            >
                 <span>🏫</span>
                 <span>Classes</span>
             </a>
 
-            <a href="/subjects/dashboard.html" class="sidebar-link">
+            <a
+                href="/subjects/dashboard.html"
+                class="sidebar-link"
+            >
                 <span>📚</span>
                 <span>Subjects</span>
-            </a>
-
-            <a href="/exams/dashboard.html" class="sidebar-link">
-                <span>📝</span>
-                <span>Exams</span>
             </a>
 
             <div class="menu-title">
                 ACADEMIC
             </div>
 
-            <a href="/attendance/dashboard.html" class="sidebar-link">
+            <a
+                href="/exams/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>📝</span>
+                <span>Exams</span>
+            </a>
+
+            <a
+                href="/attendance/dashboard.html"
+                class="sidebar-link"
+            >
                 <span>📅</span>
                 <span>Attendance</span>
             </a>
 
-            <a href="/results/dashboard.html" class="sidebar-link">
+            <a
+                href="/results/dashboard.html"
+                class="sidebar-link"
+            >
                 <span>📊</span>
                 <span>Results</span>
             </a>
 
-            <a href="/timetable/dashboard.html" class="sidebar-link">
+            <a
+                href="/timetable/dashboard.html"
+                class="sidebar-link"
+            >
                 <span>🗓️</span>
                 <span>Timetable</span>
             </a>
@@ -103,28 +150,36 @@
                 SCHOOL
             </div>
 
-            <a href="/library/dashboard.html" class="sidebar-link">
+            <a
+                href="/library/dashboard.html"
+                class="sidebar-link"
+            >
                 <span>📖</span>
-                <span>Library</span>
+                <span>Books</span>
             </a>
 
-            <a href="/events/dashboard.html" class="sidebar-link">
+            <a
+                href="/fees/dashboard.html"
+                class="sidebar-link"
+            >
+                <span>💰</span>
+                <span>Fees</span>
+            </a>
+
+            <a
+                href="/events/dashboard.html"
+                class="sidebar-link"
+            >
                 <span>🎉</span>
                 <span>Events</span>
             </a>
 
-            <a href="/notices/dashboard.html" class="sidebar-link">
+            <a
+                href="/notices/dashboard.html"
+                class="sidebar-link"
+            >
                 <span>🔔</span>
                 <span>Notices</span>
-            </a>
-
-            <div class="menu-title">
-                FINANCE
-            </div>
-
-            <a href="/fees/dashboard.html" class="sidebar-link">
-                <span>💰</span>
-                <span>Fees</span>
             </a>
 
         </nav>
@@ -162,7 +217,7 @@
                 <div>
 
                     <span class="header-label">
-                        SCHOOL MANAGEMENT
+                        MANAGEMENT
                     </span>
 
                     <h1>
@@ -184,7 +239,7 @@
 
                 <div class="admin-profile-info">
 
-                    <strong id="adminHeaderName">
+                    <strong>
                         Administrator
                     </strong>
 
@@ -200,47 +255,13 @@
 
         <section class="dashboard-content">
 
-            <div class="student-management-card">
-
-                <div class="student-management-content">
-
-                    <span class="student-management-label">
-                        TEACHER MANAGEMENT
-                    </span>
-
-                    <h2>
-                        Teachers
-                    </h2>
-
-                    <p>
-                        Manage teachers and their school information.
-                    </p>
-
-                </div>
-
-                <div class="student-management-icon">
-                    👨‍🏫
-                </div>
-
-            </div>
-
-            <div
-                id="messageBox"
-                class="message"
-                hidden
-            ></div>
-
             <div class="page-header">
 
                 <div>
 
-                    <span class="welcome-label">
-                        TEACHER RECORDS
-                    </span>
-
-                    <h1>
-                        Teacher Records
-                    </h1>
+                    <h2>
+                        Teacher Management
+                    </h2>
 
                     <p>
                         View and manage registered teachers.
@@ -248,24 +269,12 @@
 
                 </div>
 
-                <div class="header-actions">
-
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        id="refreshTeachers"
-                    >
-                        ↻ Refresh
-                    </button>
-
-                    <a
-                        href="/teachers/add.html"
-                        class="student-add-button"
-                    >
-                        + Add Teacher
-                    </a>
-
-                </div>
+                <a
+                    href="/teachers/add.html"
+                    class="btn btn-primary"
+                >
+                    + Add Teacher
+                </a>
 
             </div>
 
@@ -334,7 +343,7 @@
                 <div class="stat-card">
 
                     <div class="stat-icon">
-                        ✅
+                        ✓
                     </div>
 
                     <div class="stat-content">
@@ -360,17 +369,17 @@
                     <div>
 
                         <h2>
-                            Teacher Records
+                            Teacher List
                         </h2>
 
-                        <p>
-                            View and manage registered teachers.
+                        <p id="recordSummary">
+                            Showing 0 of 0 records
                         </p>
 
                     </div>
 
                     <span
-                        class="record-badge"
+                        class="status-badge active"
                         id="recordBadge"
                     >
                         0 Records
@@ -378,14 +387,14 @@
 
                 </div>
 
-                <div class="student-toolbar">
+                <div class="filter-bar">
 
                     <div class="search-box">
 
                         <input
                             type="search"
                             id="teacherSearch"
-                            placeholder="Search by teacher ID, name or phone..."
+                            placeholder="Search teacher..."
                             autocomplete="off"
                         >
 
@@ -393,7 +402,7 @@
 
                     <select id="genderFilter">
 
-                        <option value="">
+                        <option value="all">
                             All Gender
                         </option>
 
@@ -409,7 +418,7 @@
 
                     <select id="statusFilter">
 
-                        <option value="">
+                        <option value="all">
                             All Status
                         </option>
 
@@ -423,107 +432,93 @@
 
                     </select>
 
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        id="clearFilters"
+                    >
+                        Clear
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        id="refreshTeachers"
+                    >
+                        Refresh
+                    </button>
+
                 </div>
 
-                <div class="table-wrapper">
+                <div class="table-responsive">
 
-                    <div class="table-responsive">
+                    <table class="data-table">
 
-                        <table class="data-table">
+                        <thead>
 
-                            <thead>
+                            <tr>
 
-                                <tr>
+                                <th>
+                                    #
+                                </th>
 
-                                    <th>
-                                        #
-                                    </th>
+                                <th>
+                                    Teacher
+                                </th>
 
-                                    <th>
-                                        Teacher
-                                    </th>
+                                <th>
+                                    Gender
+                                </th>
 
-                                    <th>
-                                        Gender
-                                    </th>
+                                <th>
+                                    Qualification
+                                </th>
 
-                                    <th>
-                                        Qualification
-                                    </th>
+                                <th>
+                                    Phone
+                                </th>
 
-                                    <th>
-                                        Phone
-                                    </th>
+                                <th>
+                                    Email
+                                </th>
 
-                                    <th>
-                                        Email
-                                    </th>
+                                <th>
+                                    Status
+                                </th>
 
-                                    <th>
-                                        Status
-                                    </th>
+                                <th>
+                                    Action
+                                </th>
 
-                                    <th>
-                                        Actions
-                                    </th>
+                            </tr>
 
-                                </tr>
+                        </thead>
 
-                            </thead>
+                        <tbody id="teachersTableBody">
 
-                            <tbody id="teachersTableBody">
+                            <tr>
 
-                                <tr>
+                                <td
+                                    colspan="8"
+                                    class="loading-cell"
+                                >
+                                    Loading teacher records...
+                                </td>
 
-                                    <td
-                                        colspan="8"
-                                        class="table-empty"
-                                    >
-                                        Loading teacher records...
-                                    </td>
+                            </tr>
 
-                                </tr>
+                        </tbody>
 
-                            </tbody>
-
-                        </table>
-
-                    </div>
+                    </table>
 
                 </div>
 
                 <div
+                    class="empty-dashboard"
                     id="emptyState"
-                    class="students-empty-state"
                     hidden
                 >
-
-                    <div class="empty-icon">
-                        👨‍🏫
-                    </div>
-
-                    <strong>
-                        No Teachers Found
-                    </strong>
-
-                    <span>
-                        There are currently no teachers matching your search or filters.
-                    </span>
-
-                    <a
-                        href="/teachers/add.html"
-                        class="btn btn-primary"
-                    >
-                        + Add Teacher
-                    </a>
-
-                </div>
-
-                <div
-                    class="table-footer"
-                    id="recordSummary"
-                >
-                    Showing 0 records
+                    No teacher records found.
                 </div>
 
             </section>

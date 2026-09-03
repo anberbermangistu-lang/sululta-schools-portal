@@ -3,24 +3,17 @@ import { supabase } from "./supabase.js";
 let allTeachers = [];
 
 document.addEventListener("DOMContentLoaded", () => {
-
     setupSidebar();
-
     setupLogout();
-
     setupFilters();
-
     loadTeachers();
-
 });
 
 async function loadTeachers() {
-
-    const tableBody =
-        document.getElementById("teachersTableBody");
+    const tableBody = document.getElementById("teachersTableBody");
+    const emptyState = document.getElementById("emptyState");
 
     if (tableBody) {
-
         tableBody.innerHTML = `
             <tr>
                 <td colspan="8" class="loading-cell">
@@ -28,15 +21,12 @@ async function loadTeachers() {
                 </td>
             </tr>
         `;
-
     }
 
-    try {
+    hideEmptyState(emptyState);
 
-        const {
-            data,
-            error
-        } = await supabase
+    try {
+        const { data, error } = await supabase
             .from("teachers")
             .select(`
                 id,
@@ -51,12 +41,9 @@ async function loadTeachers() {
                 status,
                 created_at
             `)
-            .order(
-                "created_at",
-                {
-                    ascending: false
-                }
-            );
+            .order("created_at", {
+                ascending: false
+            });
 
         if (error) {
             throw error;
@@ -65,18 +52,12 @@ async function loadTeachers() {
         allTeachers = data || [];
 
         updateStatistics();
-
         renderTeachers();
 
     } catch (error) {
-
-        console.error(
-            "Load teachers error:",
-            error
-        );
+        console.error("Load teachers error:", error);
 
         if (tableBody) {
-
             tableBody.innerHTML = `
                 <tr>
                     <td colspan="8" class="loading-cell">
@@ -84,149 +65,94 @@ async function loadTeachers() {
                     </td>
                 </tr>
             `;
-
         }
+
+        hideEmptyState(emptyState);
     }
 }
 
 function updateStatistics() {
+    const total = allTeachers.length;
 
-    const total =
-        allTeachers.length;
+    const male = allTeachers.filter(
+        teacher =>
+            String(teacher.gender || "").toLowerCase() === "male"
+    ).length;
 
-    const male =
-        allTeachers.filter(
-            teacher =>
-                String(
-                    teacher.gender || ""
-                ).toLowerCase() === "male"
-        ).length;
+    const female = allTeachers.filter(
+        teacher =>
+            String(teacher.gender || "").toLowerCase() === "female"
+    ).length;
 
-    const female =
-        allTeachers.filter(
-            teacher =>
-                String(
-                    teacher.gender || ""
-                ).toLowerCase() === "female"
-        ).length;
+    const active = allTeachers.filter(
+        teacher =>
+            String(teacher.status || "").toLowerCase() === "active"
+    ).length;
 
-    const active =
-        allTeachers.filter(
-            teacher =>
-                String(
-                    teacher.status || ""
-                ).toLowerCase() === "active"
-        ).length;
-
-    setText(
-        "totalTeachers",
-        total
-    );
-
-    setText(
-        "maleTeachers",
-        male
-    );
-
-    setText(
-        "femaleTeachers",
-        female
-    );
-
-    setText(
-        "activeTeachers",
-        active
-    );
-
-    setText(
-        "recordBadge",
-        `${total} Records`
-    );
+    setText("totalTeachers", total);
+    setText("maleTeachers", male);
+    setText("femaleTeachers", female);
+    setText("activeTeachers", active);
+    setText("recordBadge", `${total} Records`);
 }
 
 function renderTeachers() {
-
-    const tableBody =
-        document.getElementById(
-            "teachersTableBody"
-        );
-
-    const emptyState =
-        document.getElementById(
-            "emptyState"
-        );
+    const tableBody = document.getElementById("teachersTableBody");
+    const emptyState = document.getElementById("emptyState");
 
     if (!tableBody) {
         return;
     }
 
     const search =
-        document.getElementById(
-            "teacherSearch"
-        )?.value
+        document.getElementById("teacherSearch")?.value
             .trim()
             .toLowerCase() || "";
 
     const gender =
-        document.getElementById(
-            "genderFilter"
-        )?.value || "all";
+        document.getElementById("genderFilter")?.value || "all";
 
     const status =
-        document.getElementById(
-            "statusFilter"
-        )?.value || "all";
+        document.getElementById("statusFilter")?.value || "all";
 
-    const filtered =
-        allTeachers.filter(
-            teacher => {
+    const filtered = allTeachers.filter(teacher => {
+        const fullName =
+            `${teacher.first_name || ""} ${teacher.last_name || ""}`
+                .trim()
+                .toLowerCase();
 
-                const fullName =
-                    `${teacher.first_name || ""} ${teacher.last_name || ""}`
-                        .trim()
-                        .toLowerCase();
+        const teacherId =
+            String(teacher.teacher_id || "").toLowerCase();
 
-                const teacherId =
-                    String(
-                        teacher.teacher_id || ""
-                    ).toLowerCase();
+        const qualification =
+            String(teacher.qualification || "").toLowerCase();
 
-                const qualification =
-                    String(
-                        teacher.qualification || ""
-                    ).toLowerCase();
+        const teacherGender =
+            String(teacher.gender || "").toLowerCase();
 
-                const teacherGender =
-                    String(
-                        teacher.gender || ""
-                    ).toLowerCase();
+        const teacherStatus =
+            String(teacher.status || "").toLowerCase();
 
-                const teacherStatus =
-                    String(
-                        teacher.status || ""
-                    ).toLowerCase();
+        const matchesSearch =
+            !search ||
+            teacherId.includes(search) ||
+            fullName.includes(search) ||
+            qualification.includes(search);
 
-                const matchesSearch =
-                    !search ||
-                    teacherId.includes(search) ||
-                    fullName.includes(search) ||
-                    qualification.includes(search);
+        const matchesGender =
+            gender === "all" ||
+            teacherGender === gender;
 
-                const matchesGender =
-                    gender === "all" ||
-                    teacherGender === gender;
+        const matchesStatus =
+            status === "all" ||
+            teacherStatus === status;
 
-                const matchesStatus =
-                    status === "all" ||
-                    teacherStatus === status;
-
-                return (
-                    matchesSearch &&
-                    matchesGender &&
-                    matchesStatus
-                );
-            }
+        return (
+            matchesSearch &&
+            matchesGender &&
+            matchesStatus
         );
+    });
 
     setText(
         "recordSummary",
@@ -234,51 +160,31 @@ function renderTeachers() {
     );
 
     if (filtered.length === 0) {
-
         tableBody.innerHTML = "";
-
-        if (emptyState) {
-            emptyState.hidden = false;
-        }
-
+        showEmptyState(emptyState);
         return;
     }
 
-    if (emptyState) {
-        emptyState.hidden = true;
-    }
+    hideEmptyState(emptyState);
 
-    tableBody.innerHTML =
-        filtered
-            .map(
-                (teacher, index) =>
-                    createTeacherRow(
-                        teacher,
-                        index
-                    )
-            )
-            .join("");
+    tableBody.innerHTML = filtered
+        .map((teacher, index) =>
+            createTeacherRow(teacher, index)
+        )
+        .join("");
 }
 
-function createTeacherRow(
-    teacher,
-    index
-) {
-
+function createTeacherRow(teacher, index) {
     const fullName =
         `${teacher.first_name || ""} ${teacher.last_name || ""}`
             .trim() ||
         "Unnamed Teacher";
 
     const gender =
-        String(
-            teacher.gender || ""
-        );
+        String(teacher.gender || "");
 
     const status =
-        String(
-            teacher.status || ""
-        );
+        String(teacher.status || "");
 
     const statusClass =
         status.toLowerCase() === "active"
@@ -311,22 +217,18 @@ function createTeacherRow(
                         font-weight:700;
                     ">
                     ${escapeHtml(
-                        fullName
-                            .charAt(0)
-                            .toUpperCase()
+                        fullName.charAt(0).toUpperCase()
                     )}
                 </div>
               `;
 
     return `
         <tr>
-
             <td>
                 ${index + 1}
             </td>
 
             <td>
-
                 <div
                     style="
                         display:flex;
@@ -337,7 +239,6 @@ function createTeacherRow(
                     ${photo}
 
                     <div>
-
                         <strong>
                             ${escapeHtml(fullName)}
                         </strong>
@@ -347,17 +248,12 @@ function createTeacherRow(
                                 display:block;
                                 color:#64748b;
                             ">
-
                             ${escapeHtml(
                                 teacher.teacher_id || ""
                             )}
-
                         </small>
-
                     </div>
-
                 </div>
-
             </td>
 
             <td>
@@ -386,20 +282,12 @@ function createTeacherRow(
             </td>
 
             <td>
-
-                <span
-                    class="status-badge ${statusClass}">
-
-                    ${capitalize(
-                        status || "Unknown"
-                    )}
-
+                <span class="status-badge ${statusClass}">
+                    ${capitalize(status || "Unknown")}
                 </span>
-
             </td>
 
             <td>
-
                 <div
                     style="
                         display:flex;
@@ -410,102 +298,58 @@ function createTeacherRow(
                     <a
                         href="/teachers/view.html?id=${encodeURIComponent(teacher.id)}"
                         class="btn btn-secondary">
-
                         View
-
                     </a>
 
                     <a
                         href="/teachers/edit.html?id=${encodeURIComponent(teacher.id)}"
                         class="btn btn-primary">
-
                         Edit
-
                     </a>
 
                     <button
                         type="button"
                         class="btn btn-danger"
                         data-delete-id="${escapeHtml(teacher.id)}">
-
                         Delete
-
                     </button>
 
                 </div>
-
             </td>
-
         </tr>
     `;
 }
 
 function setupFilters() {
-
     const search =
-        document.getElementById(
-            "teacherSearch"
-        );
+        document.getElementById("teacherSearch");
 
     const gender =
-        document.getElementById(
-            "genderFilter"
-        );
+        document.getElementById("genderFilter");
 
     const status =
-        document.getElementById(
-            "statusFilter"
-        );
+        document.getElementById("statusFilter");
 
     const clear =
-        document.getElementById(
-            "clearFilters"
-        );
+        document.getElementById("clearFilters");
 
     const clearToolbar =
-        document.getElementById(
-            "clearFiltersToolbar"
-        );
+        document.getElementById("clearFiltersToolbar");
 
     const refresh =
-        document.getElementById(
-            "refreshTeachers"
-        );
+        document.getElementById("refreshTeachers");
 
-    search?.addEventListener(
-        "input",
-        renderTeachers
-    );
+    search?.addEventListener("input", renderTeachers);
+    gender?.addEventListener("change", renderTeachers);
+    status?.addEventListener("change", renderTeachers);
 
-    gender?.addEventListener(
-        "change",
-        renderTeachers
-    );
+    clear?.addEventListener("click", clearFilters);
+    clearToolbar?.addEventListener("click", clearFilters);
 
-    status?.addEventListener(
-        "change",
-        renderTeachers
-    );
-
-    clear?.addEventListener(
-        "click",
-        clearFilters
-    );
-
-    clearToolbar?.addEventListener(
-        "click",
-        clearFilters
-    );
-
-    refresh?.addEventListener(
-        "click",
-        loadTeachers
-    );
+    refresh?.addEventListener("click", loadTeachers);
 
     document
-        .getElementById(
-            "teachersTableBody"
-        )
+        .getElementById("teachersTableBody")
         ?.addEventListener(
             "click",
             handleTableClick
@@ -513,21 +357,14 @@ function setupFilters() {
 }
 
 function clearFilters() {
-
     const search =
-        document.getElementById(
-            "teacherSearch"
-        );
+        document.getElementById("teacherSearch");
 
     const gender =
-        document.getElementById(
-            "genderFilter"
-        );
+        document.getElementById("genderFilter");
 
     const status =
-        document.getElementById(
-            "statusFilter"
-        );
+        document.getElementById("statusFilter");
 
     if (search) {
         search.value = "";
@@ -545,11 +382,8 @@ function clearFilters() {
 }
 
 async function handleTableClick(event) {
-
     const button =
-        event.target.closest(
-            "[data-delete-id]"
-        );
+        event.target.closest("[data-delete-id]");
 
     if (!button) {
         return;
@@ -574,7 +408,6 @@ async function handleTableClick(event) {
     button.disabled = true;
 
     try {
-
         const {
             data: teacher,
             error: findError
@@ -600,16 +433,12 @@ async function handleTableClick(event) {
         }
 
         if (teacher?.photo_url) {
-
-            await deletePhoto(
-                teacher.photo_url
-            );
+            await deletePhoto(teacher.photo_url);
         }
 
         await loadTeachers();
 
     } catch (error) {
-
         console.error(
             "Delete teacher error:",
             error
@@ -625,9 +454,7 @@ async function handleTableClick(event) {
 }
 
 async function deletePhoto(photoUrl) {
-
     try {
-
         const marker =
             "/storage/v1/object/public/teacher-photos/";
 
@@ -649,26 +476,19 @@ async function deletePhoto(photoUrl) {
             .remove([path]);
 
     } catch (error) {
-
         console.error(
             "Photo delete error:",
             error
         );
-
     }
 }
 
 function setupSidebar() {
-
     const toggle =
-        document.getElementById(
-            "sidebarToggle"
-        );
+        document.getElementById("sidebarToggle");
 
     const sidebar =
-        document.querySelector(
-            ".admin-sidebar"
-        );
+        document.querySelector(".admin-sidebar");
 
     if (!toggle || !sidebar) {
         return;
@@ -677,21 +497,16 @@ function setupSidebar() {
     toggle.addEventListener(
         "click",
         () => {
-
             sidebar.classList.toggle(
                 "mobile-open"
             );
-
         }
     );
 }
 
 function setupLogout() {
-
     const logoutButton =
-        document.getElementById(
-            "logoutButton"
-        );
+        document.getElementById("logoutButton");
 
     if (!logoutButton) {
         return;
@@ -700,13 +515,10 @@ function setupLogout() {
     logoutButton.addEventListener(
         "click",
         async () => {
-
-            const {
-                error
-            } = await supabase.auth.signOut();
+            const { error } =
+                await supabase.auth.signOut();
 
             if (error) {
-
                 console.error(
                     "Logout error:",
                     error
@@ -718,16 +530,29 @@ function setupLogout() {
             window.location.assign(
                 "/login.html"
             );
-
         }
     );
 }
 
-function setText(
-    id,
-    value
-) {
+function showEmptyState(element) {
+    if (!element) {
+        return;
+    }
 
+    element.hidden = false;
+    element.style.display = "block";
+}
+
+function hideEmptyState(element) {
+    if (!element) {
+        return;
+    }
+
+    element.hidden = true;
+    element.style.display = "none";
+}
+
+function setText(id, value) {
     const element =
         document.getElementById(id);
 
@@ -737,7 +562,6 @@ function setText(
 }
 
 function capitalize(value) {
-
     const text =
         String(value || "");
 
@@ -752,26 +576,10 @@ function capitalize(value) {
 }
 
 function escapeHtml(value) {
-
     return String(value ?? "")
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
-        );
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
