@@ -4094,4 +4094,32 @@ button,
         transform: translateX(0);
         visibility: visible;
     }
+}@media (max-width: 900px) {
+    .admin-sidebar {
+        height: 100vh;
+        max-height: 100vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-bottom: 20px;
+    }
+
+    .sidebar-menu {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+    }
+
+    .sidebar-bottom {
+        flex-shrink: 0;
+        padding-bottom: 20px;
+    }
+
+    .logout-button,
+    .logout-btn {
+        width: 100%;
+        min-height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+    }
 }
