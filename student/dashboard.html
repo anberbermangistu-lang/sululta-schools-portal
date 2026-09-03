@@ -7,8 +7,7 @@
 
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+        content="width=device-width, initial-scale=1.0">
 
     <title>
         My Dashboard | Sululta Secondary School
@@ -16,13 +15,11 @@
 
     <link
         rel="icon"
-        href="data:,"
-    >
+        href="data:,">
 
     <link
         rel="stylesheet"
-        href="/src/style.css"
-    >
+        href="/src/style.css">
 
 </head>
 
@@ -52,7 +49,6 @@
 
         </div>
 
-
         <nav class="sidebar-menu">
 
             <div class="menu-title">
@@ -61,75 +57,52 @@
 
             <a
                 href="/student/dashboard.html"
-                class="sidebar-link active"
-            >
+                class="sidebar-link active">
+
                 <span>🏠</span>
                 <span>My Dashboard</span>
-            </a>
 
+            </a>
 
             <div class="menu-title">
                 ACADEMIC
             </div>
 
             <a
+                href="/student/subjects.html"
+                class="sidebar-link">
+
+                <span>📚</span>
+                <span>My Subjects</span>
+
+            </a>
+
+            <a
                 href="/student/results.html"
-                class="sidebar-link"
-            >
+                class="sidebar-link">
+
                 <span>📊</span>
-                <span>My Results</span>
+                <span>Results</span>
+
             </a>
 
             <a
                 href="/student/attendance.html"
-                class="sidebar-link"
-            >
+                class="sidebar-link">
+
                 <span>📅</span>
                 <span>Attendance</span>
+
             </a>
 
             <a
                 href="/student/timetable.html"
-                class="sidebar-link"
-            >
+                class="sidebar-link">
+
                 <span>🗓️</span>
-                <span>My Timetable</span>
+                <span>Timetable</span>
+
             </a>
-
-            <a
-                href="/student/subjects.html"
-                class="sidebar-link"
-            >
-                <span>📚</span>
-                <span>My Subjects</span>
-            </a>
-
-
-            <div class="menu-title">
-                LIBRARY
-            </div>
-
-            <a
-                href="/student/books.html"
-                class="sidebar-link"
-            >
-                <span>📖</span>
-                <span>My Books</span>
-            </a>
-
-
-            <div class="menu-title">
-                FINANCE
-            </div>
-
-            <a
-                href="/student/fees.html"
-                class="sidebar-link"
-            >
-                <span>💰</span>
-                <span>My Fees</span>
-            </a>
-
 
             <div class="menu-title">
                 SCHOOL
@@ -137,20 +110,30 @@
 
             <a
                 href="/student/notices.html"
-                class="sidebar-link"
-            >
+                class="sidebar-link">
+
                 <span>📢</span>
                 <span>Notices</span>
+
             </a>
 
             <a
                 href="/student/events.html"
-                class="sidebar-link"
-            >
-                <span>🎉</span>
+                class="sidebar-link">
+
+                <span>📅</span>
                 <span>Events</span>
+
             </a>
 
+            <a
+                href="/student/books.html"
+                class="sidebar-link">
+
+                <span>📚</span>
+                <span>Library</span>
+
+            </a>
 
             <div class="menu-title">
                 ACCOUNT
@@ -158,41 +141,41 @@
 
             <a
                 href="/student/profile.html"
-                class="sidebar-link"
-            >
+                class="sidebar-link">
+
                 <span>👤</span>
                 <span>My Profile</span>
+
             </a>
 
             <a
                 href="/student/password.html"
-                class="sidebar-link"
-            >
+                class="sidebar-link">
+
                 <span>🔐</span>
                 <span>Change Password</span>
+
             </a>
 
         </nav>
-
 
         <div class="sidebar-bottom">
 
             <button
                 type="button"
                 class="logout-button"
-                id="logoutButton"
-            >
+                id="logoutButton">
+
                 <span>↪</span>
-                <span>Logout</span>
+                <span>Sign Out</span>
+
             </button>
 
         </div>
 
     </aside>
 
-
     <main class="admin-main">
-
 
         <header class="admin-header">
 
@@ -202,9 +185,10 @@
                     type="button"
                     class="sidebar-toggle"
                     id="sidebarToggle"
-                    aria-label="Toggle sidebar"
-                >
+                    aria-label="Toggle sidebar">
+
                     ☰
+
                 </button>
 
                 <div>
@@ -221,14 +205,14 @@
 
             </div>
 
-
             <div class="admin-profile">
 
                 <div
-                    class="admin-avatar student-header-photo"
-                    id="studentAvatar"
-                >
+                    class="admin-avatar"
+                    id="studentAvatar">
+
                     S
+
                 </div>
 
                 <div class="admin-profile-info">
@@ -247,51 +231,60 @@
 
         </header>
 
-
         <section class="page-container">
 
+            <div class="welcome-card">
 
-            <div class="page-header">
+                <div>
 
-                <div class="header-left">
+                    <span class="welcome-label">
+                        WELCOME BACK
+                    </span>
 
-                    <div class="page-icon">
-                        👨‍🎓
-                    </div>
+                    <h2 id="welcomeName">
+                        Hello, Student
+                    </h2>
 
-                    <div>
+                    <p>
+                        View your personal school information
+                        and academic progress.
+                    </p>
 
-                        <span class="welcome-label">
-                            STUDENT DASHBOARD
-                        </span>
+                </div>
 
-                        <h1>
-                            Welcome,
-                            <span id="welcomeName">
-                                Student
-                            </span>
-                        </h1>
-
-                        <p>
-                            View your personal school information and academic progress.
-                        </p>
-
-                    </div>
-
+                <div class="welcome-decoration">
+                    SS
                 </div>
 
             </div>
 
-
             <div
                 id="studentMessage"
                 class="message"
-                hidden
-            ></div>
-
+                hidden>
+            </div>
 
             <div class="stats-grid">
 
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        👤
+                    </div>
+
+                    <div class="stat-content">
+
+                        <span>
+                            Student
+                        </span>
+
+                        <strong id="profileName">
+                            Loading...
+                        </strong>
+
+                    </div>
+
+                </div>
 
                 <div class="stat-card">
 
@@ -313,7 +306,6 @@
 
                 </div>
 
-
                 <div class="stat-card">
 
                     <div class="stat-icon">
@@ -334,32 +326,10 @@
 
                 </div>
 
-
                 <div class="stat-card">
 
                     <div class="stat-icon">
-                        📚
-                    </div>
-
-                    <div class="stat-content">
-
-                        <span>
-                            Section
-                        </span>
-
-                        <strong id="studentSection">
-                            -
-                        </strong>
-
-                    </div>
-
-                </div>
-
-
-                <div class="stat-card">
-
-                    <div class="stat-icon">
-                        ✅
+                        ✓
                     </div>
 
                     <div class="stat-content">
@@ -378,65 +348,103 @@
 
             </div>
 
+            <div class="dashboard-layout">
 
-            <section class="students-records-card student-profile-card">
+                <section class="dashboard-panel">
 
+                    <div class="panel-header">
 
-                <div class="panel-header">
+                        <div>
 
-                    <div>
+                            <h2>
+                                Student Information
+                            </h2>
 
-                        <span class="welcome-label">
-                            STUDENT PROFILE
-                        </span>
+                            <p>
+                                Your registered student information
+                            </p>
 
-                        <h2>
-                            My Information
-                        </h2>
-
-                        <p>
-                            Your registered student information.
-                        </p>
+                        </div>
 
                     </div>
 
-                </div>
+                    <div class="overview-grid">
 
-
-                <div class="student-personal-profile">
-
-
-                    <div class="student-profile-header">
-
-
-                        <div
-                            class="student-avatar"
-                            id="profileAvatar"
-                        >
-                            S
-                        </div>
-
-
-                        <div class="student-details">
-
-                            <h2 id="profileName">
-                                Student
-                            </h2>
+                        <div class="overview-item">
 
                             <span>
-                                Student ID:
-                                <strong id="profileStudentId">
-                                    -
-                                </strong>
+                                👤
                             </span>
 
-                            <div class="student-status-badge">
+                            <div>
 
-                                <span class="status-dot"></span>
-
-                                <strong id="profileStatus">
-                                    Active
+                                <strong>
+                                    Name
                                 </strong>
+
+                                <small id="profileStudentId">
+                                    Loading...
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                        <div class="overview-item">
+
+                            <span>
+                                ✉
+                            </span>
+
+                            <div>
+
+                                <strong>
+                                    Email
+                                </strong>
+
+                                <small id="email">
+                                    Loading...
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                        <div class="overview-item">
+
+                            <span>
+                                📞
+                            </span>
+
+                            <div>
+
+                                <strong>
+                                    Phone
+                                </strong>
+
+                                <small id="phone">
+                                    Not provided
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                        <div class="overview-item">
+
+                            <span>
+                                ✓
+                            </span>
+
+                            <div>
+
+                                <strong>
+                                    Account Status
+                                </strong>
+
+                                <small id="profileStatus">
+                                    Active
+                                </small>
 
                             </div>
 
@@ -444,152 +452,297 @@
 
                     </div>
 
+                </section>
 
-                    <div class="student-information-grid">
+                <section class="dashboard-panel">
 
+                    <div class="panel-header">
 
-                        <div class="information-item">
+                        <div>
 
-                            <span>
+                            <h2>
+                                Quick Access
+                            </h2>
+
+                            <p>
+                                Access your school information
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="quick-actions">
+
+                        <a
+                            href="/student/profile.html"
+                            class="quick-action">
+
+                            <div class="quick-action-icon">
+                                👤
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    My Profile
+                                </strong>
+
+                                <small>
+                                    View personal information
+                                </small>
+
+                            </div>
+
+                        </a>
+
+                        <a
+                            href="/student/attendance.html"
+                            class="quick-action">
+
+                            <div class="quick-action-icon">
+                                📅
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Attendance
+                                </strong>
+
+                                <small>
+                                    View attendance
+                                </small>
+
+                            </div>
+
+                        </a>
+
+                        <a
+                            href="/student/results.html"
+                            class="quick-action">
+
+                            <div class="quick-action-icon">
+                                📊
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Results
+                                </strong>
+
+                                <small>
+                                    View academic results
+                                </small>
+
+                            </div>
+
+                        </a>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+            <section class="dashboard-panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            Personal Details
+                        </h2>
+
+                        <p>
+                            Your registered student details
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="overview-grid">
+
+                    <div class="overview-item">
+
+                        <span>
+                            👤
+                        </span>
+
+                        <div>
+
+                            <strong>
                                 First Name
-                            </span>
-
-                            <strong id="firstName">
-                                -
                             </strong>
+
+                            <small id="firstName">
+                                -
+                            </small>
 
                         </div>
 
+                    </div>
 
-                        <div class="information-item">
+                    <div class="overview-item">
 
-                            <span>
+                        <span>
+                            👤
+                        </span>
+
+                        <div>
+
+                            <strong>
                                 Last Name
-                            </span>
-
-                            <strong id="lastName">
-                                -
                             </strong>
+
+                            <small id="lastName">
+                                -
+                            </small>
 
                         </div>
 
+                    </div>
 
-                        <div class="information-item">
+                    <div class="overview-item">
 
-                            <span>
+                        <span>
+                            🆔
+                        </span>
+
+                        <div>
+
+                            <strong>
                                 Student ID
-                            </span>
-
-                            <strong id="profileStudentIdDetails">
-                                -
                             </strong>
+
+                            <small id="profileStudentIdDetails">
+                                -
+                            </small>
 
                         </div>
 
+                    </div>
 
-                        <div class="information-item">
+                    <div class="overview-item">
 
-                            <span>
+                        <span>
+                            ⚥
+                        </span>
+
+                        <div>
+
+                            <strong>
                                 Gender
-                            </span>
-
-                            <strong id="gender">
-                                -
                             </strong>
+
+                            <small id="gender">
+                                -
+                            </small>
 
                         </div>
 
+                    </div>
 
-                        <div class="information-item">
+                    <div class="overview-item">
 
-                            <span>
+                        <span>
+                            🎂
+                        </span>
+
+                        <div>
+
+                            <strong>
                                 Date of Birth
-                            </span>
-
-                            <strong id="dateOfBirth">
-                                -
                             </strong>
+
+                            <small id="dateOfBirth">
+                                -
+                            </small>
 
                         </div>
 
+                    </div>
 
-                        <div class="information-item">
+                    <div class="overview-item">
 
-                            <span>
-                                Email
-                            </span>
+                        <span>
+                            🏫
+                        </span>
 
-                            <strong id="email">
-                                -
-                            </strong>
+                        <div>
 
-                        </div>
-
-
-                        <div class="information-item">
-
-                            <span>
-                                Phone
-                            </span>
-
-                            <strong id="phone">
-                                -
-                            </strong>
-
-                        </div>
-
-
-                        <div class="information-item">
-
-                            <span>
+                            <strong>
                                 Class
-                            </span>
-
-                            <strong id="className">
-                                -
                             </strong>
+
+                            <small id="className">
+                                -
+                            </small>
 
                         </div>
 
+                    </div>
 
-                        <div class="information-item">
+                    <div class="overview-item">
 
-                            <span>
+                        <span>
+                            📚
+                        </span>
+
+                        <div>
+
+                            <strong>
                                 Section
-                            </span>
-
-                            <strong id="section">
-                                -
                             </strong>
+
+                            <small id="section">
+                                -
+                            </small>
 
                         </div>
 
+                    </div>
 
-                        <div class="information-item">
+                    <div class="overview-item">
 
-                            <span>
+                        <span>
+                            📍
+                        </span>
+
+                        <div>
+
+                            <strong>
                                 Address
-                            </span>
-
-                            <strong id="address">
-                                -
                             </strong>
+
+                            <small id="address">
+                                -
+                            </small>
 
                         </div>
 
+                    </div>
 
-                        <div class="information-item">
+                    <div class="overview-item">
 
-                            <span>
+                        <span>
+                            ✓
+                        </span>
+
+                        <div>
+
+                            <strong>
                                 Account Status
-                            </span>
-
-                            <strong id="accountStatus">
-                                -
                             </strong>
 
-                        </div>
+                            <small id="accountStatus">
+                                -
+                            </small>
 
+                        </div>
 
                     </div>
 
@@ -597,9 +750,7 @@
 
             </section>
 
-
         </section>
-
 
         <footer class="admin-footer">
 
@@ -613,16 +764,14 @@
 
         </footer>
 
-
     </main>
 
 </div>
 
-
 <script
     type="module"
-    src="/src/student-dashboard.js"
-></script>
+    src="/src/student-dashboard.js">
+</script>
 
 </body>
 
