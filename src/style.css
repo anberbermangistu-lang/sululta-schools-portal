@@ -3461,4 +3461,588 @@ button,
 .delete-btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+}@media (max-width: 600px) {
+    html,
+    body {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .admin-page,
+    .admin-main {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    .admin-header {
+        width: 100%;
+        padding: 0 12px;
+        gap: 8px;
+    }
+
+    .header-left {
+        min-width: 0;
+        gap: 8px;
+    }
+
+    .header-left > div {
+        min-width: 0;
+    }
+
+    .admin-header h1 {
+        max-width: 190px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .sidebar-toggle {
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+    }
+
+    .admin-profile {
+        flex-shrink: 0;
+    }
+
+    .admin-avatar {
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+    }
+
+    .dashboard-content,
+    .page-container {
+        width: 100%;
+        max-width: 100%;
+        padding: 14px 12px;
+        overflow-x: hidden;
+    }
+
+    .page-header {
+        width: 100%;
+        margin-bottom: 15px;
+        gap: 12px;
+    }
+
+    .page-header h1,
+    .student-page-title h1,
+    .teacher-page-title h1,
+    .parent-page-title h1 {
+        font-size: 19px;
+        line-height: 1.3;
+    }
+
+    .page-header p,
+    .student-page-title p,
+    .teacher-page-title p,
+    .parent-page-title p {
+        font-size: 11px;
+        line-height: 1.5;
+    }
+
+    .dashboard-welcome {
+        width: 100%;
+        margin-bottom: 14px;
+        padding: 17px;
+        border-radius: 15px;
+    }
+
+    .welcome-content h2 {
+        font-size: 20px;
+        line-height: 1.3;
+    }
+
+    .welcome-content p {
+        font-size: 11px;
+        line-height: 1.55;
+    }
+
+    .stats-grid,
+    .admin-stats {
+        width: 100%;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .stat-card {
+        min-width: 0;
+        min-height: 76px;
+        padding: 10px;
+        gap: 8px;
+        border-radius: 12px;
+    }
+
+    .stat-icon {
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+        font-size: 14px;
+        border-radius: 9px;
+    }
+
+    .stat-content {
+        min-width: 0;
+    }
+
+    .stat-content span {
+        font-size: 9px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .stat-content strong {
+        font-size: 17px;
+    }
+
+    .dashboard-grid,
+    .admin-grid {
+        width: 100%;
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .dashboard-panel,
+    .admin-panel,
+    .student-panel,
+    .teacher-panel,
+    .parent-panel,
+    .content-card,
+    .form-card,
+    .details-card {
+        width: 100%;
+        min-width: 0;
+        padding: 15px;
+        border-radius: 13px;
+    }
+
+    .panel-header {
+        gap: 8px;
+        margin-bottom: 13px;
+        padding-bottom: 11px;
+    }
+
+    .panel-header h2 {
+        font-size: 14px;
+    }
+
+    .panel-header p {
+        font-size: 10px;
+    }
+
+    .quick-actions,
+    .quick-action-grid {
+        width: 100%;
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .quick-action {
+        min-width: 0;
+        min-height: 65px;
+        padding: 10px;
+    }
+
+    .quick-action-icon {
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        font-size: 16px;
+    }
+
+    .quick-action strong {
+        font-size: 12px;
+    }
+
+    .quick-action small,
+    .quick-action span {
+        font-size: 9px;
+    }
+
+    .overview-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .overview-item {
+        min-width: 0;
+        min-height: 68px;
+        padding: 10px;
+        gap: 8px;
+    }
+
+    .overview-item > span {
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+        font-size: 15px;
+    }
+
+    .overview-item strong {
+        font-size: 10px;
+    }
+
+    .overview-item small {
+        font-size: 8px;
+    }
+
+    .student-management-card,
+    .teacher-management-card,
+    .parent-management-card {
+        width: 100%;
+        min-width: 0;
+        margin-bottom: 12px;
+        padding: 15px;
+        gap: 12px;
+        border-radius: 13px;
+    }
+
+    .student-management-content,
+    .teacher-management-content,
+    .parent-management-content {
+        min-width: 0;
+    }
+
+    .student-management-content h2,
+    .teacher-management-content h2,
+    .parent-management-content h2 {
+        font-size: 17px;
+    }
+
+    .student-management-content p,
+    .teacher-management-content p,
+    .parent-management-content p {
+        font-size: 10px;
+    }
+
+    .student-management-icon,
+    .teacher-management-icon,
+    .parent-management-icon {
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        font-size: 18px;
+    }
+
+    .student-toolbar,
+    .teacher-toolbar,
+    .parent-toolbar,
+    .exam-toolbar {
+        width: 100%;
+        grid-template-columns: 1fr;
+        gap: 8px;
+        padding: 10px;
+        margin-bottom: 12px;
+    }
+
+    .student-toolbar input,
+    .student-toolbar select,
+    .teacher-toolbar input,
+    .teacher-toolbar select,
+    .parent-toolbar input,
+    .parent-toolbar select,
+    .exam-toolbar input,
+    .exam-toolbar select {
+        width: 100%;
+        height: 40px;
+    }
+
+    .classes-toolbar {
+        width: 100%;
+        padding: 10px;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .filter-group {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .filter-group select {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .table-wrapper,
+    .classes-table-card,
+    .students-table-wrapper,
+    .results-table-wrapper {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .data-table,
+    .classes-table,
+    .students-table,
+    .results-table,
+    .exam-table {
+        min-width: 700px;
+    }
+
+    .table-actions,
+    .student-actions,
+    .teacher-actions,
+    .parent-actions,
+    .action-buttons {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 5px;
+        white-space: nowrap;
+    }
+
+    .action-btn,
+    .student-actions .btn,
+    .teacher-actions .btn,
+    .parent-actions .btn,
+    .action-buttons .btn {
+        flex-shrink: 0;
+    }
+
+    .form-grid {
+        width: 100%;
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .form-card,
+    .details-card {
+        padding: 15px;
+    }
+
+    .form-section-header,
+    .form-section-content {
+        padding: 15px;
+    }
+
+    .details-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .detail-item {
+        min-height: 70px;
+        padding: 12px;
+    }
+
+    .detail-item strong {
+        font-size: 12px;
+    }
+
+    .student-profile-card,
+    .teacher-profile-card,
+    .parent-profile-card {
+        width: 100%;
+        padding: 14px;
+        gap: 12px;
+    }
+
+    .student-profile-left,
+    .teacher-profile-left,
+    .parent-profile-left {
+        width: 100%;
+        min-width: 0;
+        gap: 10px;
+    }
+
+    .student-profile-name,
+    .teacher-profile-name,
+    .parent-profile-name {
+        min-width: 0;
+    }
+
+    .student-profile-name h2,
+    .teacher-profile-name h2,
+    .parent-profile-name h2 {
+        font-size: 17px;
+        overflow-wrap: anywhere;
+    }
+
+    .student-profile-name p,
+    .teacher-profile-name p,
+    .parent-profile-name p {
+        font-size: 10px;
+    }
+
+    .student-information-card {
+        width: 100%;
+        border-radius: 15px;
+    }
+
+    .student-profile-overview {
+        width: 100%;
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .student-profile-photo {
+        width: 100%;
+        max-width: none;
+        padding: 20px 14px;
+    }
+
+    .student-avatar-large {
+        width: 105px;
+        height: 105px;
+        min-width: 105px;
+        font-size: 30px;
+    }
+
+    .student-information-grid {
+        width: 100%;
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .information-item {
+        min-height: 66px;
+        padding: 12px 14px;
+    }
+
+    .information-item strong {
+        font-size: 12px;
+    }
+
+    .card-grid {
+        width: 100%;
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .module-card {
+        width: 100%;
+        padding: 14px;
+    }
+
+    .notice-item,
+    .activity-item {
+        min-width: 0;
+    }
+
+    .notice-content,
+    .activity-item > div {
+        min-width: 0;
+    }
+
+    .notice-content p {
+        overflow-wrap: anywhere;
+    }
+
+    .notice-date {
+        display: none;
+    }
+
+    .photo-upload-area {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .photo-upload-info {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .photo-upload-info input[type="file"] {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .form-actions,
+    .page-actions {
+        width: 100%;
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    .form-actions .btn,
+    .page-actions .btn,
+    .student-add-button,
+    .teacher-add-button,
+    .parent-add-button,
+    .btn-add {
+        width: 100%;
+    }
+
+    .pagination {
+        justify-content: center;
+        flex-wrap: wrap;
+        padding: 11px;
+    }
+
+    .login-page {
+        width: 100%;
+        min-height: 100svh;
+        padding: 12px;
+    }
+
+    .login-card {
+        width: 100%;
+        max-width: 420px;
+        padding: 22px 16px;
+        border-radius: 17px;
+    }
+
+    .login-brand h1 {
+        font-size: 19px;
+    }
+
+    .admin-footer {
+        width: 100%;
+        padding: 13px 12px;
+    }
+}
+
+@media (max-width: 380px) {
+    .dashboard-content,
+    .page-container {
+        padding: 12px 9px;
+    }
+
+    .admin-header {
+        padding: 0 9px;
+    }
+
+    .admin-header h1 {
+        max-width: 145px;
+        font-size: 14px;
+    }
+
+    .stats-grid,
+    .admin-stats,
+    .overview-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stat-card {
+        min-height: 70px;
+    }
+
+    .dashboard-welcome {
+        padding: 14px;
+    }
+
+    .welcome-content h2 {
+        font-size: 18px;
+    }
+
+    .dashboard-panel,
+    .admin-panel,
+    .student-panel,
+    .teacher-panel,
+    .parent-panel,
+    .content-card,
+    .form-card,
+    .details-card {
+        padding: 12px;
+    }
 }
