@@ -4088,49 +4088,34 @@ button,
         height: 38px;
         min-width: 38px;
         font-size: 17px;
-    }
-}@media (max-width: 900px) {
+    }@media (max-width: 900px) {
     .admin-sidebar {
         width: 220px;
         max-width: 78vw;
         height: 100dvh;
-        max-height: 100dvh;
-        padding-bottom: 0;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-    }
-
-    .sidebar-brand {
-        flex-shrink: 0;
-    }
-
-    .sidebar-menu {
-        flex: 1;
-        min-height: 0;
         overflow-y: auto;
         overflow-x: hidden;
         padding-bottom: 10px;
     }
 
+    .sidebar-menu {
+        flex: none;
+        overflow: visible;
+    }
+
     .sidebar-bottom {
-        flex-shrink: 0;
-        position: relative;
-        z-index: 20;
-        padding: 12px 15px 16px;
-        background: var(--surface);
-        border-top: 1px solid var(--border);
+        position: static;
+        padding: 12px 15px;
+        margin: 0;
+        border-top: 0;
+        background: transparent;
+        z-index: auto;
     }
 
     .logout-button,
     .logout-btn {
-        position: relative;
-        z-index: 30;
         width: 100%;
         min-height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
     }
 }
 
@@ -4141,6 +4126,6 @@ button,
     }
 
     .sidebar-bottom {
-        padding: 10px 12px 14px;
+        padding: 10px 12px;
     }
-}
+}}
