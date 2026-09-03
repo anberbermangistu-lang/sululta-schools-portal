@@ -28,3 +28,5 @@ dist/
 .env.local.backup
 supabase/.temp/
 supabase/.temp/
+Sululta-School-Portal-Final.zip
+supabase_backup.sql
