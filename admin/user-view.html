@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Information - Sululta Secondary School</title>
+    <link rel="stylesheet" href="../src/style.css">
+</head>
+<body>
+
+<div class="admin-page">
+
+    <aside class="admin-sidebar">
+
+        <div class="sidebar-brand">
+            <div class="sidebar-school">
+                <strong>Sululta School</strong>
+                <span>Admin Portal</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-menu">
+
+            <div class="menu-title">MAIN</div>
+
+            <a href="/admin/dashboard.html" class="sidebar-link">
+                <span>🏠</span>
+                <span>Dashboard</span>
+            </a>
+
+            <div class="menu-title">MANAGEMENT</div>
+
+            <a href="/students/dashboard.html" class="sidebar-link">
+                <span>👨‍🎓</span>
+                <span>Students</span>
+            </a>
+
+            <a href="/teachers/dashboard.html" class="sidebar-link">
+                <span>👨‍🏫</span>
+                <span>Teachers</span>
+            </a>
+
+            <a href="/classes/dashboard.html" class="sidebar-link">
+                <span>🏫</span>
+                <span>Classes</span>
+            </a>
+
+            <a href="/parents/dashboard.html" class="sidebar-link">
+                <span>👨‍👩‍👧</span>
+                <span>Parents</span>
+            </a>
+
+            <a href="/subjects/dashboard.html" class="sidebar-link">
+                <span>📚</span>
+                <span>Subjects</span>
+            </a>
+
+            <a href="/attendance/dashboard.html" class="sidebar-link">
+                <span>📋</span>
+                <span>Attendance</span>
+            </a>
+
+            <a href="/results/dashboard.html" class="sidebar-link">
+                <span>📊</span>
+                <span>Results</span>
+            </a>
+
+            <a href="/exams/dashboard.html" class="sidebar-link">
+                <span>📝</span>
+                <span>Exams</span>
+            </a>
+
+            <a href="/fees/dashboard.html" class="sidebar-link">
+                <span>💰</span>
+                <span>Fees</span>
+            </a>
+
+            <a href="/notices/dashboard.html" class="sidebar-link">
+                <span>📢</span>
+                <span>Notices</span>
+            </a>
+
+            <div class="menu-title">ACCOUNT</div>
+
+            <a href="/admin/users.html" class="sidebar-link active">
+                <span>👥</span>
+                <span>Users</span>
+            </a>
+
+            <a href="/admin/user-add.html" class="sidebar-link">
+                <span>➕</span>
+                <span>Create User</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+            <button type="button" class="sidebar-link sidebar-logout" id="logoutButton">
+                <span>🚪</span>
+                <span>Logout</span>
+            </button>
+        </div>
+
+    </aside>
+
+    <main class="admin-main">
+
+        <header class="admin-header">
+
+            <div class="header-left">
+                <button type="button" class="sidebar-toggle" id="sidebarToggle">☰</button>
+
+                <div>
+                    <span class="header-label">USER MANAGEMENT</span>
+                    <h1>User Information</h1>
+                </div>
+            </div>
+
+            <div class="admin-profile">
+                <div class="admin-avatar">A</div>
+                <div class="admin-profile-info">
+                    <strong>Admin</strong>
+                    <span>Administrator</span>
+                </div>
+            </div>
+
+        </header>
+
+        <section class="page-container">
+
+            <div class="page-header">
+
+                <div>
+                    <div class="page-title-row">
+                        <div class="page-title-icon">👤</div>
+                        <div>
+                            <h2>User Information</h2>
+                            <p>Complete information about this user account.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="/admin/users.html" class="btn btn-secondary">
+                    ← Back
+                </a>
+
+            </div>
+
+            <div id="messageBox" class="message" hidden></div>
+
+            <div id="loadingState" class="form-card">
+                <div class="empty-state">
+                    <h3>Loading user information...</h3>
+                    <p>Please wait.</p>
+                </div>
+            </div>
+
+            <div id="errorState" class="form-card" hidden>
+                <div class="empty-state">
+                    <h3>Unable to load user</h3>
+                    <p id="errorMessage">An error occurred.</p>
+                    <button type="button" class="btn btn-primary" id="retryButton">
+                        Try Again
+                    </button>
+                </div>
+            </div>
+
+            <div id="userContent" class="form-card" hidden>
+
+                <div class="student-profile-card">
+
+                    <div class="student-profile-photo">
+                        <div id="photoContainer" class="student-photo-placeholder">
+                            👤
+                        </div>
+                    </div>
+
+                    <div class="student-profile-main">
+                        <span class="student-profile-label">User Account</span>
+                        <h2 id="userName">User</h2>
+                        <p id="userEmail" class="student-profile-id">N/A</p>
+                        <span id="userStatus" class="status-badge">Active</span>
+                    </div>
+
+                </div>
+
+                <div class="panel-header">
+                    <h2>User Details</h2>
+                </div>
+
+                <div class="student-details-grid">
+
+                    <div class="information-item">
+                        <span class="information-label">First Name</span>
+                        <strong id="detailFirstName">N/A</strong>
+                    </div>
+
+                    <div class="information-item">
+                        <span class="information-label">Last Name</span>
+                        <strong id="detailLastName">N/A</strong>
+                    </div>
+
+                    <div class="information-item">
+                        <span class="information-label">Email</span>
+                        <strong id="detailEmail">N/A</strong>
+                    </div>
+
+                    <div class="information-item">
+                        <span class="information-label">Username</span>
+                        <strong id="detailUsername">N/A</strong>
+                    </div>
+
+                    <div class="information-item">
+                        <span class="information-label">Phone</span>
+                        <strong id="detailPhone">N/A</strong>
+                    </div>
+
+                    <div class="information-item">
+                        <span class="information-label">Role</span>
+                        <strong id="detailRole">N/A</strong>
+                    </div>
+
+                    <div class="information-item">
+                        <span class="information-label">Status</span>
+                        <strong id="detailStatus">N/A</strong>
+                    </div>
+
+                    <div class="information-item">
+                        <span class="information-label">Created</span>
+                        <strong id="detailCreated">N/A</strong>
+                    </div>
+
+                </div>
+
+                <div class="student-view-actions">
+
+                    <a href="#" class="btn btn-primary" id="editUserButton">
+                        ✏️ Edit User
+                    </a>
+
+                    <button type="button" class="btn btn-danger" id="deleteUserButton">
+                        🗑️ Delete User
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <footer class="admin-footer">
+            <span>© 2026 Sululta Secondary School</span>
+            <span>Admin Portal</span>
+        </footer>
+
+    </main>
+
+</div>
+
+<script type="module" src="../src/admin-user-view.js"></script>
+
+</body>
+</html>
