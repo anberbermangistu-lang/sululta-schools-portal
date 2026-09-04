@@ -12,6 +12,8 @@ export default defineConfig({
 
                 adminDashboard: resolve(import.meta.dirname, "admin/dashboard.html"),
                 adminUserAdd: resolve(import.meta.dirname, "admin/user-add.html"),
+                adminUserView: resolve(import.meta.dirname, "admin/user-view.html"),
+                adminUserEdit: resolve(import.meta.dirname, "admin/user-edit.html"),
                 adminUsers: resolve(import.meta.dirname, "admin/users.html"),
 
                 attendanceAdd: resolve(import.meta.dirname, "attendance/add.html"),
