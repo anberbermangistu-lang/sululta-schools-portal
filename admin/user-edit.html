@@ -4,9 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Edit Student | Sululta School Portal</title>
-
+    <title>Edit User | Sululta School Portal</title>
     <link rel="icon" href="data:,">
     <link rel="stylesheet" href="../src/style.css">
 </head>
@@ -18,101 +16,108 @@
     <aside class="admin-sidebar">
 
         <div class="sidebar-brand">
-
-            <div class="school-logo">
-                SS
-            </div>
-
+            <div class="school-logo">SS</div>
             <div class="school-info">
                 <strong>Sululta School</strong>
                 <span>Admin Portal</span>
             </div>
-
         </div>
 
         <nav class="sidebar-menu">
 
-            <div class="menu-title">Main</div>
+            <div class="menu-title">MAIN</div>
 
-            <a href="../dashboard.html" class="sidebar-link">
+            <a href="/admin/dashboard.html" class="sidebar-link">
                 <span>🏠</span>
                 <span>Dashboard</span>
             </a>
 
-            <div class="menu-title">Academic Management</div>
+            <div class="menu-title">ACADEMIC MANAGEMENT</div>
 
-            <a href="dashboard.html" class="sidebar-link active">
+            <a href="/students/dashboard.html" class="sidebar-link">
                 <span>👨‍🎓</span>
                 <span>Students</span>
             </a>
 
-            <a href="../teachers/dashboard.html" class="sidebar-link">
+            <a href="/teachers/dashboard.html" class="sidebar-link">
                 <span>👨‍🏫</span>
                 <span>Teachers</span>
             </a>
 
-            <a href="../parents/dashboard.html" class="sidebar-link">
+            <a href="/parents/dashboard.html" class="sidebar-link">
                 <span>👨‍👩‍👧</span>
                 <span>Parents</span>
             </a>
 
-            <a href="../classes/dashboard.html" class="sidebar-link">
+            <a href="/classes/dashboard.html" class="sidebar-link">
                 <span>🏫</span>
                 <span>Classes</span>
             </a>
 
-            <a href="../subjects/dashboard.html" class="sidebar-link">
+            <a href="/subjects/dashboard.html" class="sidebar-link">
                 <span>📚</span>
                 <span>Subjects</span>
             </a>
 
-            <a href="../exams/dashboard.html" class="sidebar-link">
+            <a href="/exams/dashboard.html" class="sidebar-link">
                 <span>📝</span>
                 <span>Exams</span>
             </a>
 
-            <a href="../attendance/dashboard.html" class="sidebar-link">
+            <a href="/attendance/dashboard.html" class="sidebar-link">
                 <span>📅</span>
                 <span>Attendance</span>
             </a>
 
-            <a href="../timetable/dashboard.html" class="sidebar-link">
+            <a href="/timetable/dashboard.html" class="sidebar-link">
                 <span>🗓️</span>
                 <span>Timetable</span>
             </a>
 
-            <a href="../results/dashboard.html" class="sidebar-link">
+            <a href="/results/dashboard.html" class="sidebar-link">
                 <span>📊</span>
                 <span>Results</span>
             </a>
 
-            <a href="../books/dashboard.html" class="sidebar-link">
-                <span>📖</span>
-                <span>Books</span>
+            <a href="/library/dashboard.html" class="sidebar-link">
+                <span>📚</span>
+                <span>Library</span>
             </a>
 
-            <a href="../events/dashboard.html" class="sidebar-link">
+            <a href="/events/dashboard.html" class="sidebar-link">
                 <span>🎉</span>
                 <span>Events</span>
             </a>
 
-            <a href="../notices/dashboard.html" class="sidebar-link">
+            <a href="/notices/dashboard.html" class="sidebar-link">
                 <span>📢</span>
                 <span>Notices</span>
             </a>
 
-            <div class="menu-title">Finance</div>
+            <div class="menu-title">FINANCE</div>
 
-            <a href="../fees/dashboard.html" class="sidebar-link">
+            <a href="/fees/dashboard.html" class="sidebar-link">
                 <span>💰</span>
                 <span>Fees</span>
+            </a>
+
+            <div class="menu-title">ACCOUNT</div>
+
+            <a href="/admin/users.html" class="sidebar-link active">
+                <span>👥</span>
+                <span>Users</span>
+            </a>
+
+            <a href="/admin/user-add.html" class="sidebar-link">
+                <span>➕</span>
+                <span>Create User</span>
             </a>
 
         </nav>
 
         <div class="sidebar-bottom">
 
-            <a href="../login.html" class="logout-button">
+            <a href="/login.html" class="logout-button">
                 <span>↪</span>
                 <span>Logout</span>
             </a>
@@ -135,24 +140,15 @@
                 </button>
 
                 <div>
-
-                    <span class="header-label">
-                        Academic Management
-                    </span>
-
-                    <h1>
-                        Edit Student
-                    </h1>
-
+                    <span class="header-label">USER MANAGEMENT</span>
+                    <h1>Edit User</h1>
                 </div>
 
             </div>
 
             <div class="admin-profile">
 
-                <div class="admin-avatar">
-                    A
-                </div>
+                <div class="admin-avatar">A</div>
 
                 <div class="admin-profile-info">
                     <strong>Administrator</strong>
@@ -169,20 +165,11 @@
 
                 <div class="header-left">
 
-                    <div class="page-icon">
-                        ✏️
-                    </div>
+                    <div class="page-icon">✏️</div>
 
                     <div>
-
-                        <h1>
-                            Edit Student
-                        </h1>
-
-                        <p>
-                            Update student information
-                        </p>
-
+                        <h1>Edit User Account</h1>
+                        <p>Update account information.</p>
                     </div>
 
                 </div>
@@ -190,7 +177,7 @@
                 <div class="header-actions">
 
                     <a
-                        href="dashboard.html"
+                        href="/admin/users.html"
                         class="btn btn-secondary">
                         ← Back
                     </a>
@@ -199,49 +186,22 @@
 
             </div>
 
-            <div
-                id="messageBox"
-                class="message">
-            </div>
+            <div id="messageBox" class="message"></div>
 
             <section class="form-card">
 
                 <div class="panel-header">
 
                     <div>
-
-                        <h2>
-                            Student Information
-                        </h2>
-
-                        <p>
-                            Update the student's information.
-                        </p>
-
+                        <h2>User Information</h2>
+                        <p>Update the user's account information.</p>
                     </div>
 
                 </div>
 
-                <form
-                    id="studentForm"
-                    enctype="multipart/form-data">
+                <form id="userForm">
 
                     <div class="form-grid">
-
-                        <div class="form-group">
-
-                            <label for="studentId">
-                                Student ID
-                                <span>*</span>
-                            </label>
-
-                            <input
-                                type="text"
-                                id="studentId"
-                                name="student_id"
-                                required>
-
-                        </div>
 
                         <div class="form-group">
 
@@ -275,57 +235,29 @@
 
                         <div class="form-group">
 
-                            <label for="gender">
-                                Gender
-                                <span>*</span>
-                            </label>
-
-                            <select
-                                id="gender"
-                                name="gender"
-                                required>
-
-                                <option value="">
-                                    Select Gender
-                                </option>
-
-                                <option value="Male">
-                                    Male
-                                </option>
-
-                                <option value="Female">
-                                    Female
-                                </option>
-
-                            </select>
-
-                        </div>
-
-                        <div class="form-group">
-
-                            <label for="class">
-                                Class
+                            <label for="email">
+                                Email
                                 <span>*</span>
                             </label>
 
                             <input
-                                type="text"
-                                id="class"
-                                name="class"
+                                type="email"
+                                id="email"
+                                name="email"
                                 required>
 
                         </div>
 
                         <div class="form-group">
 
-                            <label for="section">
-                                Section
+                            <label for="username">
+                                Username
                             </label>
 
                             <input
                                 type="text"
-                                id="section"
-                                name="section">
+                                id="username"
+                                name="username">
 
                         </div>
 
@@ -344,75 +276,43 @@
 
                         <div class="form-group">
 
-                            <label for="status">
-                                Status
+                            <label for="role">
+                                Role
+                                <span>*</span>
                             </label>
 
                             <select
-                                id="status"
-                                name="status">
+                                id="role"
+                                name="role"
+                                required>
 
-                                <option value="active">
-                                    Active
-                                </option>
-
-                                <option value="inactive">
-                                    Inactive
-                                </option>
+                                <option value="teacher">Teacher</option>
+                                <option value="student">Student</option>
+                                <option value="parent">Parent</option>
+                                <option value="librarian">Librarian</option>
+                                <option value="finance">Finance</option>
+                                <option value="admin">Admin</option>
 
                             </select>
 
                         </div>
 
-                    </div>
+                        <div class="form-group">
 
-                    <div class="form-group student-photo-form">
+                            <label for="status">
+                                Status
+                                <span>*</span>
+                            </label>
 
-                        <label for="photo">
-                            Student Photo
-                        </label>
+                            <select
+                                id="status"
+                                name="status"
+                                required>
 
-                        <div class="current-photo-box">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
 
-                            <img
-                                id="currentPhoto"
-                                src=""
-                                alt="Student photo"
-                                class="edit-student-photo"
-                                hidden>
-
-                            <div
-                                id="photoPlaceholder"
-                                class="edit-photo-placeholder">
-                                👨‍🎓
-                            </div>
-
-                        </div>
-
-                        <input
-                            type="file"
-                            id="photo"
-                            name="photo"
-                            accept="image/jpeg,image/png,image/webp">
-
-                        <small>
-                            Leave empty to keep the current photo.
-                            JPG, PNG or WebP. Maximum 2MB.
-                        </small>
-
-                        <div
-                            id="photoPreviewBox"
-                            class="photo-preview-box"
-                            hidden>
-
-                            <span>
-                                New Photo Preview
-                            </span>
-
-                            <img
-                                id="photoPreview"
-                                src=""
-                                alt="New photo preview">
+                            </select>
 
                         </div>
 
@@ -421,7 +321,7 @@
                     <div class="form-actions">
 
                         <a
-                            href="dashboard.html"
+                            href="/admin/users.html"
                             class="btn btn-secondary">
                             Cancel
                         </a>
@@ -443,13 +343,9 @@
 
         <footer class="admin-footer">
 
-            <span>
-                © 2026 Sululta School Portal
-            </span>
+            <span>© 2026 Sululta School Portal</span>
 
-            <span>
-                School Management System
-            </span>
+            <span>School Management System</span>
 
         </footer>
 
@@ -459,7 +355,7 @@
 
 <script
     type="module"
-    src="../src/student-edit.js">
+    src="../src/admin-user-edit.js">
 </script>
 
 </body>
