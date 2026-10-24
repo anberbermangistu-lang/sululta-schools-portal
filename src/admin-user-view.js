@@ -53,7 +53,7 @@ async function loadUser() {
                 photo_url,
                 status,
                 created_at,
-                update_at,
+                updated_at,
                 student_id
             `)
             .eq("id", userId)

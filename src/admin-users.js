@@ -519,7 +519,7 @@ async function toggleStatus(id) {
         .from("profiles")
         .update({
             status: newStatus,
-            update_at: new Date().toISOString()
+            updated_at: new Date().toISOString()
         })
         .eq("id", id);
 
