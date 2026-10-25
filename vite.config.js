@@ -56,13 +56,6 @@ export default defineConfig({
                 noticesEdit: resolve(import.meta.dirname, "notices/edit.html"),
                 noticesView: resolve(import.meta.dirname, "notices/view.html"),
 
-                parentAttendance: resolve(import.meta.dirname, "parent/attendance.html"),
-                parentChild: resolve(import.meta.dirname, "parent/child.html"),
-                parentDashboard: resolve(import.meta.dirname, "parent/dashboard.html"),
-                parentNotices: resolve(import.meta.dirname, "parent/notices.html"),
-                parentPassword: resolve(import.meta.dirname, "parent/password.html"),
-                parentProfile: resolve(import.meta.dirname, "parent/profile.html"),
-
                 parentsAdd: resolve(import.meta.dirname, "parents/add.html"),
                 parentsDashboard: resolve(import.meta.dirname, "parents/dashboard.html"),
                 parentsEdit: resolve(import.meta.dirname, "parents/edit.html"),
@@ -73,19 +66,6 @@ export default defineConfig({
                 resultsDelete: resolve(import.meta.dirname, "results/delete.html"),
                 resultsEdit: resolve(import.meta.dirname, "results/edit.html"),
                 resultsView: resolve(import.meta.dirname, "results/view.html"),
-
-                studentAttendance: resolve(import.meta.dirname, "student/attendance.html"),
-                studentBooks: resolve(import.meta.dirname, "student/books.html"),
-                studentDashboard: resolve(import.meta.dirname, "student/dashboard.html"),
-                studentEvents: resolve(import.meta.dirname, "student/events.html"),
-                studentFees: resolve(import.meta.dirname, "student/fees.html"),
-                studentHistory: resolve(import.meta.dirname, "student/history.html"),
-                studentNotices: resolve(import.meta.dirname, "student/notices.html"),
-                studentPassword: resolve(import.meta.dirname, "student/password.html"),
-                studentProfile: resolve(import.meta.dirname, "student/profile.html"),
-                studentResults: resolve(import.meta.dirname, "student/results.html"),
-                studentSubjects: resolve(import.meta.dirname, "student/subjects.html"),
-                studentTimetable: resolve(import.meta.dirname, "student/timetable.html"),
 
                 studentsAdd: resolve(import.meta.dirname, "students/add.html"),
                 studentsDashboard: resolve(import.meta.dirname, "students/dashboard.html"),
