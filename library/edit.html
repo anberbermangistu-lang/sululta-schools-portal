@@ -1,501 +1,190 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        Edit Book | Sululta Secondary School
-    </title>
-
-    <link
-        rel="icon"
-        href="data:,"
-    >
-
-    <link
-        rel="stylesheet"
-        href="/src/style.css"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Book | Sululta School Portal</title>
+    <link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
+    <link rel="stylesheet" href="../src/sidebar.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; }
+        .main-content { margin-left: 260px; min-height: 100vh; transition: margin-left 0.3s; }
+        .top-bar { background: white; padding: 1.25rem 2rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .page-title { font-size: 1.75rem; font-weight: 700; color: #1a202c; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; }
+        .content-area { padding: 2rem; max-width: 900px; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .form-card { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 2rem; }
+        .form-card h3 { font-size: 1rem; font-weight: 600; color: #2d3748; margin-bottom: 0.25rem; }
+        .form-card p { font-size: 0.875rem; color: #718096; margin-bottom: 1.5rem; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+        .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-group label { font-size: 0.875rem; font-weight: 600; color: #4a5568; }
+        .form-group label span { color: #e53e3e; }
+        .form-group input, .form-group select { padding: 0.6rem 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem; color: #2d3748; background: white; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.15); }
+        .form-group small { font-size: 0.75rem; color: #718096; }
+        .form-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 0.75rem; padding-top: 1rem; border-top: 1px solid #e2e8f0; margin-top: 0.5rem; }
+        .btn { padding: 0.625rem 1.25rem; border-radius: 8px; border: none; font-weight: 600; font-size: 0.875rem; cursor: pointer; text-decoration: none; display: inline-block; transition: all 0.2s; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102,126,234,0.4); }
+        .btn-primary:disabled { opacity: 0.6; transform: none; cursor: not-allowed; }
+        .btn-secondary { background: #e2e8f0; color: #2d3748; }
+        .btn-secondary:hover { background: #cbd5e0; }
+        .message { padding: 0.875rem 1rem; border-radius: 8px; margin-bottom: 1.25rem; font-size: 0.875rem; display: none; }
+        .message.error { background: #fff5f5; color: #c53030; border: 1px solid #fed7d7; display: block; }
+        .message.success { background: #f0fff4; color: #276749; border: 1px solid #c6f6d5; display: block; }
+        .loading { padding: 3rem; text-align: center; color: #718096; }
+        @media (max-width: 768px) { .main-content { margin-left: 0; } .form-grid { grid-template-columns: 1fr; } }
+    </style>
 </head>
-
 <body>
-
-<div class="admin-page">
-
-    <aside class="admin-sidebar">
-
-        <div class="sidebar-brand">
-
-            <div class="school-logo">
-                SS
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <img src="../public/school-logo.svg" alt="Logo" class="logo-image">
+                <span class="logo-text">Sululta School</span>
             </div>
-
-            <div class="school-info">
-
-                <strong>
-                    Sululta Secondary School
-                </strong>
-
-                <span>
-                    School Management Portal
-                </span>
-
-            </div>
-
+            <button class="toggle-btn" id="toggleSidebar"><span></span><span></span><span></span></button>
         </div>
-
-        <nav class="sidebar-menu">
-
-            <div class="menu-title">
-                MAIN
-            </div>
-
-            <a
-                href="/admin/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🏠</span>
-                <span>Dashboard</span>
-            </a>
-
-            <div class="menu-title">
-                MANAGEMENT
-            </div>
-
-            <a
-                href="/students/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>👨‍🎓</span>
-                <span>Students</span>
-            </a>
-
-            <a
-                href="/teachers/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>👨‍🏫</span>
-                <span>Teachers</span>
-            </a>
-
-            <a
-                href="/parents/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>👨‍👩‍👧</span>
-                <span>Parents</span>
-            </a>
-
-            <a
-                href="/classes/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🏫</span>
-                <span>Classes</span>
-            </a>
-
-            <a
-                href="/subjects/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📚</span>
-                <span>Subjects</span>
-            </a>
-
-            <div class="menu-title">
-                ACADEMIC
-            </div>
-
-            <a
-                href="/exams/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📝</span>
-                <span>Exams</span>
-            </a>
-
-            <a
-                href="/attendance/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📅</span>
-                <span>Attendance</span>
-            </a>
-
-            <a
-                href="/results/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📊</span>
-                <span>Results</span>
-            </a>
-
-            <a
-                href="/timetable/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🗓️</span>
-                <span>Timetable</span>
-            </a>
-
-            <div class="menu-title">
-                SCHOOL
-            </div>
-
-            <a
-                href="/library/dashboard.html"
-                class="sidebar-link active"
-            >
-                <span>📖</span>
-                <span>Books</span>
-            </a>
-
-            <a
-                href="/fees/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>💰</span>
-                <span>Fees</span>
-            </a>
-
-            <a
-                href="/events/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🎉</span>
-                <span>Events</span>
-            </a>
-
-            <a
-                href="/notices/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📢</span>
-                <span>Notices</span>
-            </a>
-
+        <nav class="sidebar-nav">
+            <a href="../admin/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span><span class="nav-text">Dashboard</span></a>
+            <a href="../students/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="nav-text">Students</span></a>
+            <a href="../teachers/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="12" cy="5" r="2"/></svg></span><span class="nav-text">Teachers</span></a>
+            <a href="../classes/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="nav-text">Classes</span></a>
+            <a href="../subjects/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span><span class="nav-text">Subjects</span></a>
+            <a href="../attendance/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span><span class="nav-text">Attendance</span></a>
+            <a href="../results/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span class="nav-text">Results</span></a>
+            <a href="../timetable/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="nav-text">Timetable</span></a>
+            <a href="../library/dashboard.html" class="nav-item active"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span><span class="nav-text">Library</span></a>
         </nav>
-
-        <div class="sidebar-bottom">
-
-            <button
-                type="button"
-                class="logout-button"
-                id="logoutButton"
-            >
-                <span>↪</span>
-                <span>Sign Out</span>
-            </button>
-
+        <div class="sidebar-footer">
+            <a href="#" class="nav-item" id="logoutBtn"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span class="nav-text">Logout</span></a>
         </div>
-
     </aside>
 
-    <main class="admin-main">
-
-        <header class="admin-header">
-
-            <div class="header-left">
-
-                <button
-                    type="button"
-                    class="sidebar-toggle"
-                    id="sidebarToggle"
-                    aria-label="Toggle sidebar"
-                >
-                    ☰
-                </button>
-
-                <div>
-
-                    <span class="header-label">
-                        SCHOOL MANAGEMENT
-                    </span>
-
-                    <h1>
-                        Edit Book
-                    </h1>
-
-                </div>
-
-            </div>
-
-            <div class="admin-profile">
-
-                <div class="admin-avatar">
-                    A
-                </div>
-
-                <div class="admin-profile-info">
-
-                    <strong>
-                        Administrator
-                    </strong>
-
-                    <span>
-                        Admin
-                    </span>
-
-                </div>
-
-            </div>
-
-        </header>
-
-        <section class="page-container">
-
+    <main class="main-content">
+        <div class="top-bar">
+            <h1 class="page-title">Edit Book</h1>
+            <div class="user-avatar" id="userAvatar">A</div>
+        </div>
+        <div class="content-area">
             <div class="page-header">
-
-                <div class="header-left">
-
-                    <div class="page-icon">
-                        📖
-                    </div>
-
-                    <div>
-
-                        <h1>
-                            Edit Book
-                        </h1>
-
-                        <p>
-                            Update school library book information
-                        </p>
-
-                    </div>
-
-                </div>
-
-                <div class="header-actions">
-
-                    <a
-                        href="/library/dashboard.html"
-                        class="btn btn-secondary"
-                    >
-                        ← Back to Library
-                    </a>
-
-                </div>
-
+                <h2>Update Book Details</h2>
+                <a href="dashboard.html" class="btn btn-secondary">← Back</a>
             </div>
 
-            <div
-                id="message"
-                class="message"
-                hidden
-            ></div>
+            <div id="messageBox" class="message"></div>
 
-            <section class="content-card">
-
-                <div class="panel-header">
-
-                    <div>
-
-                        <h2>
-                            Book Information
-                        </h2>
-
-                        <p>
-                            Update the details of this library book
-                        </p>
-
-                    </div>
-
-                </div>
-
-                <form
-                    id="bookForm"
-                    class="form-grid"
-                    novalidate
-                >
-
-                    <div class="form-group">
-
-                        <label for="bookCode">
-                            Book Code
-                        </label>
-
-                        <input
-                            type="text"
-                            id="bookCode"
-                            name="book_code"
-                            placeholder="Enter book code"
-                            required
-                        >
-
-                    </div>
-
-                    <div class="form-group">
-
-                        <label for="title">
-                            Book Title
-                        </label>
-
-                        <input
-                            type="text"
-                            id="title"
-                            name="title"
-                            placeholder="Enter book title"
-                            required
-                        >
-
-                    </div>
-
-                    <div class="form-group">
-
-                        <label for="author">
-                            Author
-                        </label>
-
-                        <input
-                            type="text"
-                            id="author"
-                            name="author"
-                            placeholder="Enter author name"
-                        >
-
-                    </div>
-
-                    <div class="form-group">
-
-                        <label for="publisher">
-                            Publisher
-                        </label>
-
-                        <input
-                            type="text"
-                            id="publisher"
-                            name="publisher"
-                            placeholder="Enter publisher"
-                        >
-
-                    </div>
-
-                    <div class="form-group">
-
-                        <label for="category">
-                            Category
-                        </label>
-
-                        <input
-                            type="text"
-                            id="category"
-                            name="category"
-                            placeholder="Enter category"
-                        >
-
-                    </div>
-
-                    <div class="form-group">
-
-                        <label for="available">
-                            Availability
-                        </label>
-
-                        <select
-                            id="available"
-                            name="available"
-                        >
-
-                            <option value="1">
-                                Available
-                            </option>
-
-                            <option value="0">
-                                Unavailable
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                    <div class="form-group form-group-full">
-
-                        <label for="bookFile">
-                            Replace Book File
-                        </label>
-
-                        <input
-                            type="file"
-                            id="bookFile"
-                            name="book_file"
-                            accept=".pdf,.doc,.docx"
-                        >
-
-                        <small>
-                            Leave empty to keep the current book file.
-                        </small>
-
-                    </div>
-
-                    <div
-                        id="currentFile"
-                        class="form-group form-group-full"
-                    >
-
-                        <label>
-                            Current Book File
-                        </label>
-
-                        <div id="currentFileLink">
-                            Loading...
-                        </div>
-
-                    </div>
-
-                    <div class="form-actions">
-
-                        <a
-                            href="/library/dashboard.html"
-                            class="btn btn-secondary"
-                        >
-                            Cancel
-                        </a>
-
-                        <button
-                            type="submit"
-                            class="btn btn-primary"
-                        >
-                            Update Book
-                        </button>
-
-                    </div>
-
-                </form>
-
-            </section>
-
-        </section>
-
-        <footer class="admin-footer">
-
-            <span>
-                © 2026 Sululta Secondary School
-            </span>
-
-            <span>
-                School Management Portal
-            </span>
-
-        </footer>
-
+            <div class="form-card" id="formContainer">
+                <div class="loading">Loading book data...</div>
+            </div>
+        </div>
     </main>
 
-</div>
+    <script type="module">
+        import { supabase } from '../src/supabase.js';
 
-<script
-    type="module"
-    src="/src/books-edit.js"
-></script>
+        const id = new URLSearchParams(window.location.search).get('id');
 
+        document.getElementById('toggleSidebar').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('mobile-open');
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await supabase.auth.signOut();
+            window.location.href = '../login.html';
+        });
+
+        if (!id) {
+            document.getElementById('formContainer').innerHTML = '<div class="loading" style="color:#c53030">No book ID provided.</div>';
+        } else {
+            loadBook();
+        }
+
+        async function loadBook() {
+            const { data, error } = await supabase.from('books').select('*').eq('id', id).single();
+            if (error || !data) {
+                document.getElementById('formContainer').innerHTML =
+                    `<div class="loading" style="color:#c53030">Error: ${error?.message || 'Record not found.'}</div>`;
+                return;
+            }
+
+            document.getElementById('formContainer').innerHTML = `
+                <h3>Book Information</h3>
+                <p>Update the details of this library book.</p>
+                <form id="bookForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="bookCode">Book Code <span>*</span></label>
+                            <input type="text" id="bookCode" value="${esc(data.book_code)}" maxlength="100" required autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label for="title">Book Title <span>*</span></label>
+                            <input type="text" id="title" value="${esc(data.title)}" maxlength="255" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="author">Author</label>
+                            <input type="text" id="author" value="${esc(data.author)}" maxlength="200">
+                        </div>
+                        <div class="form-group">
+                            <label for="publisher">Publisher</label>
+                            <input type="text" id="publisher" value="${esc(data.publisher)}" maxlength="200">
+                        </div>
+                        <div class="form-group">
+                            <label for="category">Category</label>
+                            <input type="text" id="category" value="${esc(data.category)}" maxlength="100">
+                        </div>
+                        <div class="form-group">
+                            <label for="available">Availability <span>*</span></label>
+                            <select id="available">
+                                <option value="1" ${(data.available === 1 || data.available === true) ? 'selected' : ''}>Available</option>
+                                <option value="0" ${(data.available === 0 || data.available === false) ? 'selected' : ''}>Unavailable</option>
+                            </select>
+                        </div>
+                        <div class="form-actions">
+                            <a href="dashboard.html" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" id="saveBtn" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </div>
+                </form>`;
+
+            document.getElementById('bookForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('saveBtn');
+                const msg = document.getElementById('messageBox');
+                btn.disabled = true;
+                btn.textContent = 'Saving...';
+                msg.className = 'message';
+
+                const updates = {
+                    book_code:  document.getElementById('bookCode').value.trim(),
+                    title:      document.getElementById('title').value.trim(),
+                    author:     document.getElementById('author').value.trim() || null,
+                    publisher:  document.getElementById('publisher').value.trim() || null,
+                    category:   document.getElementById('category').value.trim() || null,
+                    available:  parseInt(document.getElementById('available').value),
+                };
+
+                const { error } = await supabase.from('books').update(updates).eq('id', id);
+
+                if (error) {
+                    msg.textContent = 'Error: ' + error.message;
+                    msg.className = 'message error';
+                    btn.disabled = false;
+                    btn.textContent = 'Save Changes';
+                } else {
+                    msg.textContent = 'Book updated successfully!';
+                    msg.className = 'message success';
+                    setTimeout(() => window.location.href = 'dashboard.html', 1000);
+                }
+            });
+        }
+
+        function esc(v) { return String(v ?? '').replace(/"/g, '&quot;'); }
+    </script>
 </body>
-
 </html>

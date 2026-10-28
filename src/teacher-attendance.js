@@ -135,7 +135,6 @@ async function loadClasses() {
             academic_year,
             status
         `)
-        .eq("class_teacher", teacher.id)
         .eq("status", "active")
         .order("class_name", {
             ascending: true

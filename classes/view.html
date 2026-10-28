@@ -16,139 +16,21 @@
         rel="stylesheet"
         href="../src/style.css"
     >
+    <link rel="stylesheet" href="../src/sidebar.css">
 
 </head>
 
 <body>
 
 <div class="admin-page">
-
-    <aside class="admin-sidebar">
-
-        <div class="sidebar-brand">
-
-            <div class="school-logo">
-                SS
-            </div>
-
-            <div class="school-info">
-
-                <strong>
-                    Sululta School
-                </strong>
-
-                <span>
-                    Admin Portal
-                </span>
-
-            </div>
-
-        </div>
-
-
-        <nav class="sidebar-menu">
-
-            <div class="menu-title">
-                Main
-            </div>
-
-
-            <a
-                href="../admin/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🏠</span>
-                <span>Dashboard</span>
-            </a>
-
-
-            <div class="menu-title">
-                Management
-            </div>
-
-
-            <a
-                href="../students/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>👨‍🎓</span>
-                <span>Students</span>
-            </a>
-
-
-            <a
-                href="../teachers/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>👨‍🏫</span>
-                <span>Teachers</span>
-            </a>
-
-
-            <a
-                href="../parents/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>👨‍👩‍👧</span>
-                <span>Parents</span>
-            </a>
-
-
-            <a
-                href="dashboard.html"
-                class="sidebar-link active"
-            >
-                <span>🏫</span>
-                <span>Classes</span>
-            </a>
-
-
-            <a
-                href="../subjects/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📚</span>
-                <span>Subjects</span>
-            </a>
-
-
-            <a
-                href="../exams/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📝</span>
-                <span>Exams</span>
-            </a>
-
-
-            <a
-                href="../notices/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📢</span>
-                <span>Notices</span>
-            </a>
-
-        </nav>
-
-
-        <div class="sidebar-bottom">
-
-            <a
-                href="../login.html"
-                class="logout-button"
-            >
-                <span>↪</span>
-                <span>Logout</span>
-            </a>
-
-        </div>
-
-    </aside>
-
+        <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <img src="../public/school-logo.svg" alt="Logo" class="logo-image">
+                <span class="logo-text">Sululta School</span>
+            
 
     <main class="admin-main">
-
 
         <header class="admin-header">
 
@@ -159,9 +41,8 @@
                     class="sidebar-toggle"
                     onclick="document.querySelector('.admin-sidebar').classList.toggle('open')"
                 >
-                    ☰
+                    ?
                 </button>
-
 
                 <div>
 
@@ -177,13 +58,11 @@
 
             </div>
 
-
             <div class="admin-profile">
 
                 <div class="admin-avatar">
                     A
                 </div>
-
 
                 <div class="admin-profile-info">
 
@@ -201,18 +80,15 @@
 
         </header>
 
-
         <section class="page-container">
-
 
             <div class="page-header">
 
                 <div class="header-left">
 
                     <div class="page-icon">
-                        🏫
+                        ??
                     </div>
-
 
                     <div>
 
@@ -228,52 +104,45 @@
 
                 </div>
 
-
                 <div class="header-actions">
 
                     <a
                         href="dashboard.html"
                         class="btn btn-secondary"
                     >
-                        ← Back
+                        ? Back
                     </a>
-
 
                     <a
                         id="editClassButton"
                         href="#"
                         class="btn btn-primary"
                     >
-                        ✎ Edit Class
+                        ? Edit Class
                     </a>
 
                 </div>
 
             </div>
 
-
             <div
                 id="message"
                 class="message"
             ></div>
 
-
             <div class="student-profile-card">
 
                 <div class="student-profile-left">
 
-
                     <div class="student-profile-photo">
-                        🏫
+                        ??
                     </div>
-
 
                     <div class="student-profile-name">
 
                         <h2 id="className">
                             Loading...
                         </h2>
-
 
                         <p>
 
@@ -282,12 +151,12 @@
                                 -
                             </strong>
 
-                            • Room
+                            � Room
                             <strong id="classRoom">
                                 -
                             </strong>
 
-                            • Academic Year
+                            � Academic Year
                             <strong id="classAcademicYear">
                                 -
                             </strong>
@@ -300,16 +169,13 @@
 
             </div>
 
-
             <div class="details-card">
-
 
                 <div class="details-header">
 
                     <div class="page-icon">
-                        🏫
+                        ??
                     </div>
-
 
                     <div>
 
@@ -325,9 +191,7 @@
 
                 </div>
 
-
                 <div class="details-grid">
-
 
                     <div class="detail-item">
 
@@ -341,7 +205,6 @@
 
                     </div>
 
-
                     <div class="detail-item">
 
                         <span class="detail-label">
@@ -353,7 +216,6 @@
                         </strong>
 
                     </div>
-
 
                     <div class="detail-item">
 
@@ -367,7 +229,6 @@
 
                     </div>
 
-
                     <div class="detail-item">
 
                         <span class="detail-label">
@@ -379,7 +240,6 @@
                         </strong>
 
                     </div>
-
 
                     <div class="detail-item">
 
@@ -393,7 +253,6 @@
 
                     </div>
 
-
                     <div class="detail-item">
 
                         <span class="detail-label">
@@ -406,7 +265,6 @@
 
                     </div>
 
-
                     <div class="detail-item">
 
                         <span class="detail-label">
@@ -418,7 +276,6 @@
                         </strong>
 
                     </div>
-
 
                     <div class="detail-item">
 
@@ -436,16 +293,14 @@
 
             </div>
 
-
             <div class="content-card">
-
 
                 <div class="panel-header">
 
                     <div>
 
                         <h2>
-                            👨‍🎓 Students in This Class
+                            ????? Students in This Class
                         </h2>
 
                         <p>
@@ -455,7 +310,6 @@
                     </div>
 
                 </div>
-
 
                 <div class="table-responsive">
 
@@ -493,7 +347,6 @@
 
                         </thead>
 
-
                         <tbody id="studentsTable">
 
                             <tr>
@@ -515,14 +368,12 @@
 
             </div>
 
-
         </section>
-
 
         <footer class="admin-footer">
 
             <span>
-                © 2026 Sululta School Portal
+                � 2026 Sululta School Portal
             </span>
 
             <span>
@@ -534,7 +385,6 @@
     </main>
 
 </div>
-
 
 <script
     type="module"

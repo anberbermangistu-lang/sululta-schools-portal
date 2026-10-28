@@ -1,24 +1,36 @@
 import { supabase } from "./supabase.js";
 
+// Debug: log which Supabase project is being used (URL only, never keys)
+console.info("[login] Supabase URL:", import.meta.env.VITE_SUPABASE_URL ?? "(not set — check .env.local)");
+
 const loginForm = document.getElementById("loginForm");
 const loginMessage = document.getElementById("loginMessage");
+const passwordInput = document.getElementById("password");
+const passwordToggle = document.getElementById("passwordToggle");
 
 function showMessage(message, type = "error") {
     if (!loginMessage) return;
     loginMessage.textContent = message;
-    loginMessage.className = `login-message ${type}`;
+    loginMessage.className = `login-message portal-login__message ${type}`;
     loginMessage.hidden = !message;
 }
 
+passwordToggle?.addEventListener("click", () => {
+    if (!passwordInput) return;
+
+    const isVisible = passwordInput.type === "text";
+    passwordInput.type = isVisible ? "password" : "text";
+    passwordToggle.setAttribute("aria-pressed", String(!isVisible));
+    passwordToggle.setAttribute("aria-label", isVisible ? "Show password" : "Hide password");
+});
+
 function getDashboard(role) {
     switch (String(role || "").trim().toLowerCase()) {
-        case "admin":     return "/admin/dashboard.html";
-        case "teacher":   return "/teacher/dashboard.html";
-        case "student":   return "/student/dashboard.html";
-        case "parent":    return "/parent/dashboard.html";
-        case "librarian": return "/admin/dashboard.html";
-        case "finance":   return "/admin/dashboard.html";
-        default:          return null;
+        case "admin": return "/admin/dashboard.html";
+        case "teacher": return "/teacher/dashboard.html";
+        case "student": return "/student/dashboard.html";
+        case "parent": return "/parent/dashboard.html";
+        default: return null;
     }
 }
 
@@ -43,6 +55,7 @@ loginForm?.addEventListener("submit", async (event) => {
     try {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
+        // Show the actual Supabase error — never swallow it with a generic message
         if (error) throw error;
         if (!data?.user) throw new Error("Unable to identify the user.");
 
@@ -56,7 +69,7 @@ loginForm?.addEventListener("submit", async (event) => {
 
         if (!profile) {
             await supabase.auth.signOut();
-            throw new Error("User profile was not found. Please contact the administrator.");
+            throw new Error("Your school account is not configured. Please contact the administrator.");
         }
 
         const role   = String(profile.role   || "").trim().toLowerCase();
@@ -77,7 +90,7 @@ loginForm?.addEventListener("submit", async (event) => {
         window.location.replace(dashboard);
 
     } catch (error) {
-        console.error("Login error:", error);
+        console.error("[login] Auth error:", error?.message, error);
         showMessage(error?.message || "Login failed.");
     } finally {
         if (submitButton) {

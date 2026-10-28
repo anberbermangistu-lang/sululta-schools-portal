@@ -1,554 +1,310 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>Timetable | Sululta School Portal</title>
-
-    <link
-        rel="icon"
-        href="data:,"
-    >
-
-    <link
-        rel="stylesheet"
-        href="../src/style.css"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timetable - Sululta School Portal</title>
+    <link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
+    <link rel="stylesheet" href="../src/sidebar.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; }
+        .main-content { margin-left: 260px; min-height: 100vh; transition: margin-left 0.3s; }
+        .top-bar { background: white; padding: 1.25rem 2rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .page-title { font-size: 1.75rem; font-weight: 700; color: #1a202c; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; }
+        .content-area { padding: 2rem; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .btn { padding: 0.625rem 1.25rem; border-radius: 8px; border: none; font-weight: 600; font-size: 0.875rem; cursor: pointer; text-decoration: none; display: inline-block; transition: all 0.2s; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102,126,234,0.4); }
+        .btn-secondary { background: #e2e8f0; color: #2d3748; }
+        .btn-secondary:hover { background: #cbd5e0; }
+        .btn-danger { background: #fed7d7; color: #c53030; }
+        .btn-danger:hover { background: #feb2b2; }
+        .btn-sm { padding: 0.375rem 0.75rem; font-size: 0.8rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 4px solid #667eea; }
+        .stat-card.classes { border-color: #4299e1; }
+        .stat-card.subjects { border-color: #48bb78; }
+        .stat-card.days { border-color: #ed8936; }
+        .stat-value { font-size: 2rem; font-weight: 700; margin-top: 0.5rem; color: #1a202c; }
+        .stat-label { font-size: 0.875rem; color: #718096; font-weight: 500; }
+        .data-table-container { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }
+        .table-header { padding: 1.5rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .table-header h2 { font-size: 1.25rem; color: #1a202c; }
+        .filter-group { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; }
+        .filter-group input, .filter-group select { padding: 0.5rem 1rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem; }
+        .filter-group input { width: 260px; }
+        .filter-group input:focus, .filter-group select:focus { outline: none; border-color: #667eea; }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th { padding: 0.875rem 1rem; text-align: left; font-size: 0.75rem; font-weight: 700; color: #4a5568; text-transform: uppercase; background: #f7fafc; }
+        .data-table td { padding: 0.875rem 1rem; border-top: 1px solid #e2e8f0; font-size: 0.875rem; color: #2d3748; vertical-align: middle; }
+        .data-table tbody tr:hover { background: #f7fafc; }
+        .action-group { display: flex; gap: 0.4rem; }
+        .empty-state { padding: 3rem; text-align: center; color: #718096; }
+        .message { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.875rem; }
+        .message.error { background: #fff5f5; color: #c53030; border: 1px solid #fed7d7; }
+        .message.success { background: #f0fff4; color: #276749; border: 1px solid #c6f6d5; }
+        .teacher-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; background: #eff6ff; color: #1d4ed8; }
+        .teacher-badge.unassigned { background: #f1f5f9; color: #64748b; font-weight: normal; }
+        @media (max-width: 768px) { .main-content { margin-left: 0; } .data-table { font-size: 0.8rem; } }
+    </style>
 </head>
-
 <body>
-
-<div class="admin-page">
-
-    <aside class="admin-sidebar">
-
-        <div class="sidebar-brand">
-
-            <div class="school-logo">
-                SS
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <img src="../public/school-logo.svg" alt="Logo" class="logo-image">
+                <span class="logo-text">Sululta School</span>
             </div>
-
-            <div class="school-info">
-
-                <strong>
-                    Sululta School
-                </strong>
-
-                <span>
-                    Admin Portal
-                </span>
-
-            </div>
-
+            <button class="toggle-btn" id="toggleSidebar"><span></span><span></span><span></span></button>
         </div>
-
-
-        <nav class="sidebar-menu">
-
-            <div class="menu-title">
-                Main
-            </div>
-
-            <a
-                href="../admin/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🏠</span>
-                <span>Dashboard</span>
-            </a>
-
-
-            <div class="menu-title">
-                Management
-            </div>
-
-            <a
-                href="../students/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>👨‍🎓</span>
-                <span>Students</span>
-            </a>
-
-            <a
-                href="../teachers/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>👨‍🏫</span>
-                <span>Teachers</span>
-            </a>
-
-            <a
-                href="../parents/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>👨‍👩‍👧</span>
-                <span>Parents</span>
-            </a>
-
-            <a
-                href="../classes/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🏫</span>
-                <span>Classes</span>
-            </a>
-
-            <a
-                href="../subjects/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📚</span>
-                <span>Subjects</span>
-            </a>
-
-
-            <div class="menu-title">
-                Academic
-            </div>
-
-            <a
-                href="../attendance/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>✓</span>
-                <span>Attendance</span>
-            </a>
-
-            <a
-                href="../results/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📊</span>
-                <span>Results</span>
-            </a>
-
-            <a
-                href="dashboard.html"
-                class="sidebar-link active"
-            >
-                <span>🗓</span>
-                <span>Timetable</span>
-            </a>
-
-
-            <div class="menu-title">
-                School
-            </div>
-
-            <a
-                href="../library/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📖</span>
-                <span>Books</span>
-            </a>
-
-            <a
-                href="../fees/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>💰</span>
-                <span>Fees</span>
-            </a>
-
-            <a
-                href="../events/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📅</span>
-                <span>Events</span>
-            </a>
-
-            <a
-                href="../notices/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🔔</span>
-                <span>Notices</span>
-            </a>
-
+        <nav class="sidebar-nav">
+            <a href="../admin/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span><span class="nav-text">Dashboard</span></a>
+            <a href="../students/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="nav-text">Students</span></a>
+            <a href="../teachers/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="12" cy="5" r="2"/></svg></span><span class="nav-text">Teachers</span></a>
+            <a href="../classes/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="nav-text">Classes</span></a>
+            <a href="../subjects/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span><span class="nav-text">Subjects</span></a>
+            <a href="../attendance/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span><span class="nav-text">Attendance</span></a>
+            <a href="../results/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span class="nav-text">Results</span></a>
+            <a href="../timetable/dashboard.html" class="nav-item active"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="nav-text">Timetable</span></a>
+            <a href="../library/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span><span class="nav-text">Library</span></a>
         </nav>
-
-
-        <div class="sidebar-bottom">
-
-            <button
-                type="button"
-                class="logout-button"
-                id="logoutButton"
-            >
-
-                <span>↪</span>
-
-                <span>
-                    Sign Out
-                </span>
-
-            </button>
-
+        <div class="sidebar-footer">
+            <a href="#" class="nav-item" id="logoutBtn"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span class="nav-text">Logout</span></a>
         </div>
-
     </aside>
 
-
-    <main class="admin-main">
-
-        <header class="admin-header">
-
-            <div class="header-left">
-
-                <button
-                    type="button"
-                    class="sidebar-toggle"
-                    id="sidebarToggle"
-                >
-                    ☰
-                </button>
-
-                <div>
-
-                    <span class="header-label">
-                        Academic Management
-                    </span>
-
-                    <h1>
-                        Timetable
-                    </h1>
-
-                </div>
-
-            </div>
-
-
-            <div class="admin-profile">
-
-                <div class="admin-avatar">
-                    A
-                </div>
-
-                <div class="admin-profile-info">
-
-                    <strong>
-                        Administrator
-                    </strong>
-
-                    <span>
-                        Admin
-                    </span>
-
-                </div>
-
-            </div>
-
-        </header>
-
-
-        <section class="page-container">
-
+    <main class="main-content">
+        <div class="top-bar">
+            <h1 class="page-title">Timetable Management</h1>
+            <div class="user-avatar" id="userAvatar">A</div>
+        </div>
+        <div class="content-area">
             <div class="page-header">
-
-                <div class="header-left">
-
-                    <div class="page-icon">
-                        🗓
-                    </div>
-
-                    <div>
-
-                        <h1>
-                            Timetable
-                        </h1>
-
-                        <p>
-                            Manage school class schedules
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div class="header-actions">
-
-                    <button
-                        type="button"
-                        id="refreshTimetable"
-                        class="btn btn-secondary"
-                    >
-                        ↻ Refresh
-                    </button>
-
-                    <a
-                        href="add.html"
-                        class="btn btn-primary"
-                    >
-                        ＋ Add Timetable
-                    </a>
-
-                </div>
-
+                <div></div>
+                <a href="add.html" class="btn btn-primary">+ Add Timetable</a>
             </div>
-
-
-            <div
-                id="message"
-                class="message"
-                hidden
-            ></div>
-
 
             <div class="stats-grid">
-
                 <div class="stat-card">
-
-                    <div class="stat-icon">
-                        🗓
-                    </div>
-
-                    <div>
-
-                        <span>
-                            Total Schedule
-                        </span>
-
-                        <strong id="totalTimetable">
-                            0
-                        </strong>
-
-                    </div>
-
+                    <div class="stat-label">Total Schedules</div>
+                    <div class="stat-value" id="totalTimetable">0</div>
                 </div>
-
-
-                <div class="stat-card">
-
-                    <div class="stat-icon">
-                        🏫
-                    </div>
-
-                    <div>
-
-                        <span>
-                            Classes
-                        </span>
-
-                        <strong id="totalClasses">
-                            0
-                        </strong>
-
-                    </div>
-
+                <div class="stat-card classes">
+                    <div class="stat-label">Classes</div>
+                    <div class="stat-value" id="totalClasses">0</div>
                 </div>
-
-
-                <div class="stat-card">
-
-                    <div class="stat-icon">
-                        📚
-                    </div>
-
-                    <div>
-
-                        <span>
-                            Subjects
-                        </span>
-
-                        <strong id="totalSubjects">
-                            0
-                        </strong>
-
-                    </div>
-
+                <div class="stat-card subjects">
+                    <div class="stat-label">Subjects</div>
+                    <div class="stat-value" id="totalSubjects">0</div>
                 </div>
-
-
-                <div class="stat-card">
-
-                    <div class="stat-icon">
-                        📅
-                    </div>
-
-                    <div>
-
-                        <span>
-                            Days
-                        </span>
-
-                        <strong id="totalDays">
-                            0
-                        </strong>
-
-                    </div>
-
+                <div class="stat-card days">
+                    <div class="stat-label">Days Covered</div>
+                    <div class="stat-value" id="totalDays">0</div>
                 </div>
-
             </div>
 
+            <div id="message" class="message" hidden></div>
 
-            <div class="content-card">
-
-                <div class="filters-row">
-
-                    <input
-                        type="search"
-                        id="timetableSearch"
-                        class="search-input"
-                        placeholder="Search class, subject, room..."
-                        autocomplete="off"
-                    >
-
-
-                    <select
-                        id="dayFilter"
-                        class="filter-select"
-                    >
-
-                        <option value="">
-                            All Days
-                        </option>
-
-                        <option value="Monday">
-                            Monday
-                        </option>
-
-                        <option value="Tuesday">
-                            Tuesday
-                        </option>
-
-                        <option value="Wednesday">
-                            Wednesday
-                        </option>
-
-                        <option value="Thursday">
-                            Thursday
-                        </option>
-
-                        <option value="Friday">
-                            Friday
-                        </option>
-
-                        <option value="Saturday">
-                            Saturday
-                        </option>
-
-                    </select>
-
-
-                    <button
-                        type="button"
-                        id="clearFilters"
-                        class="btn btn-secondary"
-                    >
-                        Clear
-                    </button>
-
+            <div class="data-table-container">
+                <div class="table-header">
+                    <h2>Timetable Records</h2>
+                    <div class="filter-group">
+                        <input type="text" id="searchInput" placeholder="Search class, subject, teacher, room...">
+                        <select id="dayFilter">
+                            <option value="">All Days</option>
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday">Friday</option>
+                            <option value="Saturday">Saturday</option>
+                        </select>
+                        <button class="btn btn-secondary" id="clearBtn">Clear</button>
+                    </div>
                 </div>
-
-
-                <div class="table-container">
-
-                    <table class="data-table">
-
-                        <thead>
-
-                            <tr>
-
-                                <th>
-                                    #
-                                </th>
-
-                                <th>
-                                    Day
-                                </th>
-
-                                <th>
-                                    Time
-                                </th>
-
-                                <th>
-                                    Class
-                                </th>
-
-                                <th>
-                                    Section
-                                </th>
-
-                                <th>
-                                    Subject
-                                </th>
-
-                                <th>
-                                    Room
-                                </th>
-
-                                <th>
-                                    Academic Year
-                                </th>
-
-                                <th>
-                                    Actions
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody id="timetableTableBody">
-
-                            <tr>
-
-                                <td
-                                    colspan="9"
-                                    class="table-empty"
-                                >
-                                    Loading timetable...
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
+                <div id="tableContent">
+                    <div class="empty-state">Loading timetable...</div>
                 </div>
-
             </div>
-
-        </section>
-
-
-        <footer class="admin-footer">
-
-            <span>
-                © 2026 Sululta School Portal
-            </span>
-
-            <span>
-                School Management System
-            </span>
-
-        </footer>
-
+        </div>
     </main>
 
-</div>
+    <script type="module">
+        import { supabase } from '../src/supabase.js';
 
+        let allData = [];
+        let teachers = [];
 
-<script
-    type="module"
-    src="../src/timetable-dashboard.js"
-></script>
+        document.getElementById('toggleSidebar').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('mobile-open');
+        });
 
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await supabase.auth.signOut();
+            window.location.href = '../login.html';
+        });
+
+        async function loadData() {
+            try {
+                const [timetableRes, teacherRes] = await Promise.all([
+                    supabase
+                        .from('timetable')
+                        .select('*')
+                        .order('day', { ascending: true })
+                        .order('start_time', { ascending: true }),
+                    supabase
+                        .from('teachers')
+                        .select('id, teacher_id, first_name, last_name')
+                ]);
+
+                if (timetableRes.error) {
+                    document.getElementById('tableContent').innerHTML =
+                        `<div class="empty-state" style="color:#c53030">Error: ${timetableRes.error.message}</div>`;
+                    return;
+                }
+
+                teachers = teacherRes.data || [];
+                const timetableTeachers = JSON.parse(localStorage.getItem('sululta_timetable_teachers') || '{}');
+                const assignments = JSON.parse(localStorage.getItem('sululta_teacher_subject_assignments') || '[]');
+
+                allData = (timetableRes.data || []).map(r => {
+                    const cached = timetableTeachers[r.id];
+                    let teacherName = r.teacher_name || cached?.teacher_name || '';
+
+                    if (!teacherName && (r.teacher_id || cached?.teacher_id)) {
+                        const targetId = r.teacher_id || cached?.teacher_id;
+                        const t = teachers.find(item => String(item.id) === String(targetId) || String(item.teacher_id) === String(targetId));
+                        if (t) teacherName = `${t.first_name} ${t.last_name}`;
+                    }
+
+                    if (!teacherName) {
+                        const match = assignments.find(a =>
+                            a.subject_code === r.subject_code &&
+                            (!a.class_name || (a.class_name === r.class_name && (!a.section || a.section === r.section)))
+                        );
+                        if (match) {
+                            const t = teachers.find(item => String(item.id) === String(match.teacher_id));
+                            if (t) teacherName = `${t.first_name} ${t.last_name}`;
+                        }
+                    }
+
+                    return { ...r, teacherName };
+                });
+
+                updateStats();
+                renderTable(allData);
+            } catch (err) {
+                console.error('Timetable load error:', err);
+                document.getElementById('tableContent').innerHTML =
+                    `<div class="empty-state" style="color:#c53030">Error loading timetable: ${err.message}</div>`;
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('totalTimetable').textContent = allData.length;
+            document.getElementById('totalClasses').textContent =
+                new Set(allData.map(r => `${r.class_name}|${r.section}`)).size;
+            document.getElementById('totalSubjects').textContent =
+                new Set(allData.map(r => r.subject_code || r.subject_name).filter(Boolean)).size;
+            document.getElementById('totalDays').textContent =
+                new Set(allData.map(r => r.day).filter(Boolean)).size;
+        }
+
+        function renderTable(rows) {
+            if (!rows.length) {
+                document.getElementById('tableContent').innerHTML =
+                    '<div class="empty-state">No timetable records found.</div>';
+                return;
+            }
+            const html = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Day</th>
+                            <th>Time</th>
+                            <th>Class</th>
+                            <th>Section</th>
+                            <th>Subject</th>
+                            <th>Assigned Teacher</th>
+                            <th>Room</th>
+                            <th>Academic Year</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rows.map((r, i) => `
+                            <tr>
+                                <td>${i + 1}</td>
+                                <td><strong>${r.day || '-'}</strong></td>
+                                <td>${r.start_time ? r.start_time.slice(0,5) : '-'} – ${r.end_time ? r.end_time.slice(0,5) : '-'}</td>
+                                <td>${r.class_name || '-'}</td>
+                                <td>${r.section || '-'}</td>
+                                <td><strong>${r.subject_name || '-'}</strong><br><small style="color:#718096">${r.subject_code || ''}</small></td>
+                                <td>
+                                    ${r.teacherName
+                                        ? `<span class="teacher-badge">👤 ${r.teacherName}</span>`
+                                        : `<span class="teacher-badge unassigned">— Unassigned</span>`}
+                                </td>
+                                <td>${r.room_number || '-'}</td>
+                                <td>${r.academic_year || '-'}</td>
+                                <td>
+                                    <div class="action-group">
+                                        <a href="edit.html?id=${r.id}" class="btn btn-sm btn-secondary">Edit</a>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteRecord(${r.id})">Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>`;
+            document.getElementById('tableContent').innerHTML = html;
+        }
+
+        function applyFilters() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const day    = document.getElementById('dayFilter').value;
+            const filtered = allData.filter(r => {
+                const matchSearch = !search ||
+                    (r.class_name || '').toLowerCase().includes(search) ||
+                    (r.subject_name || '').toLowerCase().includes(search) ||
+                    (r.subject_code || '').toLowerCase().includes(search) ||
+                    (r.teacherName || '').toLowerCase().includes(search) ||
+                    (r.room_number || '').toLowerCase().includes(search) ||
+                    (r.section || '').toLowerCase().includes(search);
+                const matchDay = !day || r.day === day;
+                return matchSearch && matchDay;
+            });
+            renderTable(filtered);
+        }
+
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+        document.getElementById('dayFilter').addEventListener('change', applyFilters);
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('dayFilter').value = '';
+            renderTable(allData);
+        });
+
+        window.deleteRecord = async (id) => {
+            if (!confirm('Delete this timetable entry?')) return;
+            const { error } = await supabase.from('timetable').delete().eq('id', id);
+            if (error) { alert('Error: ' + error.message); return; }
+
+            try {
+                const cached = JSON.parse(localStorage.getItem('sululta_timetable_teachers') || '{}');
+                delete cached[id];
+                localStorage.setItem('sululta_timetable_teachers', JSON.stringify(cached));
+            } catch (e) {}
+
+            loadData();
+        };
+
+        loadData();
+    </script>
 </body>
-
 </html>

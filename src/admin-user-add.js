@@ -3,496 +3,198 @@ import { supabase } from "./supabase.js";
 const form = document.getElementById("userForm");
 const message = document.getElementById("message");
 const saveButton = document.getElementById("saveUserButton");
+const btnText = document.getElementById("btnText");
+const roleSelect = document.getElementById("role");
+const recordSelect = document.getElementById("schoolRecordId");
 const logoutButton = document.getElementById("logoutButton");
 const sidebarToggle = document.getElementById("sidebarToggle");
 const sidebar = document.querySelector(".admin-sidebar");
 
-const roleSelect = document.getElementById("role");
-const studentSelectGroup = document.getElementById("studentSelectGroup");
-const studentSelect = document.getElementById("studentId");
-
-let students = [];
-
-function showMessage(text, type = "info") {
+function showMessage(text, type = "error") {
     if (!message) return;
-
     message.textContent = text;
-    message.className = `message ${type}`;
+    message.className = `ua-message ${type}`;
     message.hidden = false;
+    message.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
 function clearMessage() {
     if (!message) return;
-
     message.textContent = "";
     message.hidden = true;
 }
 
-function setupSidebar() {
-    if (!sidebarToggle || !sidebar) return;
-
-    sidebarToggle.addEventListener("click", () => {
-        sidebar.classList.toggle("mobile-open");
-    });
-}
-
-function setupLogout() {
-    if (!logoutButton) return;
-
-    logoutButton.addEventListener("click", async () => {
-        const { error } = await supabase.auth.signOut();
-
-        if (error) {
-            showMessage(error.message, "error");
-            return;
-        }
-
-        window.location.replace("/login.html");
-    });
-}
-
 async function checkAdmin() {
-    const {
-        data: { user },
-        error
-    } = await supabase.auth.getUser();
-
+    const { data: { user }, error } = await supabase.auth.getUser();
     if (error || !user) {
         window.location.replace("/login.html");
         return false;
     }
 
-    const {
-        data: profile,
-        error: profileError
-    } = await supabase
+    const { data: profile, error: profileError } = await supabase
         .from("profiles")
-        .select(`
-            id,
-            first_name,
-            last_name,
-            username,
-            role,
-            photo_url,
-            status
-        `)
+        .select("id, first_name, last_name, username, role, status")
         .eq("id", user.id)
         .maybeSingle();
 
-    if (profileError || !profile) {
-        await supabase.auth.signOut();
+    if (profileError) throw profileError;
+    if (!profile || profile.role !== "admin" || profile.status !== "active") {
         window.location.replace("/login.html");
         return false;
     }
 
-    if (
-        String(profile.role).toLowerCase() !== "admin" ||
-        String(profile.status).toLowerCase() !== "active"
-    ) {
-        await supabase.auth.signOut();
-        window.location.replace("/login.html");
-        return false;
-    }
-
-    updateAdminProfile(profile);
-
+    const fullName = `${profile.first_name || ""} ${profile.last_name || ""}`.trim()
+        || profile.username
+        || "Administrator";
+    const nameElement = document.querySelector(".admin-profile-info-name");
+    if (nameElement) nameElement.textContent = fullName;
     return true;
 }
 
-function updateAdminProfile(profile) {
-    const fullName =
-        `${profile.first_name || ""} ${profile.last_name || ""}`.trim() ||
-        profile.username ||
-        "Administrator";
+async function loadSchoolRecords(role) {
+    if (!recordSelect) return;
+    recordSelect.disabled = true;
+    recordSelect.innerHTML = '<option value="">Loading records...</option>';
 
-    const adminName = document.querySelector(
-        ".admin-profile-info strong"
-    );
-
-    const adminRole = document.querySelector(
-        ".admin-profile-info span"
-    );
-
-    const adminAvatar = document.querySelector(
-        ".admin-avatar"
-    );
-
-    if (adminName) {
-        adminName.textContent = fullName;
-    }
-
-    if (adminRole) {
-        adminRole.textContent = "Admin";
-    }
-
-    if (adminAvatar) {
-        adminAvatar.textContent =
-            fullName.charAt(0).toUpperCase();
-    }
-}
-
-async function loadStudents() {
-    if (!studentSelect) return false;
-
-    studentSelect.innerHTML = "";
-
-    const loadingOption = document.createElement("option");
-    loadingOption.value = "";
-    loadingOption.textContent = "Loading students...";
-    studentSelect.appendChild(loadingOption);
-
-    const {
-        data,
-        error
-    } = await supabase
-        .from("students")
-        .select(`
-            id,
-            student_id,
-            first_name,
-            last_name,
-            email,
-            phone,
-            gender,
-            date_of_birth,
-            class,
-            section,
-            status
-        `)
-        .order("first_name", {
-            ascending: true
-        });
+    const table = role === "teacher" ? "teachers" : "students";
+    const { data, error } = await supabase
+        .from(table)
+        .select("id, teacher_id, student_id, first_name, last_name, user_id")
+        .is("user_id", null)
+        .eq("status", "active")
+        .order("first_name");
 
     if (error) {
-        console.error("Load students error:", error);
+        recordSelect.innerHTML = '<option value="">Unable to load records</option>';
+        showMessage(`Unable to load ${role} records: ${error.message}`);
+        return;
+    }
 
-        studentSelect.innerHTML = "";
-
+    recordSelect.innerHTML = '<option value="">Select a school record</option>';
+    for (const record of data || []) {
         const option = document.createElement("option");
-        option.value = "";
-        option.textContent = "Unable to load students";
-        studentSelect.appendChild(option);
-
-        showMessage(
-            `Unable to load students: ${error.message}`,
-            "error"
-        );
-
-        return false;
+        option.value = String(record.id);
+        const reference = role === "teacher" ? record.teacher_id : record.student_id;
+        option.textContent = `${record.first_name} ${record.last_name} (${reference})`;
+        recordSelect.appendChild(option);
     }
 
-    students = data || [];
-
-    studentSelect.innerHTML = "";
-
-    const defaultOption = document.createElement("option");
-    defaultOption.value = "";
-    defaultOption.textContent = "Select Student";
-    studentSelect.appendChild(defaultOption);
-
-    students.forEach(student => {
-        const option = document.createElement("option");
-
-        option.value = String(student.id);
-
-        const name =
-            `${student.first_name || ""} ${student.last_name || ""}`.trim();
-
-        option.textContent =
-            `${student.student_id || "No ID"} - ${name || "Unnamed Student"}`;
-
-        studentSelect.appendChild(option);
-    });
-
-    if (students.length === 0) {
-        studentSelect.innerHTML = "";
-
-        const option = document.createElement("option");
-        option.value = "";
-        option.textContent = "No students found";
-
-        studentSelect.appendChild(option);
-    }
-
-    return true;
-}
-
-function handleRoleChange() {
-    if (!roleSelect || !studentSelectGroup) return;
-
-    const role = roleSelect.value;
-
-    if (role === "student") {
-        studentSelectGroup.hidden = false;
-    } else {
-        studentSelectGroup.hidden = true;
-
-        if (studentSelect) {
-            studentSelect.value = "";
-        }
-    }
-}
-
-function handleStudentChange() {
-    if (!studentSelect) return;
-
-    const selectedId = studentSelect.value;
-
-    if (!selectedId) return;
-
-    const student = students.find(
-        item => String(item.id) === String(selectedId)
-    );
-
-    if (!student) return;
-
-    const firstName = document.getElementById("firstName");
-    const lastName = document.getElementById("lastName");
-    const email = document.getElementById("email");
-    const phone = document.getElementById("phone");
-
-    if (firstName) {
-        firstName.value = student.first_name || "";
-    }
-
-    if (lastName) {
-        lastName.value = student.last_name || "";
-    }
-
-    if (email) {
-        email.value = student.email || "";
-    }
-
-    if (phone) {
-        phone.value = student.phone || "";
+    recordSelect.disabled = false;
+    if (!data?.length) {
+        showMessage(`Create an active ${role} record before inviting its account.`);
     }
 }
 
 function getFormData() {
     return {
-        first_name:
-            document.getElementById("firstName").value.trim(),
-
-        last_name:
-            document.getElementById("lastName").value.trim(),
-
-        email:
-            document.getElementById("email").value.trim().toLowerCase(),
-
-        username:
-            document.getElementById("username").value.trim(),
-
-        phone:
-            document.getElementById("phone").value.trim(),
-
-        role:
-            document.getElementById("role").value,
-
-        password:
-            document.getElementById("password").value,
-
-        confirmPassword:
-            document.getElementById("confirmPassword").value,
-
-        student_id:
-            document.getElementById("studentId")?.value || ""
+        first_name: document.getElementById("firstName")?.value.trim() || "",
+        last_name: document.getElementById("lastName")?.value.trim() || "",
+        email: document.getElementById("email")?.value.trim().toLowerCase() || "",
+        username: document.getElementById("username")?.value.trim() || "",
+        phone: document.getElementById("phone")?.value.trim() || "",
+        role: roleSelect?.value || "",
+        record_id: Number(recordSelect?.value)
     };
 }
 
 function validateForm(data) {
-    if (!data.first_name || !data.last_name) {
-        return "First name and last name are required.";
-    }
-
-    if (!data.email) {
-        return "Email is required.";
-    }
-
-    if (!data.role) {
-        return "Please select a role.";
-    }
-
-    if (
-        data.role === "student" &&
-        !data.student_id
-    ) {
-        return "Please select a student.";
-    }
-
-    if (!data.password) {
-        return "Password is required.";
-    }
-
-    if (data.password.length < 6) {
-        return "Password must contain at least 6 characters.";
-    }
-
-    if (data.password !== data.confirmPassword) {
-        return "Passwords do not match.";
-    }
-
+    if (!data.first_name || !data.last_name) return "First name and last name are required.";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) return "Enter a valid email address.";
+    if (!["teacher", "student"].includes(data.role)) return "Choose Teacher or Student.";
+    if (!Number.isSafeInteger(data.record_id) || data.record_id < 1) return "Select the matching school record.";
     return null;
 }
 
-async function createAccount(data) {
-    const {
-        data: sessionData,
-        error: sessionError
-    } = await supabase.auth.getSession();
+async function inviteAccount(data) {
+    const { data: result, error } = await supabase.functions.invoke("admin-invite-user", {
+        body: data
+    });
 
-    if (
-        sessionError ||
-        !sessionData.session
-    ) {
-        throw new Error(
-            "Your admin session has expired. Please login again."
-        );
-    }
-
-    const response = await fetch(
-        `${supabase.supabaseUrl}/functions/v1/create-user`,
-        {
-            method: "POST",
-
-            headers: {
-                "Content-Type": "application/json",
-
-                "Authorization":
-                    `Bearer ${sessionData.session.access_token}`,
-
-                "apikey":
-                    supabase.supabaseKey
-            },
-
-            body: JSON.stringify({
-                first_name: data.first_name,
-                last_name: data.last_name,
-                email: data.email,
-                username: data.username || null,
-                phone: data.phone || null,
-                role: data.role,
-                password: data.password,
-
-                student_id:
-                    data.role === "student"
-                        ? Number(data.student_id)
-                        : null
-            })
+    if (error) {
+        const response = error.context;
+        if (response && typeof response.json === "function") {
+            const details = await response.json().catch(() => null);
+            throw new Error(details?.error || error.message);
         }
-    );
-
-    let result;
-
-    try {
-        result = await response.json();
-    } catch {
-        result = {};
+        throw error;
     }
 
-    if (!response.ok) {
-        throw new Error(
-            result.error ||
-            "Failed to create account."
-        );
-    }
-
-    return result;
+    if (!result?.success) throw new Error("The invitation could not be completed.");
 }
 
-if (roleSelect) {
-    roleSelect.addEventListener(
-        "change",
-        handleRoleChange
-    );
+function setupSidebar() {
+    if (!sidebarToggle || !sidebar) return;
+    sidebarToggle.addEventListener("click", () => sidebar.classList.toggle("mobile-open"));
+    document.addEventListener("click", event => {
+        if (
+            window.innerWidth <= 900 &&
+            sidebar.classList.contains("mobile-open") &&
+            !sidebar.contains(event.target) &&
+            !sidebarToggle.contains(event.target)
+        ) {
+            sidebar.classList.remove("mobile-open");
+        }
+    });
 }
 
-if (studentSelect) {
-    studentSelect.addEventListener(
-        "change",
-        handleStudentChange
-    );
-}
-
-form?.addEventListener(
-    "submit",
-    async event => {
-        event.preventDefault();
-
-        clearMessage();
-
-        const data = getFormData();
-
-        const validationError =
-            validateForm(data);
-
-        if (validationError) {
-            showMessage(
-                validationError,
-                "error"
-            );
+function setupLogout() {
+    logoutButton?.addEventListener("click", async () => {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+            showMessage(`Unable to sign out: ${error.message}`);
             return;
         }
+        window.location.replace("/login.html");
+    });
+}
 
-        if (saveButton) {
-            saveButton.disabled = true;
-            saveButton.textContent =
-                "Creating Account...";
-        }
-
-        try {
-            await createAccount(data);
-
-            showMessage(
-                "Account created successfully.",
-                "success"
-            );
-
-            form.reset();
-
-            if (studentSelectGroup) {
-                studentSelectGroup.hidden = true;
-            }
-
-            setTimeout(() => {
-                window.location.replace(
-                    "/admin/users.html"
-                );
-            }, 1200);
-
-        } catch (error) {
-            console.error(
-                "Create account error:",
-                error
-            );
-
-            showMessage(
-                error.message,
-                "error"
-            );
-
-        } finally {
-            if (saveButton) {
-                saveButton.disabled = false;
-                saveButton.textContent =
-                    "Create Account";
-            }
-        }
+roleSelect?.addEventListener("change", () => {
+    clearMessage();
+    if (roleSelect.value) void loadSchoolRecords(roleSelect.value);
+    else if (recordSelect) {
+        recordSelect.disabled = true;
+        recordSelect.innerHTML = '<option value="">Choose a role first</option>';
     }
-);
+});
+
+form?.addEventListener("submit", async event => {
+    event.preventDefault();
+    clearMessage();
+    const data = getFormData();
+    const validationError = validateForm(data);
+    if (validationError) {
+        showMessage(validationError);
+        return;
+    }
+
+    if (saveButton) saveButton.disabled = true;
+    if (btnText) btnText.textContent = "Sending Invitation...";
+    try {
+        await inviteAccount(data);
+        showMessage("Invitation sent. The user must use the email link to set their password.", "success");
+        form.reset();
+        if (recordSelect) {
+            recordSelect.disabled = true;
+            recordSelect.innerHTML = '<option value="">Choose a role first</option>';
+        }
+    } catch (error) {
+        console.error("Create account error:", error);
+        showMessage(error?.message || "Unable to invite this account.");
+    } finally {
+        if (saveButton) saveButton.disabled = false;
+        if (btnText) btnText.textContent = "Send Invitation";
+    }
+});
 
 async function initialize() {
     setupSidebar();
     setupLogout();
-
-    const isAdmin = await checkAdmin();
-
-    if (!isAdmin) {
-        return;
+    try {
+        await checkAdmin();
+    } catch (error) {
+        console.error("Administrator authorization failed:", error);
+        showMessage(error.message || "Unable to verify administrator access.");
     }
-
-    await loadStudents();
-
-    handleRoleChange();
 }
 
-initialize();
+void initialize();

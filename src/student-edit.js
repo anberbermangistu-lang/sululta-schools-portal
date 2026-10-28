@@ -48,7 +48,7 @@ async function loadStudent(id) {
             section,
             phone,
             status,
-            photo
+            photo_url
         `)
         .eq("id", id)
         .maybeSingle();
@@ -339,7 +339,7 @@ async function saveStudent(event) {
 
                     status: status,
 
-                    photo: photoPath
+                    photo_url: photoPath
 
                 })
                 .eq("id", student.id);

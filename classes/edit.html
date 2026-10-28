@@ -16,128 +16,19 @@
         rel="stylesheet"
         href="../src/style.css"
     >
+    <link rel="stylesheet" href="../src/sidebar.css">
 
 </head>
 
 <body>
 
 <div class="admin-page">
-
-    <aside class="admin-sidebar">
-
-        <div class="sidebar-brand">
-
-            <div class="school-logo">
-                SS
-            </div>
-
-            <div class="school-info">
-                <strong>Sululta School</strong>
-                <span>Admin Portal</span>
-            </div>
-
-        </div>
-
-
-        <nav class="sidebar-menu">
-
-            <div class="menu-title">
-                Main
-            </div>
-
-            <a
-                href="../admin/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🏠</span>
-                <span>Dashboard</span>
-            </a>
-
-
-            <div class="menu-title">
-                Management
-            </div>
-
-
-            <a
-                href="../students/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>👨‍🎓</span>
-                <span>Students</span>
-            </a>
-
-
-            <a
-                href="../teachers/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>👨‍🏫</span>
-                <span>Teachers</span>
-            </a>
-
-
-            <a
-                href="../parents/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>👨‍👩‍👧</span>
-                <span>Parents</span>
-            </a>
-
-
-            <a
-                href="dashboard.html"
-                class="sidebar-link active"
-            >
-                <span>🏫</span>
-                <span>Classes</span>
-            </a>
-
-
-            <a
-                href="../subjects/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📚</span>
-                <span>Subjects</span>
-            </a>
-
-
-            <a
-                href="../exams/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📝</span>
-                <span>Exams</span>
-            </a>
-
-
-            <a
-                href="../notices/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📢</span>
-                <span>Notices</span>
-            </a>
-
-        </nav>
-
-
-        <div class="sidebar-bottom">
-
-            <a
-                href="../login.html"
-                class="logout-button"
-            >
-                <span>↪</span>
-                <span>Logout</span>
-            </a>
-
-        </div>
-
-    </aside>
-
+        <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <img src="../public/school-logo.svg" alt="Logo" class="logo-image">
+                <span class="logo-text">Sululta School</span>
+            
 
     <main class="admin-main">
 
@@ -150,9 +41,8 @@
                     class="sidebar-toggle"
                     onclick="document.querySelector('.admin-sidebar').classList.toggle('open')"
                 >
-                    ☰
+                    ?
                 </button>
-
 
                 <div>
 
@@ -167,7 +57,6 @@
                 </div>
 
             </div>
-
 
             <div class="admin-profile">
 
@@ -191,16 +80,14 @@
 
         </header>
 
-
         <section class="page-container">
-
 
             <div class="page-header">
 
                 <div class="header-left">
 
                     <div class="page-icon">
-                        🏫
+                        ??
                     </div>
 
                     <div>
@@ -217,38 +104,32 @@
 
                 </div>
 
-
                 <div class="header-actions">
 
                     <a
                         href="dashboard.html"
                         class="btn btn-secondary"
                     >
-                        ← Back
+                        ? Back
                     </a>
 
                 </div>
 
             </div>
 
-
             <div
                 id="message"
                 class="message"
             ></div>
 
-
             <div class="form-card">
-
 
                 <form
                     id="editClassForm"
                     novalidate
                 >
 
-
                     <div class="form-grid">
-
 
                         <div class="form-group">
 
@@ -267,7 +148,6 @@
 
                         </div>
 
-
                         <div class="form-group">
 
                             <label for="section">
@@ -285,7 +165,6 @@
 
                         </div>
 
-
                         <div class="form-group">
 
                             <label for="room_number">
@@ -301,7 +180,6 @@
 
                         </div>
 
-
                         <div class="form-group">
 
                             <label for="academic_year">
@@ -316,7 +194,6 @@
                             >
 
                         </div>
-
 
                         <div class="form-group">
 
@@ -336,7 +213,6 @@
                             </select>
 
                         </div>
-
 
                         <div class="form-group">
 
@@ -363,9 +239,7 @@
 
                         </div>
 
-
                     </div>
-
 
                     <div class="form-actions">
 
@@ -375,7 +249,6 @@
                         >
                             Cancel
                         </a>
-
 
                         <button
                             type="submit"
@@ -387,18 +260,16 @@
 
                     </div>
 
-
                 </form>
 
             </div>
 
         </section>
 
-
         <footer class="admin-footer">
 
             <span>
-                © 2026 Sululta School Portal
+                � 2026 Sululta School Portal
             </span>
 
             <span>
@@ -410,7 +281,6 @@
     </main>
 
 </div>
-
 
 <script
     type="module"

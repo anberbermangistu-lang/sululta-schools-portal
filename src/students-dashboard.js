@@ -167,7 +167,6 @@ async function loadStudents() {
             status,
             created_at,
             updated_at,
-            photo,
             class_id
         `)
         .order("id", {

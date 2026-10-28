@@ -1,0 +1,7 @@
+project_id = "sululta-school-portal"
+
+[functions.admin-invite-user]
+verify_jwt = true
+
+[functions.admin-create-school-account]
+verify_jwt = true

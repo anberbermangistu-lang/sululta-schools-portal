@@ -1,95 +1,100 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login | Sululta Secondary School</title>
-
-<link rel="stylesheet" href="/src/style.css">
+    <meta name="theme-color" content="#082b59">
+    <title>Login | Sululta Secondary School</title>
+    <link rel="stylesheet" href="/src/style.css">
 </head>
+<body class="portal-login">
+    <div class="portal-login__backdrop" aria-hidden="true"></div>
 
-<body>
-<div class="login-page">
+    <header class="portal-login__header">
+        <a class="portal-login__identity" href="/" aria-label="Sululta Secondary School home">
+            <img src="/school-logo.svg" alt="Sululta Secondary School logo">
+            <span class="portal-login__identity-copy">
+                <strong>SULULTA SECONDARY SCHOOL</strong>
+                <span>Learn <i>|</i> Grow <i>|</i> Build Your Future</span>
+            </span>
+        </a>
+    </header>
 
-    <div class="login-box">
+    <main class="portal-login__main">
+        <section class="portal-login__welcome" aria-labelledby="welcomeHeading">
+            <div class="portal-login__welcome-copy">
+                <h1 id="welcomeHeading">Welcome to<br>Sululta Secondary<br>School</h1>
+                <p class="portal-login__slogan">Learn <span>•</span> Grow <span>•</span> Build Your Future</p>
+                <div class="portal-login__accent" aria-hidden="true"></div>
 
-        <div class="login-logo">
-            SS
-        </div>
-
-        <h1>Sululta Secondary School</h1>
-
-        <p class="login-subtitle">
-            School Management Portal
-        </p>
-
-        <form id="loginForm">
-
-            <div class="form-group">
-
-                <label for="email">
-                    Email
-                </label>
-
-                <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    placeholder="Enter your email"
-                    autocomplete="email"
-                    required
-                >
-
+                <ul class="portal-login__features" aria-label="Our values">
+                    <li>
+                        <svg viewBox="0 0 48 48" aria-hidden="true"><path d="m4 17 20-10 20 10-20 10L4 17Z"/><path d="M12 21v10c7 7 17 7 24 0V21M44 18v13"/></svg>
+                        <span>Quality<br>Education</span>
+                    </li>
+                    <li>
+                        <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M5 41h39M10 37V27h8v10M23 37V19h8v18M36 37V11h8v26M8 20l12-9 8 5L42 4M34 4h8v8"/></svg>
+                        <span>Better<br>Future</span>
+                    </li>
+                    <li>
+                        <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="14" r="7"/><circle cx="9" cy="18" r="5"/><circle cx="39" cy="18" r="5"/><path d="M11 39v-5c0-7 5-12 13-12s13 5 13 12v5H11ZM3 38v-5c0-5 3-9 8-10m34 15v-5c0-5-3-9-8-10"/></svg>
+                        <span>Strong<br>Community</span>
+                    </li>
+                </ul>
             </div>
+        </section>
 
-            <div class="form-group">
+        <section class="portal-login__card" aria-labelledby="loginHeading">
+            <img class="portal-login__card-logo" src="/school-logo.svg" alt="Sululta Secondary School logo">
+            <h2 id="loginHeading">Login to Your Account</h2>
 
-                <label for="password">
-                    Password
+            <form id="loginForm" class="portal-login__form">
+                <label class="portal-login__field" for="email">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2Z"/></svg>
+                    <span class="portal-login__visually-hidden">Email address</span>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Email address"
+                        autocomplete="username"
+                        aria-label="Email address"
+                        required
+                    >
                 </label>
 
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    placeholder="Enter your password"
-                    autocomplete="current-password"
-                    required
-                >
-
-                <div class="forgot-password">
-                    <a href="/forgot-password.html">
-                        Forgot Password?
-                    </a>
+                <div class="portal-login__field portal-login__password-field">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg>
+                    <label class="portal-login__visually-hidden" for="password">Password</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Password"
+                        autocomplete="current-password"
+                        aria-label="Password"
+                        required
+                    >
+                    <button
+                        type="button"
+                        class="portal-login__password-toggle"
+                        id="passwordToggle"
+                        aria-label="Show password"
+                        aria-pressed="false"
+                    >
+                        <svg class="portal-login__eye-open" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+                        <svg class="portal-login__eye-closed" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 5.2A10.8 10.8 0 0 1 12 5c6.5 0 10 7 10 7a16 16 0 0 1-3.1 3.8M6.2 6.2C3.5 8 2 12 2 12s3.5 7 10 7a10 10 0 0 0 4-.8"/></svg>
+                    </button>
                 </div>
 
-            </div>
+                <button type="submit" class="portal-login__submit" id="loginButton">Login</button>
+                <p id="loginMessage" class="login-message portal-login__message" role="status" aria-live="polite" hidden></p>
+            </form>
 
-            <button
-                type="submit"
-                id="loginButton"
-            >
-                Login
-            </button>
+            <a class="portal-login__forgot" href="/forgot-password.html">Forgot Password?</a>
+        </section>
+    </main>
 
-            <p
-                id="loginMessage"
-                class="login-message"
-                hidden
-            ></p>
-
-        </form>
-
-    </div>
-
-</div>
-
-<script
-    type="module"
-    src="/src/login.js"
-></script>
+    <script type="module" src="/src/login.js"></script>
 </body>
-
 </html>

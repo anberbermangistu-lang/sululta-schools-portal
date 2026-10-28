@@ -1,363 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit User | Sululta School Portal</title>
-    <link rel="icon" href="data:,">
-    <link rel="stylesheet" href="../src/style.css">
+    <title>Edit Account - Sululta School Portal</title>
+    <link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
+    <link rel="stylesheet" href="../src/sidebar.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; }
+        .main-content { margin-left: 260px; min-height: 100vh; }
+        .top-bar { background: white; padding: 1.25rem 2rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .page-title { font-size: 1.75rem; font-weight: 700; color: #1a202c; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; }
+        .content-area { padding: 2rem; max-width: 900px; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .form-card { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 2rem; }
+        .form-card h3 { font-size: 1rem; font-weight: 600; color: #2d3748; margin-bottom: 0.25rem; }
+        .form-card > p { font-size: 0.875rem; color: #718096; margin-bottom: 1.5rem; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+        .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-group label { font-size: 0.875rem; font-weight: 600; color: #4a5568; }
+        .form-group label span { color: #e53e3e; }
+        .form-group input, .form-group select { padding: 0.6rem 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem; color: #2d3748; background: white; transition: border-color 0.2s; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.15); }
+        .form-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 0.75rem; padding-top: 1rem; border-top: 1px solid #e2e8f0; margin-top: 0.5rem; }
+        .btn { padding: 0.625rem 1.25rem; border-radius: 8px; border: none; font-weight: 600; font-size: 0.875rem; cursor: pointer; text-decoration: none; display: inline-block; transition: all 0.2s; }
+        .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102,126,234,0.4); }
+        .btn-primary:disabled { opacity: 0.6; transform: none; cursor: not-allowed; }
+        .btn-secondary { background: #e2e8f0; color: #2d3748; }
+        .btn-secondary:hover { background: #cbd5e0; }
+        .message { padding: 0.875rem 1rem; border-radius: 8px; margin-bottom: 1.25rem; font-size: 0.875rem; }
+        .message.error   { background: #fff5f5; color: #c53030; border: 1px solid #fed7d7; }
+        .message.success { background: #f0fff4; color: #276749; border: 1px solid #c6f6d5; }
+        @media (max-width: 768px) { .main-content { margin-left: 0; } .form-grid { grid-template-columns: 1fr; } }
+    </style>
 </head>
-
 <body>
-
-<div class="admin-page">
-
-    <aside class="admin-sidebar">
-
-        <div class="sidebar-brand">
-            <div class="school-logo">SS</div>
-            <div class="school-info">
-                <strong>Sululta School</strong>
-                <span>Admin Portal</span>
+    <aside class="sidebar admin-sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <img src="../public/school-logo.svg" alt="Logo" class="logo-image">
+                <span class="logo-text">Sululta School</span>
             </div>
+            <button class="toggle-btn" id="sidebarToggle"><span></span><span></span><span></span></button>
         </div>
-
-        <nav class="sidebar-menu">
-
-            <div class="menu-title">MAIN</div>
-
-            <a href="/admin/dashboard.html" class="sidebar-link">
-                <span>🏠</span>
-                <span>Dashboard</span>
-            </a>
-
-            <div class="menu-title">ACADEMIC MANAGEMENT</div>
-
-            <a href="/students/dashboard.html" class="sidebar-link">
-                <span>👨‍🎓</span>
-                <span>Students</span>
-            </a>
-
-            <a href="/teachers/dashboard.html" class="sidebar-link">
-                <span>👨‍🏫</span>
-                <span>Teachers</span>
-            </a>
-
-            <a href="/parents/dashboard.html" class="sidebar-link">
-                <span>👨‍👩‍👧</span>
-                <span>Parents</span>
-            </a>
-
-            <a href="/classes/dashboard.html" class="sidebar-link">
-                <span>🏫</span>
-                <span>Classes</span>
-            </a>
-
-            <a href="/subjects/dashboard.html" class="sidebar-link">
-                <span>📚</span>
-                <span>Subjects</span>
-            </a>
-
-            <a href="/exams/dashboard.html" class="sidebar-link">
-                <span>📝</span>
-                <span>Exams</span>
-            </a>
-
-            <a href="/attendance/dashboard.html" class="sidebar-link">
-                <span>📅</span>
-                <span>Attendance</span>
-            </a>
-
-            <a href="/timetable/dashboard.html" class="sidebar-link">
-                <span>🗓️</span>
-                <span>Timetable</span>
-            </a>
-
-            <a href="/results/dashboard.html" class="sidebar-link">
-                <span>📊</span>
-                <span>Results</span>
-            </a>
-
-            <a href="/library/dashboard.html" class="sidebar-link">
-                <span>📚</span>
-                <span>Library</span>
-            </a>
-
-            <a href="/events/dashboard.html" class="sidebar-link">
-                <span>🎉</span>
-                <span>Events</span>
-            </a>
-
-            <a href="/notices/dashboard.html" class="sidebar-link">
-                <span>📢</span>
-                <span>Notices</span>
-            </a>
-
-            <div class="menu-title">FINANCE</div>
-
-            <a href="/fees/dashboard.html" class="sidebar-link">
-                <span>💰</span>
-                <span>Fees</span>
-            </a>
-
-            <div class="menu-title">ACCOUNT</div>
-
-            <a href="/admin/users.html" class="sidebar-link active">
-                <span>👥</span>
-                <span>Users</span>
-            </a>
-
-            <a href="/admin/user-add.html" class="sidebar-link">
-                <span>➕</span>
-                <span>Create User</span>
-            </a>
-
+        <nav class="sidebar-nav">
+            <a href="/admin/dashboard.html" class="nav-item active"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span><span class="nav-text">Dashboard</span></a>
+            <a href="/students/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="nav-text">Students</span></a>
+            <a href="/teachers/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="12" cy="5" r="2"/></svg></span><span class="nav-text">Teachers</span></a>
+            <a href="/admin/users.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg></span><span class="nav-text">Users</span></a>
         </nav>
-
-        <div class="sidebar-bottom">
-
-            <a href="/login.html" class="logout-button">
-                <span>↪</span>
-                <span>Logout</span>
-            </a>
-
+        <div class="sidebar-footer">
+            <button class="nav-item" id="logoutButton" style="background:none;border:none;width:100%;cursor:pointer;"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span class="nav-text">Logout</span></button>
         </div>
-
     </aside>
 
-    <main class="admin-main">
-
-        <header class="admin-header">
-
-            <div class="header-left">
-
-                <button
-                    type="button"
-                    class="sidebar-toggle"
-                    id="sidebarToggle">
-                    ☰
-                </button>
-
-                <div>
-                    <span class="header-label">USER MANAGEMENT</span>
-                    <h1>Edit User</h1>
-                </div>
-
-            </div>
-
-            <div class="admin-profile">
-
-                <div class="admin-avatar">A</div>
-
-                <div class="admin-profile-info">
-                    <strong>Administrator</strong>
-                    <span>Admin</span>
-                </div>
-
-            </div>
-
-        </header>
-
-        <section class="page-container">
-
+    <main class="main-content">
+        <div class="top-bar">
+            <h1 class="page-title">Edit Account</h1>
+            <div class="user-avatar">A</div>
+        </div>
+        <div class="content-area">
             <div class="page-header">
-
-                <div class="header-left">
-
-                    <div class="page-icon">✏️</div>
-
-                    <div>
-                        <h1>Edit User Account</h1>
-                        <p>Update account information.</p>
-                    </div>
-
-                </div>
-
-                <div class="header-actions">
-
-                    <a
-                        href="/admin/users.html"
-                        class="btn btn-secondary">
-                        ← Back
-                    </a>
-
-                </div>
-
+                <h2 style="font-size:1.1rem;color:#4a5568;">Update account information</h2>
+                <a href="/admin/users.html" class="btn btn-secondary">← Back</a>
             </div>
 
             <div id="messageBox" class="message"></div>
 
-            <section class="form-card">
-
-                <div class="panel-header">
-
-                    <div>
-                        <h2>User Information</h2>
-                        <p>Update the user's account information.</p>
-                    </div>
-
-                </div>
+            <div class="form-card">
+                <h3>Account Details</h3>
+                <p>Update profile details and account status. Roles and sign-in email are managed separately.</p>
 
                 <form id="userForm">
-
                     <div class="form-grid">
-
                         <div class="form-group">
-
-                            <label for="firstName">
-                                First Name
-                                <span>*</span>
-                            </label>
-
-                            <input
-                                type="text"
-                                id="firstName"
-                                name="first_name"
-                                required>
-
+                            <label for="firstName">First Name <span>*</span></label>
+                            <input type="text" id="firstName" required autocomplete="given-name">
                         </div>
-
                         <div class="form-group">
-
-                            <label for="lastName">
-                                Last Name
-                                <span>*</span>
-                            </label>
-
-                            <input
-                                type="text"
-                                id="lastName"
-                                name="last_name"
-                                required>
-
+                            <label for="lastName">Last Name <span>*</span></label>
+                            <input type="text" id="lastName" required autocomplete="family-name">
                         </div>
-
                         <div class="form-group">
-
-                            <label for="email">
-                                Email
-                                <span>*</span>
-                            </label>
-
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                required>
-
+                            <label for="email">Email Address <span>*</span></label>
+                            <input type="email" id="email" required autocomplete="email" readonly>
                         </div>
-
                         <div class="form-group">
-
-                            <label for="username">
-                                Username
-                            </label>
-
-                            <input
-                                type="text"
-                                id="username"
-                                name="username">
-
+                            <label for="username">Username</label>
+                            <input type="text" id="username" autocomplete="username" readonly>
                         </div>
-
                         <div class="form-group">
-
-                            <label for="phone">
-                                Phone
-                            </label>
-
-                            <input
-                                type="text"
-                                id="phone"
-                                name="phone">
-
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" autocomplete="tel">
                         </div>
-
                         <div class="form-group">
-
-                            <label for="role">
-                                Role
-                                <span>*</span>
-                            </label>
-
-                            <select
-                                id="role"
-                                name="role"
-                                required>
-
+                            <label for="role">Role <span>*</span></label>
+                            <select id="role" required disabled>
+                                <option value="">Select Role</option>
+                                <option value="admin">Admin</option>
                                 <option value="teacher">Teacher</option>
                                 <option value="student">Student</option>
-                                <option value="parent">Parent</option>
-                                <option value="librarian">Librarian</option>
-                                <option value="finance">Finance</option>
-                                <option value="admin">Admin</option>
-
                             </select>
-
                         </div>
-
                         <div class="form-group">
-
-                            <label for="status">
-                                Status
-                                <span>*</span>
-                            </label>
-
-                            <select
-                                id="status"
-                                name="status"
-                                required>
-
+                            <label for="status">Status <span>*</span></label>
+                            <select id="status" required>
                                 <option value="active">Active</option>
                                 <option value="inactive">Inactive</option>
-
                             </select>
-
                         </div>
-
+                        <div class="form-actions">
+                            <a href="/admin/users.html" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" id="saveButton" class="btn btn-primary">Save Changes</button>
+                        </div>
                     </div>
-
-                    <div class="form-actions">
-
-                        <a
-                            href="/admin/users.html"
-                            class="btn btn-secondary">
-                            Cancel
-                        </a>
-
-                        <button
-                            type="submit"
-                            id="saveButton"
-                            class="btn btn-primary">
-                            Save Changes
-                        </button>
-
-                    </div>
-
                 </form>
-
-            </section>
-
-        </section>
-
-        <footer class="admin-footer">
-
-            <span>© 2026 Sululta School Portal</span>
-
-            <span>School Management System</span>
-
-        </footer>
-
+            </div>
+        </div>
     </main>
 
-</div>
-
-<script
-    type="module"
-    src="../src/admin-user-edit.js">
-</script>
-
+    <script type="module" src="/src/admin-user-edit.js"></script>
 </body>
-
 </html>

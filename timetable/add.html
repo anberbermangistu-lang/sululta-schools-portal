@@ -1,523 +1,383 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Timetable | Sululta School Portal</title>
-
-    <link
-        rel="icon"
-        href="data:,"
-    >
-
-    <link
-        rel="stylesheet"
-        href="../src/style.css"
-    >
-
+    <link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
+    <link rel="stylesheet" href="../src/sidebar.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; }
+        .main-content { margin-left: 260px; min-height: 100vh; transition: margin-left 0.3s; }
+        .top-bar { background: white; padding: 1.25rem 2rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .page-title { font-size: 1.75rem; font-weight: 700; color: #1a202c; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; cursor: pointer; }
+        .content-area { padding: 2rem; max-width: 900px; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .page-header h2 { font-size: 1.25rem; color: #1a202c; }
+        .form-card { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 2rem; }
+        .form-card h3 { font-size: 1rem; font-weight: 600; color: #2d3748; margin-bottom: 0.25rem; }
+        .form-card p { font-size: 0.875rem; color: #718096; margin-bottom: 1.5rem; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+        .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-group label { font-size: 0.875rem; font-weight: 600; color: #4a5568; }
+        .form-group label span { color: #e53e3e; }
+        .form-group input, .form-group select { padding: 0.6rem 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem; color: #2d3748; background: white; transition: border-color 0.2s; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.15); }
+        .form-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 0.75rem; padding-top: 1rem; border-top: 1px solid #e2e8f0; margin-top: 0.5rem; }
+        .btn { padding: 0.625rem 1.25rem; border-radius: 8px; border: none; font-weight: 600; font-size: 0.875rem; cursor: pointer; text-decoration: none; display: inline-block; transition: all 0.2s; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102,126,234,0.4); }
+        .btn-primary:disabled { opacity: 0.6; transform: none; cursor: not-allowed; }
+        .btn-secondary { background: #e2e8f0; color: #2d3748; }
+        .btn-secondary:hover { background: #cbd5e0; }
+        .message { padding: 0.875rem 1rem; border-radius: 8px; margin-bottom: 1.25rem; font-size: 0.875rem; display: none; }
+        .message.error { background: #fff5f5; color: #c53030; border: 1px solid #fed7d7; display: block; }
+        .message.success { background: #f0fff4; color: #276749; border: 1px solid #c6f6d5; display: block; }
+        @media (max-width: 768px) { .main-content { margin-left: 0; } .form-grid { grid-template-columns: 1fr; } }
+    </style>
 </head>
-
-
 <body>
-
-
-<div class="admin-page">
-
-
-    <aside class="admin-sidebar">
-
-
-        <div class="sidebar-brand">
-
-            <div class="school-logo">
-                🏫
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <img src="../public/school-logo.svg" alt="Logo" class="logo-image">
+                <span class="logo-text">Sululta School</span>
             </div>
-
-            <div class="school-info">
-
-                <strong>
-                    Sululta School
-                </strong>
-
-                <span>
-                    School Portal
-                </span>
-
-            </div>
-
+            <button class="toggle-btn" id="toggleSidebar"><span></span><span></span><span></span></button>
         </div>
-
-
-        <nav class="sidebar-menu">
-
-
-            <a
-                href="../dashboard.html"
-                class="sidebar-link"
-            >
-
-                <span>🏠</span>
-
-                <span>
-                    Dashboard
-                </span>
-
-            </a>
-
-
-            <a
-                href="dashboard.html"
-                class="sidebar-link active"
-            >
-
-                <span>🗓️</span>
-
-                <span>
-                    Timetable
-                </span>
-
-            </a>
-
-
-            <a
-                href="../classes/dashboard.html"
-                class="sidebar-link"
-            >
-
-                <span>🏫</span>
-
-                <span>
-                    Classes
-                </span>
-
-            </a>
-
-
-            <a
-                href="../students/dashboard.html"
-                class="sidebar-link"
-            >
-
-                <span>👨‍🎓</span>
-
-                <span>
-                    Students
-                </span>
-
-            </a>
-
-
-            <a
-                href="../teachers/dashboard.html"
-                class="sidebar-link"
-            >
-
-                <span>👨‍🏫</span>
-
-                <span>
-                    Teachers
-                </span>
-
-            </a>
-
-
+        <nav class="sidebar-nav">
+            <a href="../admin/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span><span class="nav-text">Dashboard</span></a>
+            <a href="../students/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="nav-text">Students</span></a>
+            <a href="../teachers/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="12" cy="5" r="2"/></svg></span><span class="nav-text">Teachers</span></a>
+            <a href="../classes/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="nav-text">Classes</span></a>
+            <a href="../subjects/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span><span class="nav-text">Subjects</span></a>
+            <a href="../attendance/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span><span class="nav-text">Attendance</span></a>
+            <a href="../results/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span class="nav-text">Results</span></a>
+            <a href="../timetable/dashboard.html" class="nav-item active"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="nav-text">Timetable</span></a>
+            <a href="../library/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span><span class="nav-text">Library</span></a>
         </nav>
-
-
+        <div class="sidebar-footer">
+            <a href="#" class="nav-item" id="logoutBtn"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span class="nav-text">Logout</span></a>
+        </div>
     </aside>
 
-
-
-    <main class="admin-main">
-
-
-        <header class="admin-header">
-
-
-            <div class="header-left">
-
-
-                <button
-                    type="button"
-                    class="sidebar-toggle"
-                    id="sidebarToggle"
-                >
-                    ☰
-                </button>
-
-
-                <div>
-
-                    <span class="header-label">
-                        Academic Management
-                    </span>
-
-                    <h1>
-                        Timetable
-                    </h1>
-
-                </div>
-
-
-            </div>
-
-
-            <div class="admin-profile">
-
-
-                <div class="admin-avatar">
-                    A
-                </div>
-
-
-                <div class="admin-profile-info">
-
-                    <strong>
-                        Administrator
-                    </strong>
-
-                    <span>
-                        Admin
-                    </span>
-
-                </div>
-
-
-            </div>
-
-
-        </header>
-
-
-
-        <section class="page-container">
-
-
+    <main class="main-content">
+        <div class="top-bar">
+            <h1 class="page-title">Add Timetable</h1>
+            <div class="user-avatar" id="userAvatar">A</div>
+        </div>
+        <div class="content-area">
             <div class="page-header">
-
-
-                <div class="header-left">
-
-
-                    <div class="page-icon">
-                        🗓️
-                    </div>
-
-
-                    <div>
-
-                        <h1>
-                            Add Timetable
-                        </h1>
-
-                        <p>
-                            Create a new class timetable schedule
-                        </p>
-
-                    </div>
-
-
-                </div>
-
-
-                <div class="header-actions">
-
-                    <a
-                        href="dashboard.html"
-                        class="btn btn-secondary"
-                    >
-                        ← Back
-                    </a>
-
-                </div>
-
-
+                <h2>New Timetable Entry</h2>
+                <a href="dashboard.html" class="btn btn-secondary">← Back</a>
             </div>
 
+            <div id="messageBox" class="message"></div>
 
+            <div class="form-card">
+                <h3>Timetable Information</h3>
+                <p>Enter the class, subject, schedule, room, and assign a teacher.</p>
 
-            <div
-                id="message"
-                class="message"
-                hidden
-            ></div>
+                <form id="timetableForm">
+                    <div class="form-grid">
 
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="teacherSelect">Assign Teacher <span style="color:#2563eb;font-weight:700;">*</span></label>
+                            <select id="teacherSelect" name="teacher_id" style="width: 100%; border: 1.5px solid #2563eb; background-color: #f8faff;">
+                                <option value="">-- Loading teachers... --</option>
+                            </select>
+                        </div>
 
+                        <div class="form-group">
+                            <label for="classSelect">Choose Class <span style="font-size:12px;color:#64748b;">(or type below)</span></label>
+                            <select id="classSelect">
+                                <option value="">-- Select active class --</option>
+                            </select>
+                        </div>
 
-            <div class="content-card">
+                        <div class="form-group">
+                            <label for="subjectSelect">Choose Subject <span style="font-size:12px;color:#64748b;">(or type below)</span></label>
+                            <select id="subjectSelect">
+                                <option value="">-- Select subject catalog --</option>
+                            </select>
+                        </div>
 
+                        <div class="form-group">
+                            <label for="className">Class Name <span>*</span></label>
+                            <input type="text" id="className" name="class_name" placeholder="e.g. Grade 10" required>
+                        </div>
 
-                <div class="form-header">
+                        <div class="form-group">
+                            <label for="section">Section <span>*</span></label>
+                            <input type="text" id="section" name="section" placeholder="e.g. B" required>
+                        </div>
 
-                    <h2>
-                        Timetable Information
-                    </h2>
+                        <div class="form-group">
+                            <label for="subjectCode">Subject Code <span>*</span></label>
+                            <input type="text" id="subjectCode" name="subject_code" placeholder="e.g. 16263" required>
+                        </div>
 
-                    <p>
-                        Enter the class, subject, schedule and room information.
-                    </p>
+                        <div class="form-group">
+                            <label for="subjectName">Subject Name <span>*</span></label>
+                            <input type="text" id="subjectName" name="subject_name" placeholder="e.g. Mathematics" required>
+                        </div>
 
-                </div>
+                        <div class="form-group">
+                            <label for="day">Day <span>*</span></label>
+                            <select id="day" name="day" required>
+                                <option value="">Select Day</option>
+                                <option value="Monday">Monday</option>
+                                <option value="Tuesday">Tuesday</option>
+                                <option value="Wednesday">Wednesday</option>
+                                <option value="Thursday">Thursday</option>
+                                <option value="Friday">Friday</option>
+                                <option value="Saturday">Saturday</option>
+                            </select>
+                        </div>
 
+                        <div class="form-group">
+                            <label for="academicYear">Academic Year <span>*</span></label>
+                            <input type="text" id="academicYear" name="academic_year" placeholder="e.g. 2026/2027" value="2026/2027" required>
+                        </div>
 
+                        <div class="form-group">
+                            <label for="startTime">Start Time <span>*</span></label>
+                            <input type="time" id="startTime" name="start_time" required>
+                        </div>
 
-                <form
-                    id="timetableForm"
-                    class="form-grid"
-                >
+                        <div class="form-group">
+                            <label for="endTime">End Time <span>*</span></label>
+                            <input type="time" id="endTime" name="end_time" required>
+                        </div>
 
+                        <div class="form-group">
+                            <label for="roomNumber">Room Number</label>
+                            <input type="text" id="roomNumber" name="room_number" placeholder="e.g. 101">
+                        </div>
 
-                    <div class="form-group">
-
-                        <label for="className">
-                            Class <span>*</span>
-                        </label>
-
-                        <input
-                            type="text"
-                            id="className"
-                            name="class_name"
-                            placeholder="Example: grade 9"
-                            required
-                        >
-
+                        <div class="form-actions">
+                            <a href="dashboard.html" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" id="saveBtn" class="btn btn-primary">Save Timetable</button>
+                        </div>
                     </div>
-
-
-
-                    <div class="form-group">
-
-                        <label for="section">
-                            Section <span>*</span>
-                        </label>
-
-                        <input
-                            type="text"
-                            id="section"
-                            name="section"
-                            placeholder="Example: A"
-                            required
-                        >
-
-                    </div>
-
-
-
-                    <div class="form-group">
-
-                        <label for="subjectCode">
-                            Subject Code <span>*</span>
-                        </label>
-
-                        <input
-                            type="text"
-                            id="subjectCode"
-                            name="subject_code"
-                            placeholder="Example: MATH001"
-                            required
-                        >
-
-                    </div>
-
-
-
-                    <div class="form-group">
-
-                        <label for="subjectName">
-                            Subject Name <span>*</span>
-                        </label>
-
-                        <input
-                            type="text"
-                            id="subjectName"
-                            name="subject_name"
-                            placeholder="Example: Mathematics"
-                            required
-                        >
-
-                    </div>
-
-
-
-                    <div class="form-group">
-
-                        <label for="day">
-                            Day <span>*</span>
-                        </label>
-
-                        <select
-                            id="day"
-                            name="day"
-                            required
-                        >
-
-                            <option value="">
-                                Select Day
-                            </option>
-
-                            <option value="Monday">
-                                Monday
-                            </option>
-
-                            <option value="Tuesday">
-                                Tuesday
-                            </option>
-
-                            <option value="Wednesday">
-                                Wednesday
-                            </option>
-
-                            <option value="Thursday">
-                                Thursday
-                            </option>
-
-                            <option value="Friday">
-                                Friday
-                            </option>
-
-                            <option value="Saturday">
-                                Saturday
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-
-                    <div class="form-group">
-
-                        <label for="academicYear">
-                            Academic Year <span>*</span>
-                        </label>
-
-                        <input
-                            type="text"
-                            id="academicYear"
-                            name="academic_year"
-                            placeholder="Example: 2026/2027"
-                            required
-                        >
-
-                    </div>
-
-
-
-                    <div class="form-group">
-
-                        <label for="startTime">
-                            Start Time <span>*</span>
-                        </label>
-
-                        <input
-                            type="time"
-                            id="startTime"
-                            name="start_time"
-                            required
-                        >
-
-                    </div>
-
-
-
-                    <div class="form-group">
-
-                        <label for="endTime">
-                            End Time <span>*</span>
-                        </label>
-
-                        <input
-                            type="time"
-                            id="endTime"
-                            name="end_time"
-                            required
-                        >
-
-                    </div>
-
-
-
-                    <div class="form-group">
-
-                        <label for="roomNumber">
-                            Room Number
-                        </label>
-
-                        <input
-                            type="text"
-                            id="roomNumber"
-                            name="room_number"
-                            placeholder="Example: 101"
-                        >
-
-                    </div>
-
-
-
-                    <div class="form-actions">
-
-                        <a
-                            href="dashboard.html"
-                            class="btn btn-secondary"
-                        >
-                            Cancel
-                        </a>
-
-
-                        <button
-                            type="submit"
-                            id="saveTimetable"
-                            class="btn btn-primary"
-                        >
-                            💾 Save Timetable
-                        </button>
-
-                    </div>
-
-
                 </form>
-
-
             </div>
-
-
-        </section>
-
-
-
-        <footer class="admin-footer">
-
-            <span>
-                © 2026 Sululta School Portal
-            </span>
-
-            <span>
-                School Management System
-            </span>
-
-        </footer>
-
-
+        </div>
     </main>
 
+    <script type="module">
+        import { supabase } from '../src/supabase.js';
 
-</div>
+        // Sidebar toggle
+        document.getElementById('toggleSidebar').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('mobile-open');
+        });
 
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await supabase.auth.signOut();
+            window.location.href = '../login.html';
+        });
 
+        // Load avatar
+        supabase.auth.getUser().then(({ data: { user } }) => {
+            if (!user) return;
+            supabase.from('profiles').select('first_name').eq('id', user.id).maybeSingle().then(({ data }) => {
+                if (data?.first_name) document.getElementById('userAvatar').textContent = data.first_name[0].toUpperCase();
+            });
+        });
 
-<script
-    type="module"
-    src="../src/timetable-add.js"
-></script>
+        let teachersList = [];
+        let classesList = [];
+        let subjectsList = [];
 
+        async function loadSelectors() {
+            try {
+                const [teacherRes, classRes, subjectRes] = await Promise.all([
+                    supabase.from('teachers').select('id, teacher_id, first_name, last_name, status').order('first_name'),
+                    supabase.from('classes').select('id, class_name, section, status').order('class_name'),
+                    supabase.from('subjects').select('subject_code, subject_name').order('subject_name')
+                ]);
 
+                teachersList = (teacherRes.data || []).filter(t => !t.status || String(t.status).toLowerCase() === 'active');
+                classesList = (classRes.data || []).filter(c => !c.status || String(c.status).toLowerCase() === 'active');
+                subjectsList = subjectRes.data || [];
+
+                // Populate Teacher Select
+                const teacherSelect = document.getElementById('teacherSelect');
+                teacherSelect.innerHTML = '<option value="">-- Select Teacher --</option>';
+                for (const t of teachersList) {
+                    const opt = document.createElement('option');
+                    opt.value = String(t.id);
+                    const tId = t.teacher_id ? ` (${t.teacher_id})` : '';
+                    opt.textContent = `${t.first_name} ${t.last_name}${tId}`;
+                    opt.dataset.name = `${t.first_name} ${t.last_name}`;
+                    opt.dataset.teacherId = t.teacher_id || '';
+                    teacherSelect.appendChild(opt);
+                }
+
+                // Populate Class Select
+                const classSelect = document.getElementById('classSelect');
+                classSelect.innerHTML = '<option value="">-- Choose existing class --</option>';
+                for (const c of classesList) {
+                    const opt = document.createElement('option');
+                    opt.value = String(c.id);
+                    opt.textContent = `${c.class_name} - ${c.section}`;
+                    opt.dataset.className = c.class_name;
+                    opt.dataset.section = c.section;
+                    classSelect.appendChild(opt);
+                }
+
+                // Populate Subject Select
+                const subjectSelect = document.getElementById('subjectSelect');
+                subjectSelect.innerHTML = '<option value="">-- Choose existing subject --</option>';
+                for (const s of subjectsList) {
+                    const opt = document.createElement('option');
+                    opt.value = s.subject_code;
+                    opt.textContent = `${s.subject_code} - ${s.subject_name}`;
+                    opt.dataset.code = s.subject_code;
+                    opt.dataset.name = s.subject_name;
+                    subjectSelect.appendChild(opt);
+                }
+            } catch (err) {
+                console.warn('Could not populate selectors:', err);
+            }
+        }
+
+        document.getElementById('classSelect')?.addEventListener('change', (e) => {
+            const selectedOpt = e.target.selectedOptions[0];
+            if (selectedOpt && selectedOpt.dataset.className) {
+                document.getElementById('className').value = selectedOpt.dataset.className;
+                document.getElementById('section').value = selectedOpt.dataset.section || '';
+            }
+        });
+
+        document.getElementById('subjectSelect')?.addEventListener('change', (e) => {
+            const selectedOpt = e.target.selectedOptions[0];
+            if (selectedOpt && selectedOpt.dataset.code) {
+                document.getElementById('subjectCode').value = selectedOpt.dataset.code;
+                document.getElementById('subjectName').value = selectedOpt.dataset.name || '';
+            }
+        });
+
+        loadSelectors();
+
+        // Form submit
+        document.getElementById('timetableForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('saveBtn');
+            const msg = document.getElementById('messageBox');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+            msg.className = 'message';
+            msg.textContent = '';
+
+            const startTime = document.getElementById('startTime').value;
+            const endTime   = document.getElementById('endTime').value;
+
+            if (endTime <= startTime) {
+                msg.textContent = 'End time must be later than start time.';
+                msg.className = 'message error';
+                btn.disabled = false;
+                btn.textContent = 'Save Timetable';
+                return;
+            }
+
+            const teacherSelect = document.getElementById('teacherSelect');
+            const selectedTeacherOpt = teacherSelect.selectedOptions[0];
+            const teacherId = teacherSelect.value ? Number(teacherSelect.value) : null;
+            const teacherName = selectedTeacherOpt ? (selectedTeacherOpt.dataset.name || selectedTeacherOpt.textContent.trim()) : '';
+
+            const data = {
+                class_name:    document.getElementById('className').value.trim(),
+                section:       document.getElementById('section').value.trim(),
+                subject_code:  document.getElementById('subjectCode').value.trim(),
+                subject_name:  document.getElementById('subjectName').value.trim(),
+                day:           document.getElementById('day').value,
+                academic_year: document.getElementById('academicYear').value.trim(),
+                start_time:    startTime,
+                end_time:      endTime,
+                room_number:   document.getElementById('roomNumber').value.trim() || null,
+            };
+
+            // Attempt save with teacher fields if selected
+            let insertData = { ...data };
+            if (teacherId) {
+                insertData.teacher_id = teacherId;
+                insertData.teacher_name = teacherName;
+            }
+
+            let insertedRecord = null;
+            let { data: returnedData, error } = await supabase.from('timetable').insert([insertData]).select();
+
+            if (error) {
+                console.warn('Initial timetable insert notice:', error.message);
+                // If column teacher_id/teacher_name does not exist in remote schema, insert without them
+                const fallback = await supabase.from('timetable').insert([data]).select();
+                if (fallback.error) {
+                    msg.textContent = 'Error: ' + fallback.error.message;
+                    msg.className = 'message error';
+                    btn.disabled = false;
+                    btn.textContent = 'Save Timetable';
+                    return;
+                }
+                returnedData = fallback.data;
+            }
+
+            insertedRecord = returnedData && returnedData[0] ? returnedData[0] : null;
+            const recordId = insertedRecord ? insertedRecord.id : Date.now();
+
+            // Persist teacher assignment in local storage so it syncs seamlessly across portals
+            if (teacherId) {
+                try {
+                    const timetableTeachers = JSON.parse(localStorage.getItem('sululta_timetable_teachers') || '{}');
+                    timetableTeachers[recordId] = {
+                        teacher_id: teacherId,
+                        teacher_name: teacherName,
+                        class_name: data.class_name,
+                        section: data.section,
+                        subject_code: data.subject_code,
+                        subject_name: data.subject_name,
+                        day: data.day,
+                        start_time: data.start_time,
+                        end_time: data.end_time,
+                        room_number: data.room_number
+                    };
+                    localStorage.setItem('sululta_timetable_teachers', JSON.stringify(timetableTeachers));
+
+                    // Also sync into sululta_teacher_subject_assignments
+                    const assignments = JSON.parse(localStorage.getItem('sululta_teacher_subject_assignments') || '[]');
+                    const matchClass = classesList.find(c => c.class_name === data.class_name && c.section === data.section);
+                    const classId = matchClass ? matchClass.id : null;
+                    const exists = assignments.some(a =>
+                        String(a.teacher_id) === String(teacherId) &&
+                        String(a.subject_code) === String(data.subject_code) &&
+                        (!classId || String(a.class_id) === String(classId))
+                    );
+                    if (!exists) {
+                        assignments.push({
+                            teacher_id: teacherId,
+                            class_id: classId,
+                            class_name: data.class_name,
+                            section: data.section,
+                            subject_code: data.subject_code,
+                            created_at: new Date().toISOString()
+                        });
+                        localStorage.setItem('sululta_teacher_subject_assignments', JSON.stringify(assignments));
+                    }
+                } catch (storeErr) {
+                    console.warn('Could not cache timetable teacher:', storeErr);
+                }
+            }
+
+            msg.textContent = 'Timetable saved successfully!';
+            msg.className = 'message success';
+            setTimeout(() => window.location.href = 'dashboard.html', 800);
+        });
+    </script>
 </body>
-
 </html>

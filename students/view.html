@@ -1,454 +1,208 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Student Information | Sululta School Portal</title>
-
-    <link rel="icon" href="data:,">
-    <link rel="stylesheet" href="../src/style.css">
+    <title>View Student - Sululta School Portal</title>
+    <link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
+    <link rel="stylesheet" href="../src/sidebar.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; }
+        .main-content { margin-left: 260px; min-height: 100vh; transition: margin-left 0.3s; }
+        .sidebar.collapsed + .main-content { margin-left: 70px; }
+        .top-bar { background: white; padding: 1.25rem 2rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .page-title { font-size: 1.75rem; font-weight: 700; color: #1a202c; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; }
+        .content-area { padding: 2rem; max-width: 1200px; }
+        .page-header { margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .page-header h2 { font-size: 1.5rem; color: #1a202c; margin-bottom: 0.5rem; }
+        .btn { padding: 0.625rem 1.25rem; border-radius: 8px; border: none; font-weight: 600; font-size: 0.875rem; cursor: pointer; text-decoration: none; display: inline-block; transition: all 0.2s; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
+        .btn-secondary { background: #e2e8f0; color: #2d3748; }
+        .btn-secondary:hover { background: #cbd5e0; }
+        .student-profile-card { background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 2rem; display: flex; gap: 2rem; align-items: center; }
+        .student-photo-large { width: 120px; height: 120px; border-radius: 12px; object-fit: cover; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem; }
+        .student-info-header h2 { font-size: 1.75rem; margin-bottom: 0.5rem; }
+        .student-info-header .student-id { color: #718096; font-size: 0.875rem; margin-bottom: 0.75rem; }
+        .status-badge { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+        .status-badge.active { background: #f0fdf4; color: #22543d; }
+        .status-badge.inactive { background: #fffaf0; color: #7c2d12; }
+        .details-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+        .detail-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .detail-card h3 { font-size: 1.125rem; margin-bottom: 1rem; color: #1a202c; display: flex; align-items: center; gap: 0.5rem; }
+        .detail-row { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid #e2e8f0; }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-label { color: #718096; font-size: 0.875rem; }
+        .detail-value { color: #1a202c; font-weight: 600; }
+        .action-buttons { display: flex; gap: 1rem; margin-top: 2rem; }
+        .loading { padding: 3rem; text-align: center; color: #718096; background: white; border-radius: 12px; }
+        @media (max-width: 768px) {
+            .main-content { margin-left: 0; }
+            .student-profile-card { flex-direction: column; text-align: center; }
+            .details-grid { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
-
 <body>
-
-<div class="admin-page">
-
-    <aside class="admin-sidebar">
-
-        <div class="sidebar-brand">
-
-            <div class="school-logo">
-                SS
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <img src="../public/school-logo.svg" alt="Logo" class="logo-image">
+                <span class="logo-text">Sululta School</span>
             </div>
-
-            <div class="school-info">
-                <strong>Sululta School</strong>
-                <span>Admin Portal</span>
-            </div>
-
+            <button class="toggle-btn" id="toggleSidebar"><span></span><span></span><span></span></button>
         </div>
-
-        <nav class="sidebar-menu">
-
-            <div class="menu-title">Main</div>
-
-            <a href="../dashboard.html" class="sidebar-link">
-                <span>🏠</span>
-                <span>Dashboard</span>
-            </a>
-
-            <div class="menu-title">Academic Management</div>
-
-            <a href="dashboard.html" class="sidebar-link active">
-                <span>👨‍🎓</span>
-                <span>Students</span>
-            </a>
-
-            <a href="../teachers/dashboard.html" class="sidebar-link">
-                <span>👨‍🏫</span>
-                <span>Teachers</span>
-            </a>
-
-            <a href="../parents/dashboard.html" class="sidebar-link">
-                <span>👨‍👩‍👧</span>
-                <span>Parents</span>
-            </a>
-
-            <a href="../classes/dashboard.html" class="sidebar-link">
-                <span>🏫</span>
-                <span>Classes</span>
-            </a>
-
-            <a href="../subjects/dashboard.html" class="sidebar-link">
-                <span>📚</span>
-                <span>Subjects</span>
-            </a>
-
-            <a href="../exams/dashboard.html" class="sidebar-link">
-                <span>📝</span>
-                <span>Exams</span>
-            </a>
-
-            <a href="../attendance/dashboard.html" class="sidebar-link">
-                <span>📅</span>
-                <span>Attendance</span>
-            </a>
-
-            <a href="../timetable/dashboard.html" class="sidebar-link">
-                <span>🗓️</span>
-                <span>Timetable</span>
-            </a>
-
-            <a href="../results/dashboard.html" class="sidebar-link">
-                <span>📊</span>
-                <span>Results</span>
-            </a>
-
-            <a href="../books/dashboard.html" class="sidebar-link">
-                <span>📖</span>
-                <span>Books</span>
-            </a>
-
-            <a href="../events/dashboard.html" class="sidebar-link">
-                <span>🎉</span>
-                <span>Events</span>
-            </a>
-
-            <a href="../notices/dashboard.html" class="sidebar-link">
-                <span>📢</span>
-                <span>Notices</span>
-            </a>
-
-            <div class="menu-title">Finance</div>
-
-            <a href="../fees/dashboard.html" class="sidebar-link">
-                <span>💰</span>
-                <span>Fees</span>
-            </a>
-
+        <nav class="sidebar-nav">
+            <a href="../admin/dashboard.html" class="nav-item"><span class="nav-icon">📊</span><span class="nav-text">Dashboard</span></a>
+            <a href="../students/dashboard.html" class="nav-item active"><span class="nav-icon">👨‍🎓</span><span class="nav-text">Students</span></a>
+            <a href="../teachers/dashboard.html" class="nav-item"><span class="nav-icon">👨‍🏫</span><span class="nav-text">Teachers</span></a>
+            <a href="../classes/dashboard.html" class="nav-item"><span class="nav-icon">🏫</span><span class="nav-text">Classes</span></a>
+            <a href="../subjects/dashboard.html" class="nav-item"><span class="nav-icon">📚</span><span class="nav-text">Subjects</span></a>
+            <a href="../attendance/dashboard.html" class="nav-item"><span class="nav-icon">📋</span><span class="nav-text">Attendance</span></a>
+            <a href="../library/dashboard.html" class="nav-item"><span class="nav-icon">📖</span><span class="nav-text">Library</span></a>
         </nav>
-
-        <div class="sidebar-bottom">
-
-            <a href="../login.html" class="logout-button">
-                <span>↪</span>
-                <span>Logout</span>
-            </a>
-
+        <div class="sidebar-footer">
+            <a href="#" class="nav-item" id="logoutBtn"><span class="nav-icon">🚪</span><span class="nav-text">Logout</span></a>
         </div>
-
     </aside>
 
-    <main class="admin-main">
-
-        <header class="admin-header">
-
-            <div class="header-left">
-
-                <button
-                    type="button"
-                    class="sidebar-toggle"
-                    id="sidebarToggle">
-                    ☰
-                </button>
-
-                <div>
-
-                    <span class="header-label">
-                        Academic Management
-                    </span>
-
-                    <h1>
-                        Student Information
-                    </h1>
-
-                </div>
-
-            </div>
-
-            <div class="admin-profile">
-
-                <div class="admin-avatar">
-                    A
-                </div>
-
-                <div class="admin-profile-info">
-                    <strong>Administrator</strong>
-                    <span>Admin</span>
-                </div>
-
-            </div>
-
-        </header>
-
-        <section class="page-container">
-
+    <main class="main-content">
+        <div class="top-bar">
+            <h1 class="page-title">Student Details</h1>
+            <div class="user-avatar" id="userAvatar">A</div>
+        </div>
+        <div class="content-area">
             <div class="page-header">
-
-                <div class="header-left">
-
-                    <div class="page-icon">
-                        👨‍🎓
-                    </div>
-
-                    <div>
-
-                        <h1>
-                            Student Information
-                        </h1>
-
-                        <p>
-                            Complete information about this student
-                        </p>
-
-                    </div>
-
+                <div>
+                    <h2>Student Information</h2>
                 </div>
-
-                <div class="header-actions">
-
-                    <a
-                        href="dashboard.html"
-                        class="btn btn-secondary">
-                        ← Back to Students
-                    </a>
-
-                </div>
-
+                <a href="dashboard.html" class="btn btn-secondary">← Back to Students</a>
             </div>
-
-            <div
-                id="messageBox"
-                class="message">
+            <div id="contentContainer">
+                <div class="loading">Loading student data...</div>
             </div>
-
-            <section
-                id="loadingState"
-                class="form-card">
-
-                <div class="panel-header">
-
-                    <h2>
-                        Loading student...
-                    </h2>
-
-                </div>
-
-            </section>
-
-            <section
-                id="errorState"
-                class="form-card"
-                hidden>
-
-                <div class="student-view-error">
-
-                    <div class="empty-icon">
-                        ⚠️
-                    </div>
-
-                    <h2>
-                        Unable to Load Student
-                    </h2>
-
-                    <p
-                        id="errorMessage">
-                        Unable to load this student.
-                    </p>
-
-                    <button
-                        type="button"
-                        id="retryButton"
-                        class="btn btn-primary">
-                        ↻ Try Again
-                    </button>
-
-                </div>
-
-            </section>
-
-            <section
-                id="studentContent"
-                class="form-card"
-                hidden>
-
-                <div class="student-profile-card">
-
-                    <div class="student-profile-photo">
-
-                        <div
-                            id="photoContainer"
-                            class="student-photo-placeholder">
-                            👨‍🎓
-                        </div>
-
-                    </div>
-
-                    <div class="student-profile-main">
-
-                        <span class="student-profile-label">
-                            Student
-                        </span>
-
-                        <h2 id="studentName">
-                            Student Name
-                        </h2>
-
-                        <span
-                            id="studentId"
-                            class="student-profile-id">
-                            ST000
-                        </span>
-
-                        <div id="studentStatus">
-                            Active
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <div class="panel-header">
-
-                    <div>
-
-                        <h2>
-                            Student Details
-                        </h2>
-
-                        <p>
-                            Personal and school information
-                        </p>
-
-                    </div>
-
-                </div>
-
-                <div class="student-details-grid">
-
-                    <div class="student-detail">
-
-                        <span>
-                            Student ID
-                        </span>
-
-                        <strong id="detailStudentId">
-                            —
-                        </strong>
-
-                    </div>
-
-                    <div class="student-detail">
-
-                        <span>
-                            First Name
-                        </span>
-
-                        <strong id="detailFirstName">
-                            —
-                        </strong>
-
-                    </div>
-
-                    <div class="student-detail">
-
-                        <span>
-                            Last Name
-                        </span>
-
-                        <strong id="detailLastName">
-                            —
-                        </strong>
-
-                    </div>
-
-                    <div class="student-detail">
-
-                        <span>
-                            Gender
-                        </span>
-
-                        <strong id="detailGender">
-                            —
-                        </strong>
-
-                    </div>
-
-                    <div class="student-detail">
-
-                        <span>
-                            Class
-                        </span>
-
-                        <strong id="detailClass">
-                            —
-                        </strong>
-
-                    </div>
-
-                    <div class="student-detail">
-
-                        <span>
-                            Section
-                        </span>
-
-                        <strong id="detailSection">
-                            —
-                        </strong>
-
-                    </div>
-
-                    <div class="student-detail">
-
-                        <span>
-                            Phone
-                        </span>
-
-                        <strong id="detailPhone">
-                            —
-                        </strong>
-
-                    </div>
-
-                    <div class="student-detail">
-
-                        <span>
-                            Status
-                        </span>
-
-                        <strong id="detailStatus">
-                            —
-                        </strong>
-
-                    </div>
-
-                </div>
-
-                <div class="student-view-actions">
-
-                    <a
-                        id="editStudentButton"
-                        href="#"
-                        class="btn btn-primary">
-                        ✏️ Edit Student
-                    </a>
-
-                    <button
-                        type="button"
-                        id="deleteStudentButton"
-                        class="btn btn-danger">
-                        🗑 Delete Student
-                    </button>
-
-                </div>
-
-            </section>
-
-        </section>
-
-        <footer class="admin-footer">
-
-            <span>
-                © 2026 Sululta School Portal
-            </span>
-
-            <span>
-                School Management System
-            </span>
-
-        </footer>
-
+        </div>
     </main>
 
-</div>
+    <script type="module">
+        import { supabase } from '../src/supabase.js';
 
-<script
-    type="module"
-    src="../src/student-view.js">
-</script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const studentId = urlParams.get('id');
 
+        if (!studentId) {
+            window.location.href = 'dashboard.html';
+        }
+
+        document.getElementById('toggleSidebar').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        });
+
+        async function loadStudent() {
+            const { data: student, error } = await supabase
+                .from('students')
+                .select('*, classes(name), parents(first_name, last_name)')
+                .eq('id', studentId)
+                .single();
+
+            if (error || !student) {
+                document.getElementById('contentContainer').innerHTML = 
+                    '<div class="loading">Error loading student data</div>';
+                return;
+            }
+
+            const photoHtml = student.photo_url 
+                ? `<img src="${student.photo_url}" class="student-photo-large" alt="${student.first_name}">` 
+                : `<div class="student-photo-large">👨‍🎓</div>`;
+
+            document.getElementById('contentContainer').innerHTML = `
+                <div class="student-profile-card">
+                    ${photoHtml}
+                    <div class="student-info-header">
+                        <h2>${student.first_name} ${student.last_name}</h2>
+                        <div class="student-id">Student ID: ${student.student_id || 'N/A'}</div>
+                        <span class="status-badge ${student.status}">${student.status}</span>
+                    </div>
+                </div>
+
+                <div class="details-grid">
+                    <div class="detail-card">
+                        <h3>📋 Personal Information</h3>
+                        <div class="detail-row">
+                            <span class="detail-label">First Name</span>
+                            <span class="detail-value">${student.first_name || 'N/A'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Last Name</span>
+                            <span class="detail-value">${student.last_name || 'N/A'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Date of Birth</span>
+                            <span class="detail-value">${student.date_of_birth || 'N/A'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Gender</span>
+                            <span class="detail-value">${student.gender || 'N/A'}</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-card">
+                        <h3>🎓 Academic Information</h3>
+                        <div class="detail-row">
+                            <span class="detail-label">Student ID</span>
+                            <span class="detail-value">${student.student_id || 'N/A'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Class</span>
+                            <span class="detail-value">${student.classes?.name || 'N/A'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Admission Date</span>
+                            <span class="detail-value">${student.admission_date || 'N/A'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Status</span>
+                            <span class="detail-value">${student.status || 'N/A'}</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-card">
+                        <h3>📞 Contact Information</h3>
+                        <div class="detail-row">
+                            <span class="detail-label">Email</span>
+                            <span class="detail-value">${student.email || 'N/A'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Phone</span>
+                            <span class="detail-value">${student.phone || 'N/A'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Address</span>
+                            <span class="detail-value">${student.address || 'N/A'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Parent</span>
+                            <span class="detail-value">${student.parents ? `${student.parents.first_name} ${student.parents.last_name}` : 'N/A'}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <a href="edit.html?id=${studentId}" class="btn btn-primary">✏️ Edit Student</a>
+                    <a href="dashboard.html" class="btn btn-secondary">← Back</a>
+                </div>
+            `;
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await supabase.auth.signOut();
+            window.location.href = '../login.html';
+        });
+
+        loadStudent();
+    </script>
 </body>
-
 </html>

@@ -1,584 +1,249 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        Students | Sululta Secondary School
-    </title>
-
-    <link
-        rel="icon"
-        href="data:,"
-    >
-
-    <link
-        rel="stylesheet"
-        href="/src/style.css"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Students - Sululta School Portal</title>
+    <link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
+    <link rel="stylesheet" href="../src/sidebar.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; }
+        .main-content { margin-left: 260px; min-height: 100vh; transition: margin-left 0.3s; }
+        .sidebar.collapsed + .main-content { margin-left: 70px; }
+        .top-bar { background: white; padding: 1.25rem 2rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .page-title { font-size: 1.75rem; font-weight: 700; color: #1a202c; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; }
+        .content-area { padding: 2rem; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .btn { padding: 0.625rem 1.25rem; border-radius: 8px; border: none; font-weight: 600; font-size: 0.875rem; cursor: pointer; text-decoration: none; display: inline-block; transition: all 0.2s; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 4px solid; transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-2px); }
+        .stat-card.total { border-color: #667eea; }
+        .stat-card.male { border-color: #4299e1; }
+        .stat-card.female { border-color: #ed64a6; }
+        .stat-card.active { border-color: #48bb78; }
+        .stat-value { font-size: 2rem; font-weight: 700; margin-top: 0.5rem; color: #1a202c; }
+        .stat-label { font-size: 0.875rem; color: #718096; font-weight: 500; }
+        .data-table-container { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }
+        .table-header { padding: 1.5rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .table-header h2 { font-size: 1.25rem; color: #1a202c; }
+        .search-filter-group { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+        .search-box input { padding: 0.5rem 1rem; border: 1px solid #e2e8f0; border-radius: 8px; width: 250px; font-size: 0.875rem; }
+        .search-box input:focus { outline: none; border-color: #667eea; }
+        select { padding: 0.5rem 1rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem; cursor: pointer; }
+        select:focus { outline: none; border-color: #667eea; }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th { padding: 1rem 1.5rem; text-align: left; font-size: 0.75rem; font-weight: 700; color: #4a5568; text-transform: uppercase; background: #f7fafc; }
+        .data-table td { padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; }
+        .student-info { display: flex; align-items: center; gap: 0.75rem; }
+        .student-photo { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; background: #e2e8f0; }
+        .student-details { display: flex; flex-direction: column; }
+        .student-name { font-weight: 600; color: #1a202c; }
+        .student-id { font-size: 0.875rem; color: #718096; }
+        .status-badge { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+        .status-badge.active { background: #f0fdf4; color: #22543d; }
+        .status-badge.inactive { background: #fffaf0; color: #7c2d12; }
+        .action-btn { padding: 0.5rem; border: none; background: none; cursor: pointer; border-radius: 6px; color: #718096; font-size: 1.125rem; transition: all 0.2s; }
+        .action-btn:hover { background: #edf2f7; color: #2d3748; }
+        .action-group { display: flex; gap: 0.25rem; }
+        @media (max-width: 768px) {
+            .main-content { margin-left: 0; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .search-box input { width: 100%; }
+            .table-header { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
 </head>
-
 <body>
-
-<div class="admin-page">
-
-    <aside class="admin-sidebar">
-
-        <div class="sidebar-brand">
-
-            <div class="school-logo">
-                SS
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <img src="../public/school-logo.svg" alt="Logo" class="logo-image">
+                <span class="logo-text">Sululta School</span>
             </div>
-
-            <div class="school-info">
-
-                <strong>
-                    Sululta Secondary School
-                </strong>
-
-                <span>
-                    School Management Portal
-                </span>
-
-            </div>
-
+            <button class="toggle-btn" id="toggleSidebar"><span></span><span></span><span></span></button>
         </div>
-
-        <nav class="sidebar-menu">
-
-            <div class="menu-title">
-                MAIN
-            </div>
-
-            <a
-                href="/admin/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🏠</span>
-                <span>Dashboard</span>
-            </a>
-
-            <div class="menu-title">
-                MANAGEMENT
-            </div>
-
-            <a
-                href="/students/dashboard.html"
-                class="sidebar-link active"
-            >
-                <span>👨‍🎓</span>
-                <span>Students</span>
-            </a>
-
-            <a
-                href="/teachers/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>👨‍🏫</span>
-                <span>Teachers</span>
-            </a>
-
-            <a
-                href="/parents/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>👨‍👩‍👧</span>
-                <span>Parents</span>
-            </a>
-
-            <a
-                href="/classes/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🏫</span>
-                <span>Classes</span>
-            </a>
-
-            <a
-                href="/subjects/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📚</span>
-                <span>Subjects</span>
-            </a>
-
-            <div class="menu-title">
-                ACADEMIC
-            </div>
-
-            <a
-                href="/exams/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📝</span>
-                <span>Exams</span>
-            </a>
-
-            <a
-                href="/attendance/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📅</span>
-                <span>Attendance</span>
-            </a>
-
-            <a
-                href="/results/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📊</span>
-                <span>Results</span>
-            </a>
-
-            <a
-                href="/timetable/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🗓️</span>
-                <span>Timetable</span>
-            </a>
-
-            <div class="menu-title">
-                SCHOOL
-            </div>
-
-            <a
-                href="/library/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📖</span>
-                <span>Books</span>
-            </a>
-
-            <a
-                href="/fees/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>💰</span>
-                <span>Fees</span>
-            </a>
-
-            <a
-                href="/events/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🎉</span>
-                <span>Events</span>
-            </a>
-
-            <a
-                href="/notices/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🔔</span>
-                <span>Notices</span>
-            </a>
-
+        <nav class="sidebar-nav">
+            <a href="../admin/dashboard.html" class="nav-item ${activeName === 'Dashboard' ? 'active' : ''}"><span class="nav-icon">📊</span><span class="nav-text">Dashboard</span></a>
+            <a href="../students/dashboard.html" class="nav-item ${activeName === 'Students' ? 'active' : ''}"><span class="nav-icon">👨‍🎓</span><span class="nav-text">Students</span></a>
+            <a href="../teachers/dashboard.html" class="nav-item ${activeName === 'Teachers' ? 'active' : ''}"><span class="nav-icon">👨‍🏫</span><span class="nav-text">Teachers</span></a>
+            <a href="../classes/dashboard.html" class="nav-item ${activeName === 'Classes' ? 'active' : ''}"><span class="nav-icon">🏫</span><span class="nav-text">Classes</span></a>
+            <a href="../subjects/dashboard.html" class="nav-item ${activeName === 'Subjects' ? 'active' : ''}"><span class="nav-icon">📚</span><span class="nav-text">Subjects</span></a>
+            <a href="../attendance/dashboard.html" class="nav-item ${activeName === 'Attendance' ? 'active' : ''}"><span class="nav-icon">📋</span><span class="nav-text">Attendance</span></a>
+            <a href="../results/dashboard.html" class="nav-item ${activeName === 'Results' ? 'active' : ''}"><span class="nav-icon">🎯</span><span class="nav-text">Results</span></a>
+            <a href="../timetable/dashboard.html" class="nav-item ${activeName === 'Timetable' ? 'active' : ''}"><span class="nav-icon">📅</span><span class="nav-text">Timetable</span></a>
+            <a href="../library/dashboard.html" class="nav-item ${activeName === 'Library' ? 'active' : ''}"><span class="nav-icon">📖</span><span class="nav-text">Library</span></a>
         </nav>
-
-        <div class="sidebar-bottom">
-
-            <button
-                type="button"
-                class="logout-button"
-                id="logoutButton"
-            >
-                <span>↪</span>
-                <span>Sign Out</span>
-            </button>
-
+        <div class="sidebar-footer">
+            <a href="#" class="nav-item" id="logoutBtn"><span class="nav-icon">🚪</span><span class="nav-text">Logout</span></a>
         </div>
-
     </aside>
 
-    <main class="admin-main">
-
-        <header class="admin-header">
-
-            <div class="header-left">
-
-                <button
-                    type="button"
-                    class="sidebar-toggle"
-                    id="sidebarToggle"
-                    aria-label="Toggle sidebar"
-                >
-                    ☰
-                </button>
-
-                <div>
-
-                    <span class="header-label">
-                        SCHOOL MANAGEMENT
-                    </span>
-
-                    <h1>
-                        Students
-                    </h1>
-
-                </div>
-
-            </div>
-
-            <div class="admin-profile">
-
-                <div
-                    class="admin-avatar"
-                    id="adminAvatar"
-                >
-                    A
-                </div>
-
-                <div class="admin-profile-info">
-
-                    <strong id="adminHeaderName">
-                        Administrator
-                    </strong>
-
-                    <span>
-                        Admin
-                    </span>
-
-                </div>
-
-            </div>
-
-        </header>
-
-        <section class="dashboard-content">
-
-            <div class="student-management-card">
-
-                <div class="student-management-content">
-
-                    <span class="student-management-label">
-                        STUDENT MANAGEMENT
-                    </span>
-
-                    <h2>
-                        Students
-                    </h2>
-
-                    <p>
-                        Manage students and their school information.
-                    </p>
-
-                </div>
-
-                <div class="student-management-icon">
-                    👨‍🎓
-                </div>
-
-            </div>
-
-            <div
-                id="message"
-                class="message"
-                hidden
-            ></div>
-
+    <main class="main-content">
+        <div class="top-bar">
+            <h1 class="page-title">Student Management</h1>
+            <div class="user-avatar" id="userAvatar">A</div>
+        </div>
+        <div class="content-area">
             <div class="page-header">
-
-                <div>
-
-                    <span class="welcome-label">
-                        STUDENT RECORDS
-                    </span>
-
-                    <h1>
-                        Student Records
-                    </h1>
-
-                    <p>
-                        View and manage registered students.
-                    </p>
-
-                </div>
-
-                <div class="header-actions">
-
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        id="refreshStudents"
-                    >
-                        ↻ Refresh
-                    </button>
-
-                    <a
-                        href="/students/add.html"
-                        class="student-add-button"
-                    >
-                        + Add Student
-                    </a>
-
-                </div>
-
+                <div></div>
+                <a href="add.html" class="btn btn-primary">➕ Add Student</a>
             </div>
-
             <div class="stats-grid">
-
-                <div class="stat-card">
-
-                    <div class="stat-icon">
-                        👨‍🎓
-                    </div>
-
-                    <div class="stat-content">
-
-                        <span>
-                            Total Students
-                        </span>
-
-                        <strong id="totalStudents">
-                            0
-                        </strong>
-
-                    </div>
-
+                <div class="stat-card total">
+                    <div class="stat-label">Total Students</div>
+                    <div class="stat-value" id="totalStudents">0</div>
                 </div>
-
-                <div class="stat-card">
-
-                    <div class="stat-icon">
-                        👨
-                    </div>
-
-                    <div class="stat-content">
-
-                        <span>
-                            Male Students
-                        </span>
-
-                        <strong id="maleStudents">
-                            0
-                        </strong>
-
-                    </div>
-
+                <div class="stat-card male">
+                    <div class="stat-label">Male Students</div>
+                    <div class="stat-value" id="maleStudents">0</div>
                 </div>
-
-                <div class="stat-card">
-
-                    <div class="stat-icon">
-                        👩
-                    </div>
-
-                    <div class="stat-content">
-
-                        <span>
-                            Female Students
-                        </span>
-
-                        <strong id="femaleStudents">
-                            0
-                        </strong>
-
-                    </div>
-
+                <div class="stat-card female">
+                    <div class="stat-label">Female Students</div>
+                    <div class="stat-value" id="femaleStudents">0</div>
                 </div>
-
-                <div class="stat-card">
-
-                    <div class="stat-icon">
-                        ✅
-                    </div>
-
-                    <div class="stat-content">
-
-                        <span>
-                            Active Students
-                        </span>
-
-                        <strong id="activeStudents">
-                            0
-                        </strong>
-
-                    </div>
-
+                <div class="stat-card active">
+                    <div class="stat-label">Active Students</div>
+                    <div class="stat-value" id="activeStudents">0</div>
                 </div>
-
             </div>
-
-            <section class="dashboard-panel">
-
-                <div class="panel-header">
-
-                    <div>
-
-                        <h2>
-                            Student Records
-                        </h2>
-
-                        <p>
-                            View and manage registered students.
-                        </p>
-
+            <div class="data-table-container">
+                <div class="table-header">
+                    <h2>All Students</h2>
+                    <div class="search-filter-group">
+                        <div class="search-box"><input type="text" id="searchInput" placeholder="Search by name, ID, email..."></div>
+                        <select id="genderFilter">
+                            <option value="">All Genders</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                        <select id="statusFilter">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
                     </div>
-
-                    <span
-                        class="record-badge"
-                        id="studentRecordBadge"
-                    >
-                        0 Records
-                    </span>
-
                 </div>
-
-                <div class="student-toolbar">
-
-                    <div class="search-box">
-
-                        <input
-                            type="search"
-                            id="studentSearch"
-                            placeholder="Search by name, ID or phone..."
-                            autocomplete="off"
-                        >
-
-                    </div>
-
-                    <select id="genderFilter">
-
-                        <option value="">
-                            All Gender
-                        </option>
-
-                        <option value="male">
-                            Male
-                        </option>
-
-                        <option value="female">
-                            Female
-                        </option>
-
-                    </select>
-
-                    <select id="statusFilter">
-
-                        <option value="">
-                            All Status
-                        </option>
-
-                        <option value="active">
-                            Active
-                        </option>
-
-                        <option value="inactive">
-                            Inactive
-                        </option>
-
-                    </select>
-
-                </div>
-
-                <div class="table-wrapper">
-
-                    <div class="table-responsive">
-
-                        <table class="data-table">
-
-                            <thead>
-
-                                <tr>
-
-                                    <th>
-                                        #
-                                    </th>
-
-                                    <th>
-                                        Student
-                                    </th>
-
-                                    <th>
-                                        Gender
-                                    </th>
-
-                                    <th>
-                                        Class
-                                    </th>
-
-                                    <th>
-                                        Section
-                                    </th>
-
-                                    <th>
-                                        Phone
-                                    </th>
-
-                                    <th>
-                                        Status
-                                    </th>
-
-                                    <th>
-                                        Actions
-                                    </th>
-
-                                </tr>
-
-                            </thead>
-
-                            <tbody id="studentsTableBody">
-
-                                <tr>
-
-                                    <td
-                                        colspan="8"
-                                        class="table-empty"
-                                    >
-                                        Loading student records...
-                                    </td>
-
-                                </tr>
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                </div>
-
-                <div
-                    class="table-footer"
-                    id="studentRecordSummary"
-                >
-                    Showing 0 records
-                </div>
-
-            </section>
-
-        </section>
-
-        <footer class="admin-footer">
-
-            <span>
-                © 2026 Sululta Secondary School
-            </span>
-
-            <span>
-                School Management Portal
-            </span>
-
-        </footer>
-
+                <div id="tableContent"><div style="padding: 3rem; text-align: center; color: #718096;">Loading...</div></div>
+            </div>
+        </div>
     </main>
 
-</div>
+    <script type="module">
+        import { supabase } from '../src/supabase.js';
+        let allStudents = [];
 
-<script
-    type="module"
-    src="/src/students-dashboard.js"
-></script>
+        document.getElementById('toggleSidebar').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        });
 
+        async function loadData() {
+            const { data: students, error } = await supabase
+                .from('students')
+                .select('*, classes(id, class_name, section)')
+                .order('first_name');
+
+            if (error) {
+                console.error('Error loading students:', error.message);
+                document.getElementById('tableContent').innerHTML =
+                    `<div style="padding:3rem;text-align:center;color:#e53e3e;">Error: ${error.message}</div>`;
+                return;
+            }
+
+            allStudents = students || [];
+            
+            const male   = allStudents.filter(s => s.gender === 'male').length;
+            const female = allStudents.filter(s => s.gender === 'female').length;
+            const active = allStudents.filter(s => s.status === 'active').length;
+            
+            document.getElementById('totalStudents').textContent  = allStudents.length;
+            document.getElementById('maleStudents').textContent   = male;
+            document.getElementById('femaleStudents').textContent = female;
+            document.getElementById('activeStudents').textContent = active;
+            
+            renderTable(allStudents);
+        }
+
+        function renderTable(students) {
+            const html = students.length ? `
+                <table class="data-table">
+                    <thead><tr><th>Student</th><th>Student ID</th><th>Class</th><th>Email</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody>${students.map(s => {
+                        const className = s.classes
+                            ? `${s.classes.class_name || ''}${s.classes.section ? ' - ' + s.classes.section : ''}`
+                            : (s.class || 'N/A');
+                        const photo = s.photo_url
+                            ? `<img src="${s.photo_url}" class="student-photo" alt="${s.first_name}" onerror="this.src='https://placehold.co/40x40/e2e8f0/718096?text=${encodeURIComponent((s.first_name||'?')[0])}'>"` 
+                            : `<div class="student-photo" style="background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-weight:700;color:#718096;">${(s.first_name||'?')[0].toUpperCase()}</div>`;
+                        return `
+                        <tr>
+                            <td><div class="student-info">
+                                ${photo}
+                                <div class="student-details">
+                                    <span class="student-name">${s.first_name || ''} ${s.last_name || ''}</span>
+                                    <span class="student-id">${s.gender || ''}</span>
+                                </div>
+                            </div></td>
+                            <td>${s.student_id || 'N/A'}</td>
+                            <td>${className}</td>
+                            <td>${s.email || 'N/A'}</td>
+                            <td>${s.phone || 'N/A'}</td>
+                            <td><span class="status-badge ${s.status || ''}">${s.status || 'N/A'}</span></td>
+                            <td><div class="action-group">
+                                <button class="action-btn" onclick="viewStudent('${s.id}')" title="View">👁️</button>
+                                <button class="action-btn" onclick="editStudent('${s.id}')" title="Edit">✏️</button>
+                                <button class="action-btn" onclick="deleteStudent('${s.id}')" title="Delete">🗑️</button>
+                            </div></td>
+                        </tr>`;
+                    }).join('')}</tbody>
+                </table>
+            ` : '<div style="padding: 3rem; text-align: center; color: #718096;">No students found</div>';
+            document.getElementById('tableContent').innerHTML = html;
+        }
+
+        function applyFilters() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const gender = document.getElementById('genderFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            
+            const filtered = allStudents.filter(s => {
+                const matchSearch = !search || 
+                    `${s.first_name} ${s.last_name} ${s.student_id} ${s.email}`.toLowerCase().includes(search);
+                const matchGender = !gender || s.gender === gender;
+                const matchStatus = !status || s.status === status;
+                return matchSearch && matchGender && matchStatus;
+            });
+            renderTable(filtered);
+        }
+
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+        document.getElementById('genderFilter').addEventListener('change', applyFilters);
+        document.getElementById('statusFilter').addEventListener('change', applyFilters);
+
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await supabase.auth.signOut();
+            window.location.href = '../login.html';
+        });
+
+        window.viewStudent = (id) => window.location.href = `view.html?id=${id}`;
+        window.editStudent = (id) => window.location.href = `edit.html?id=${id}`;
+        window.deleteStudent = async (id) => {
+            if (confirm('Delete this student? This action cannot be undone.')) {
+                const { error } = await supabase.from('students').delete().eq('id', id);
+                if (error) {
+                    alert('Error deleting student: ' + error.message);
+                } else {
+                    loadData();
+                }
+            }
+        };
+
+        loadData();
+    </script>
 </body>
-
 </html>

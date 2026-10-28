@@ -1,524 +1,148 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>Add Subject | Sululta Secondary School</title>
-
-    <link
-        rel="icon"
-        href="data:,"
-    >
-
-    <link
-        rel="stylesheet"
-        href="/src/style.css"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Subject - Sululta School Portal</title>
+    <link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
+    <link rel="stylesheet" href="../src/sidebar.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; }
+        .main-content { margin-left: 260px; min-height: 100vh; transition: margin-left 0.3s; }
+        .sidebar.collapsed + .main-content { margin-left: 70px; }
+        .top-bar { background: white; padding: 1.25rem 2rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .page-title { font-size: 1.75rem; font-weight: 700; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; }
+        .content-area { padding: 2rem; max-width: 1200px; }
+        .form-card { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 2rem; }
+        .form-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid #e2e8f0; }
+        .form-header h2 { font-size: 1.5rem; font-weight: 700; }
+        .btn { padding: 0.625rem 1.25rem; border-radius: 8px; border: none; font-weight: 600; font-size: 0.875rem; cursor: pointer; text-decoration: none; display: inline-block; transition: all 0.2s; }
+        .btn-secondary { background: #e2e8f0; color: #2d3748; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
+        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group.full-width { grid-column: 1 / -1; }
+        .form-group label { font-size: 0.875rem; font-weight: 600; color: #2d3748; margin-bottom: 0.5rem; }
+        .form-group input, .form-group select, .form-group textarea { padding: 0.625rem 1rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem; transition: border-color 0.2s; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #667eea; }
+        .form-group textarea { resize: vertical; min-height: 100px; }
+        .form-actions { display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem; padding-top: 2rem; border-top: 2px solid #e2e8f0; }
+        .required::after { content: '*'; color: #e53e3e; margin-left: 4px; }
+        .alert { padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; }
+        .alert-error { background: #fff5f5; color: #c53030; border: 1px solid #feb2b2; }
+        .alert-success { background: #f0fdf4; color: #22543d; border: 1px solid #9ae6b4; }
+        @media (max-width: 768px) {
+            .main-content { margin-left: 0; }
+            .form-grid { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
-
 <body>
-
-<div class="admin-page">
-
-    <aside class="admin-sidebar">
-
-        <div class="sidebar-brand">
-
-            <div class="school-logo">
-                SS
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <img src="../public/school-logo.svg" alt="Logo" class="logo-image">
+                <span class="logo-text">Sululta School</span>
             </div>
-
-            <div class="school-info">
-
-                <strong>
-                    Sululta Secondary School
-                </strong>
-
-                <span>
-                    Admin Portal
-                </span>
-
-            </div>
-
+            <button class="toggle-btn" id="toggleSidebar"><span></span><span></span><span></span></button>
         </div>
-
-
-        <nav class="sidebar-menu">
-
-            <div class="menu-title">
-                MAIN
-            </div>
-
-
-            <a
-                href="/admin/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>⌂</span>
-                <span>Dashboard</span>
-            </a>
-
-
-            <div class="menu-title">
-                MANAGEMENT
-            </div>
-
-
-            <a
-                href="/students/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>👨‍🎓</span>
-                <span>Students</span>
-            </a>
-
-
-            <a
-                href="/teachers/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>👨‍🏫</span>
-                <span>Teachers</span>
-            </a>
-
-
-            <a
-                href="/parents/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>👨‍👩‍👧</span>
-                <span>Parents</span>
-            </a>
-
-
-            <a
-                href="/classes/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🏫</span>
-                <span>Classes</span>
-            </a>
-
-
-            <a
-                href="/subjects/dashboard.html"
-                class="sidebar-link active"
-            >
-                <span>📚</span>
-                <span>Subjects</span>
-            </a>
-
-
-            <div class="menu-title">
-                ACADEMIC
-            </div>
-
-
-            <a
-                href="/attendance/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>✓</span>
-                <span>Attendance</span>
-            </a>
-
-
-            <a
-                href="/results/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📊</span>
-                <span>Results</span>
-            </a>
-
-
-            <a
-                href="/timetable/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🗓</span>
-                <span>Timetable</span>
-            </a>
-
-
-            <div class="menu-title">
-                SCHOOL
-            </div>
-
-
-            <a
-                href="/library/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📖</span>
-                <span>Library</span>
-            </a>
-
-
-            <a
-                href="/fees/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>💰</span>
-                <span>Fees</span>
-            </a>
-
-
-            <a
-                href="/events/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📅</span>
-                <span>Events</span>
-            </a>
-
-
-            <a
-                href="/notices/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🔔</span>
-                <span>Notices</span>
-            </a>
-
+        <nav class="sidebar-nav">
+            <a href="../admin/dashboard.html" class="nav-item"><span class="nav-icon">📊</span><span class="nav-text">Dashboard</span></a>
+            <a href="../students/dashboard.html" class="nav-item"><span class="nav-icon">👨‍🎓</span><span class="nav-text">Students</span></a>
+            <a href="../teachers/dashboard.html" class="nav-item"><span class="nav-icon">👨‍🏫</span><span class="nav-text">Teachers</span></a>
+            <a href="../classes/dashboard.html" class="nav-item"><span class="nav-icon">🏫</span><span class="nav-text">Classes</span></a>
+            <a href="../subjects/dashboard.html" class="nav-item active"><span class="nav-icon">📚</span><span class="nav-text">Subjects</span></a>
+            <a href="../attendance/dashboard.html" class="nav-item"><span class="nav-icon">📋</span><span class="nav-text">Attendance</span></a>
+            <a href="../results/dashboard.html" class="nav-item"><span class="nav-icon">🎯</span><span class="nav-text">Results</span></a>
+            <a href="../timetable/dashboard.html" class="nav-item"><span class="nav-icon">📅</span><span class="nav-text">Timetable</span></a>
+            <a href="../library/dashboard.html" class="nav-item"><span class="nav-icon">📖</span><span class="nav-text">Library</span></a>
         </nav>
-
-
-        <div class="sidebar-bottom">
-
-            <button
-                type="button"
-                class="logout-button"
-                id="logoutButton"
-            >
-
-                <span>↪</span>
-                <span>Sign Out</span>
-
-            </button>
-
+        <div class="sidebar-footer">
+            <a href="#" class="nav-item" id="logoutBtn"><span class="nav-icon">🚪</span><span class="nav-text">Logout</span></a>
         </div>
-
     </aside>
 
-
-    <main class="admin-main">
-
-
-        <header class="admin-header">
-
-            <div class="header-left">
-
-                <button
-                    type="button"
-                    class="sidebar-toggle"
-                    id="sidebarToggle"
-                >
-                    ☰
-                </button>
-
-
-                <div>
-
-                    <span class="header-label">
-                        ACADEMIC MANAGEMENT
-                    </span>
-
-                    <h1>
-                        Add Subject
-                    </h1>
-
+    <main class="main-content">
+        <div class="top-bar">
+            <h1 class="page-title">Add Subject</h1>
+            <div class="user-avatar" id="userAvatar">A</div>
+        </div>
+        <div class="content-area">
+            <div class="form-card">
+                <div class="form-header">
+                    <h2>Subject Information</h2>
+                    <a href="dashboard.html" class="btn btn-secondary">← Back</a>
                 </div>
-
-            </div>
-
-
-            <div class="admin-profile">
-
-                <div class="admin-avatar">
-                    A
-                </div>
-
-
-                <div class="admin-profile-info">
-
-                    <strong>
-                        Administrator
-                    </strong>
-
-                    <span>
-                        Admin
-                    </span>
-
-                </div>
-
-            </div>
-
-        </header>
-
-
-        <section class="page-container">
-
-
-            <div class="page-header">
-
-                <div class="header-left">
-
-                    <div class="page-icon">
-                        📚
-                    </div>
-
-
-                    <div>
-
-                        <h1>
-                            Add Subject
-                        </h1>
-
-                        <p>
-                            Register a new school subject
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div class="header-actions">
-
-                    <a
-                        href="/subjects/dashboard.html"
-                        class="btn btn-secondary"
-                    >
-                        ← Back
-                    </a>
-
-                </div>
-
-            </div>
-
-
-            <div
-                id="messageBox"
-                class="message"
-                hidden
-            >
-            </div>
-
-
-            <section class="form-card">
-
-
-                <div class="panel-header">
-
-                    <div>
-
-                        <h2>
-                            Subject Information
-                        </h2>
-
-                        <p>
-                            Enter the subject's academic information.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <form
-                    id="subjectForm"
-                    novalidate
-                >
-
-
+                <div id="alertContainer"></div>
+                <form id="subjectForm">
                     <div class="form-grid">
-
-
                         <div class="form-group">
-
-                            <label for="subjectName">
-
-                                Subject Name
-
-                                <span>
-                                    *
-                                </span>
-
-                            </label>
-
-
-                            <input
-                                type="text"
-                                id="subjectName"
-                                name="subject_name"
-                                placeholder="Example: Mathematics"
-                                maxlength="150"
-                                required
-                            >
-
+                            <label for="subject_name" class="required">Subject Name</label>
+                            <input type="text" id="subject_name" name="subject_name" required>
                         </div>
-
-
                         <div class="form-group">
-
-                            <label for="subjectCode">
-
-                                Subject Code
-
-                                <span>
-                                    *
-                                </span>
-
-                            </label>
-
-
-                            <input
-                                type="text"
-                                id="subjectCode"
-                                name="subject_code"
-                                placeholder="Example: MATH101"
-                                maxlength="50"
-                                required
-                            >
-
+                            <label for="subject_code" class="required">Subject Code</label>
+                            <input type="text" id="subject_code" name="subject_code" required>
                         </div>
-
-
                         <div class="form-group">
-
-                            <label for="gradeLevel">
-
-                                Grade Level
-
-                                <span>
-                                    *
-                                </span>
-
-                            </label>
-
-
-                            <input
-                                type="text"
-                                id="gradeLevel"
-                                name="grade_level"
-                                placeholder="Example: Grade 9"
-                                maxlength="50"
-                                required
-                            >
-
+                            <label for="grade_level">Grade Level</label>
+                            <input type="text" id="grade_level" name="grade_level" placeholder="e.g., 9, 10, 11">
                         </div>
-
-
                         <div class="form-group">
-
-                            <label for="credit">
-
-                                Credit
-
-                            </label>
-
-
-                            <input
-                                type="number"
-                                id="credit"
-                                name="credit"
-                                placeholder="Example: 4"
-                                min="0"
-                                step="0.5"
-                            >
-
+                            <label for="credit">Credit Hours</label>
+                            <input type="number" id="credit" name="credit" step="0.5">
                         </div>
-
-
                         <div class="form-group full-width">
-
-                            <label for="description">
-
-                                Description
-
-                            </label>
-
-
-                            <textarea
-                                id="description"
-                                name="description"
-                                rows="5"
-                                maxlength="500"
-                                placeholder="Enter subject description"
-                            ></textarea>
-
+                            <label for="description">Description</label>
+                            <textarea id="description" name="description"></textarea>
                         </div>
-
-
                     </div>
-
-
                     <div class="form-actions">
-
-
-                        <a
-                            href="/subjects/dashboard.html"
-                            class="btn btn-secondary"
-                        >
-                            Cancel
-                        </a>
-
-
-                        <button
-                            type="submit"
-                            id="saveButton"
-                            class="btn btn-primary"
-                        >
-                            Save Subject
-                        </button>
-
-
+                        <a href="dashboard.html" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Save Subject</button>
                     </div>
-
-
                 </form>
-
-
-            </section>
-
-
-        </section>
-
-
-        <footer class="admin-footer">
-
-            <span>
-                © 2026 Sululta Secondary School
-            </span>
-
-            <span>
-                Academic Management
-            </span>
-
-        </footer>
-
-
+            </div>
+        </div>
     </main>
 
-</div>
+    <script type="module">
+        import { supabase } from '../src/supabase.js';
 
+        document.getElementById('toggleSidebar').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        });
 
-<script
-    type="module"
-    src="/src/add-subject.js"
->
-</script>
+        document.getElementById('subjectForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const alertContainer = document.getElementById('alertContainer');
+            
+            const formData = {
+                subject_name: document.getElementById('subject_name').value,
+                subject_code: document.getElementById('subject_code').value,
+                grade_level: document.getElementById('grade_level').value || null,
+                credit: parseFloat(document.getElementById('credit').value) || null,
+                description: document.getElementById('description').value || null
+            };
 
+            const { data, error } = await supabase.from('subjects').insert([formData]).select();
 
+            if (error) {
+                alertContainer.innerHTML = `<div class="alert alert-error">Error: ${error.message}</div>`;
+            } else {
+                alertContainer.innerHTML = '<div class="alert alert-success">Subject added successfully!</div>';
+                setTimeout(() => window.location.href = 'dashboard.html', 1500);
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await supabase.auth.signOut();
+            window.location.href = '../login.html';
+        });
+    </script>
 </body>
-
 </html>

@@ -1,406 +1,595 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Result - Sululta School Portal</title>
+    <link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
+    <link rel="stylesheet" href="../src/sidebar.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f7fa}
+        .main-content{margin-left:260px;min-height:100vh}
+        .top-bar{background:#fff;padding:1.25rem 2rem;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center}
+        .page-title{font-size:1.75rem;font-weight:700;color:#1a202c}
+        .user-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600}
+        .content-area{padding:1.5rem 2rem 3rem;max-width:1000px}
+        .page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem}
+        .page-header h2{font-size:1rem;color:#4a5568}
 
-    <title>Add Result | Sululta School Portal</title>
+        /* ── cards ── */
+        .card{background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.08);padding:1.5rem;margin-bottom:1.25rem}
+        .card-title{font-size:.9375rem;font-weight:700;color:#1a202c;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:2px solid #e2e8f0;display:flex;align-items:center;gap:.5rem}
+        .card-title svg{width:18px;height:18px;color:#667eea}
 
-    <link rel="icon" href="data:,">
-    <link rel="stylesheet" href="../src/style.css">
+        /* ── form grid ── */
+        .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+        .form-group{display:flex;flex-direction:column;gap:.35rem}
+        .form-group.full{grid-column:1/-1}
+        label{font-size:.8125rem;font-weight:600;color:#4a5568}
+        label span{color:#e53e3e}
+        input,select{padding:.575rem .875rem;border:1px solid #e2e8f0;border-radius:8px;font-size:.875rem;color:#2d3748;background:#fff;transition:border-color .2s}
+        input:focus,select:focus{outline:none;border-color:#667eea;box-shadow:0 0 0 3px rgba(102,126,234,.12)}
+        input[readonly]{background:#f7fafc;color:#718096;cursor:default}
+
+        /* ── student preview ── */
+        .student-preview{border-radius:8px;padding:.625rem .875rem;font-size:.8125rem;margin-top:.3rem;display:none}
+        .student-preview.ok{background:#f0fff4;color:#276749;border:1px solid #c6f6d5}
+        .student-preview.err{background:#fff5f5;color:#c53030;border:1px solid #fed7d7}
+
+        /* ── subject rows table ── */
+        .subjects-table{width:100%;border-collapse:collapse;font-size:.8125rem}
+        .subjects-table th{padding:.625rem .75rem;text-align:left;background:#f7fafc;color:#4a5568;font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;border-bottom:2px solid #e2e8f0;white-space:nowrap}
+        .subjects-table td{padding:.5rem .75rem;border-bottom:1px solid #f0f4f8;vertical-align:middle}
+        .subjects-table tr:last-child td{border-bottom:none}
+        .subjects-table tr:hover td{background:#fafbfc}
+
+        .assessment-inputs{display:flex;flex-wrap:wrap;gap:.4rem}
+        .assess-group{display:flex;flex-direction:column;gap:.2rem;min-width:70px}
+        .assess-group small{font-size:.6875rem;color:#718096;text-align:center}
+        .assess-group input{width:70px;text-align:center;padding:.375rem .5rem;font-size:.8125rem}
+
+        .subject-total{font-size:1rem;font-weight:700;color:#2d3748;min-width:40px;text-align:center}
+        .subject-total.fail{color:#c53030}
+        .subject-total.pass{color:#276749}
+
+        .btn-remove{background:none;border:none;cursor:pointer;color:#c53030;font-size:1.1rem;padding:.25rem;border-radius:6px;transition:background .15s}
+        .btn-remove:hover{background:#fff5f5}
+
+        /* ── add subject row ── */
+        .add-subject-row{display:flex;align-items:center;gap:.75rem;padding:.75rem;background:#f7fafc;border-radius:8px;border:1px dashed #cbd5e0;margin-top:.75rem}
+        .add-subject-row select{flex:1}
+        .btn-add{padding:.5rem 1.1rem;background:#667eea;color:#fff;border:none;border-radius:8px;font-size:.8125rem;font-weight:600;cursor:pointer;transition:background .2s}
+        .btn-add:hover{background:#5a67d8}
+        .btn-add:disabled{opacity:.5;cursor:not-allowed}
+
+        /* ── summary card ── */
+        .summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+        .summary-item{background:#f7fafc;border-radius:10px;padding:1rem;text-align:center;border:1px solid #e2e8f0}
+        .summary-item .s-label{font-size:.75rem;color:#718096;font-weight:600;text-transform:uppercase;margin-bottom:.4rem}
+        .summary-item .s-value{font-size:1.5rem;font-weight:800;color:#1a202c}
+        .summary-item.highlight{background:linear-gradient(135deg,#ebf4ff,#f0fff4);border-color:#bee3f8}
+        .summary-item.highlight .s-value{color:#2b6cb0;font-size:1.75rem}
+        .status-badge{display:inline-block;padding:.35rem 1rem;border-radius:20px;font-size:.875rem;font-weight:700;margin-top:.5rem}
+        .status-pass{background:#c6f6d5;color:#22543d}
+        .status-fail{background:#fed7d7;color:#c53030}
+        .remark-text{font-size:1rem;font-weight:700;margin-top:.4rem}
+
+        /* ── form actions ── */
+        .form-actions{display:flex;justify-content:flex-end;gap:.75rem;padding-top:1rem;border-top:1px solid #e2e8f0}
+        .btn{padding:.625rem 1.25rem;border-radius:8px;border:none;font-weight:600;font-size:.875rem;cursor:pointer;text-decoration:none;display:inline-block;transition:all .2s}
+        .btn-primary{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff}
+        .btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(102,126,234,.4)}
+        .btn-primary:disabled{opacity:.6;transform:none;cursor:not-allowed}
+        .btn-secondary{background:#e2e8f0;color:#2d3748}
+        .btn-secondary:hover{background:#cbd5e0}
+
+        /* ── messages ── */
+        .message{padding:.875rem 1rem;border-radius:8px;margin-bottom:1rem;font-size:.875rem;display:none}
+        .message.error{background:#fff5f5;color:#c53030;border:1px solid #fed7d7;display:block}
+        .message.success{background:#f0fff4;color:#276749;border:1px solid #c6f6d5;display:block}
+
+        @media(max-width:768px){
+            .main-content{margin-left:0}
+            .form-grid{grid-template-columns:1fr}
+            .summary-grid{grid-template-columns:1fr 1fr}
+            .subjects-table{font-size:.75rem}
+        }
+    </style>
 </head>
-
 <body>
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <img src="../public/school-logo.svg" alt="Logo" class="logo-image">
+            <span class="logo-text">Sululta School</span>
+        </div>
+        <button class="toggle-btn" id="toggleSidebar"><span></span><span></span><span></span></button>
+    </div>
+    <nav class="sidebar-nav">
+        <a href="../admin/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span><span class="nav-text">Dashboard</span></a>
+        <a href="../students/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="nav-text">Students</span></a>
+        <a href="../teachers/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="12" cy="5" r="2"/></svg></span><span class="nav-text">Teachers</span></a>
+        <a href="../classes/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="nav-text">Classes</span></a>
+        <a href="../subjects/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span><span class="nav-text">Subjects</span></a>
+        <a href="../attendance/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span><span class="nav-text">Attendance</span></a>
+        <a href="../results/dashboard.html" class="nav-item active"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span class="nav-text">Results</span></a>
+        <a href="../timetable/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="nav-text">Timetable</span></a>
+        <a href="../library/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span><span class="nav-text">Library</span></a>
+    </nav>
+    <div class="sidebar-footer">
+        <a href="#" class="nav-item" id="logoutBtn"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span class="nav-text">Logout</span></a>
+    </div>
+</aside>
 
-<div class="admin-page">
+<main class="main-content">
+    <div class="top-bar">
+        <h1 class="page-title">Add Result</h1>
+        <div class="user-avatar" id="userAvatar">A</div>
+    </div>
 
-    <aside class="admin-sidebar">
-
-        <div class="sidebar-brand">
-
-            <div class="school-logo">
-                SS
-            </div>
-
-            <div class="school-info">
-                <strong>Sululta School</strong>
-                <span>Admin Portal</span>
-            </div>
-
+    <div class="content-area">
+        <div class="page-header">
+            <h2>Record student subject results</h2>
+            <a href="dashboard.html" class="btn btn-secondary">← Back</a>
         </div>
 
-        <nav class="sidebar-menu">
+        <div id="messageBox" class="message"></div>
 
-            <div class="menu-title">Main</div>
-
-            <a href="../dashboard.html" class="sidebar-link">
-                <span>🏠</span>
-                <span>Dashboard</span>
-            </a>
-
-            <div class="menu-title">Academic Management</div>
-
-            <a href="../students/dashboard.html" class="sidebar-link">
-                <span>👨‍🎓</span>
-                <span>Students</span>
-            </a>
-
-            <a href="../teachers/dashboard.html" class="sidebar-link">
-                <span>👨‍🏫</span>
-                <span>Teachers</span>
-            </a>
-
-            <a href="../parents/dashboard.html" class="sidebar-link">
-                <span>👨‍👩‍👧</span>
-                <span>Parents</span>
-            </a>
-
-            <a href="../classes/dashboard.html" class="sidebar-link">
-                <span>🏫</span>
-                <span>Classes</span>
-            </a>
-
-            <a href="../subjects/dashboard.html" class="sidebar-link">
-                <span>📚</span>
-                <span>Subjects</span>
-            </a>
-
-            <a href="../exams/dashboard.html" class="sidebar-link">
-                <span>📝</span>
-                <span>Exams</span>
-            </a>
-
-            <a href="../attendance/dashboard.html" class="sidebar-link">
-                <span>📅</span>
-                <span>Attendance</span>
-            </a>
-
-            <a href="../timetable/dashboard.html" class="sidebar-link">
-                <span>🗓️</span>
-                <span>Timetable</span>
-            </a>
-
-            <a href="dashboard.html" class="sidebar-link active">
-                <span>📊</span>
-                <span>Results</span>
-            </a>
-
-            <a href="../books/dashboard.html" class="sidebar-link">
-                <span>📖</span>
-                <span>Books</span>
-            </a>
-
-            <a href="../events/dashboard.html" class="sidebar-link">
-                <span>🎉</span>
-                <span>Events</span>
-            </a>
-
-            <a href="../notices/dashboard.html" class="sidebar-link">
-                <span>📢</span>
-                <span>Notices</span>
-            </a>
-
-            <div class="menu-title">Finance</div>
-
-            <a href="../fees/dashboard.html" class="sidebar-link">
-                <span>💰</span>
-                <span>Fees</span>
-            </a>
-
-        </nav>
-
-        <div class="sidebar-bottom">
-
-            <a href="../login.html" class="logout-button">
-                <span>↪</span>
-                <span>Logout</span>
-            </a>
-
+        <div style="background:#eff6ff; border:1px solid #bfdbfe; color:#1e40af; padding:1rem 1.25rem; border-radius:10px; margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <strong>Notice:</strong> Student results recording has been moved under the <strong>Teacher Dashboard</strong>.
+            </div>
+            <a href="/teacher/results.html" style="background:#2563eb; color:#fff; padding:0.45rem 1rem; border-radius:6px; font-weight:600; font-size:0.8125rem; text-decoration:none;">Go to Teacher Add Result →</a>
         </div>
 
-    </aside>
-
-    <main class="admin-main">
-
-        <header class="admin-header">
-
-            <div class="header-left">
-
-                <button
-                    type="button"
-                    class="sidebar-toggle"
-                    id="sidebarToggle">
-                    ☰
-                </button>
-
-                <div>
-
-                    <span class="header-label">
-                        Academic Management
-                    </span>
-
-                    <h1>
-                        Add Result
-                    </h1>
-
+        <!-- ─── 1. Student Information ─── -->
+        <div class="card">
+            <div class="card-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                Student Information
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="studentId">Student ID <span>*</span></label>
+                    <input type="text" id="studentId" placeholder="e.g. STU001" autocomplete="off">
+                    <div class="student-preview" id="studentPreview"></div>
                 </div>
+                <div class="form-group">
+                    <label for="studentName">Student Name</label>
+                    <input type="text" id="studentName" readonly placeholder="Auto-filled">
+                </div>
+                <div class="form-group">
+                    <label for="academicYear">Academic Year <span>*</span></label>
+                    <select id="academicYear">
+                        <option value="2025/2026">2025/2026</option>
+                        <option value="2026/2027" selected>2026/2027</option>
+                        <option value="2027/2028">2027/2028</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="semester">Semester <span>*</span></label>
+                    <select id="semester">
+                        <option value="Semester 1">Semester 1</option>
+                        <option value="Semester 2">Semester 2</option>
+                    </select>
+                </div>
+            </div>
+        </div>
 
+        <!-- ─── 2. Subject Marks Table ─── -->
+        <div class="card">
+            <div class="card-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                Subject Assessment Marks
+                <span style="margin-left:auto;font-size:.75rem;color:#718096;font-weight:400">Assessment weights: Assignment 10% · Quiz 10% · Test 20% · Midterm 25% · Final 35%</span>
             </div>
 
-            <div class="admin-profile">
-
-                <div class="admin-avatar">
-                    A
-                </div>
-
-                <div class="admin-profile-info">
-                    <strong>Administrator</strong>
-                    <span>Admin</span>
-                </div>
-
+            <div style="overflow-x:auto">
+                <table class="subjects-table">
+                    <thead>
+                        <tr>
+                            <th style="min-width:160px">Subject</th>
+                            <th>Assignment<br><small style="font-weight:400">/10</small></th>
+                            <th>Quiz<br><small style="font-weight:400">/10</small></th>
+                            <th>Test<br><small style="font-weight:400">/20</small></th>
+                            <th>Midterm<br><small style="font-weight:400">/25</small></th>
+                            <th>Final Exam<br><small style="font-weight:400">/35</small></th>
+                            <th>Total<br><small style="font-weight:400">/100</small></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="subjectRows">
+                        <tr id="emptyRow">
+                            <td colspan="8" style="text-align:center;color:#94a3b8;padding:1.5rem;font-size:.875rem">
+                                No subjects added yet. Use the form below to add subjects.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
-        </header>
-
-        <section class="page-container">
-
-            <div class="page-header">
-
-                <div class="header-left">
-
-                    <div class="page-icon">
-                        📊
-                    </div>
-
-                    <div>
-
-                        <h1>
-                            Add Result
-                        </h1>
-
-                        <p>
-                            Record a student's academic result
-                        </p>
-
-                    </div>
-
-                </div>
-
-                <div class="header-actions">
-
-                    <a
-                        href="dashboard.html"
-                        class="btn btn-secondary">
-                        ← Back
-                    </a>
-
-                </div>
-
+            <!-- Add subject row -->
+            <div class="add-subject-row">
+                <select id="addSubjectSelect" style="flex:1">
+                    <option value="">Loading subjects...</option>
+                </select>
+                <button type="button" class="btn-add" id="addSubjectBtn" disabled>+ Add Subject</button>
             </div>
+        </div>
 
-            <div
-                id="messageBox"
-                class="message">
+        <!-- ─── 3. Summary ─── -->
+        <div class="card" id="summaryCard" style="display:none">
+            <div class="card-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Overall Result Summary
             </div>
-
-            <section class="form-card result-form-card">
-
-                <div class="panel-header">
-
-                    <div>
-
-                        <h2>
-                            Result Information
-                        </h2>
-
-                        <p>
-                            Enter the student's examination result
-                        </p>
-
-                    </div>
-
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="s-label">Subjects</div>
+                    <div class="s-value" id="sumSubjects">0</div>
                 </div>
-
-                <form id="resultForm">
-
-                    <div class="form-grid">
-
-                        <div class="form-group">
-
-                            <label for="studentId">
-                                Student ID
-                                <span>*</span>
-                            </label>
-
-                            <input
-                                type="text"
-                                id="studentId"
-                                name="student_id"
-                                placeholder="Enter student ID"
-                                maxlength="50"
-                                required>
-
-                        </div>
-
-                        <div class="form-group">
-
-                            <label for="subjectCode">
-                                Subject Code
-                                <span>*</span>
-                            </label>
-
-                            <input
-                                type="text"
-                                id="subjectCode"
-                                name="subject_code"
-                                placeholder="Example: MATH101"
-                                maxlength="50"
-                                required>
-
-                        </div>
-
-                        <div class="form-group">
-
-                            <label for="examType">
-                                Exam Type
-                                <span>*</span>
-                            </label>
-
-                            <select
-                                id="examType"
-                                name="exam_type"
-                                required>
-
-                                <option value="">
-                                    Select exam type
-                                </option>
-
-                                <option value="Quiz">
-                                    Quiz
-                                </option>
-
-                                <option value="Midterm">
-                                    Midterm
-                                </option>
-
-                                <option value="Final">
-                                    Final
-                                </option>
-
-                                <option value="Assignment">
-                                    Assignment
-                                </option>
-
-                                <option value="Project">
-                                    Project
-                                </option>
-
-                                <option value="Other">
-                                    Other
-                                </option>
-
-                            </select>
-
-                        </div>
-
-                        <div class="form-group">
-
-                            <label for="mark">
-                                Mark
-                                <span>*</span>
-                            </label>
-
-                            <input
-                                type="number"
-                                id="mark"
-                                name="mark"
-                                placeholder="Enter mark"
-                                min="0"
-                                max="100"
-                                step="0.01"
-                                required>
-
-                        </div>
-
-                        <div class="form-group">
-
-                            <label for="grade">
-                                Grade
-                            </label>
-
-                            <input
-                                type="text"
-                                id="grade"
-                                name="grade"
-                                placeholder="Automatically calculated"
-                                maxlength="10"
-                                readonly>
-
-                        </div>
-
-                        <div class="form-group">
-
-                            <label for="remark">
-                                Remark
-                            </label>
-
-                            <input
-                                type="text"
-                                id="remark"
-                                name="remark"
-                                placeholder="Automatically calculated"
-                                maxlength="100"
-                                readonly>
-
-                        </div>
-
+                <div class="summary-item">
+                    <div class="s-label">Total Marks</div>
+                    <div class="s-value" id="sumTotal">0</div>
+                </div>
+                <div class="summary-item highlight">
+                    <div class="s-label">Average / 100</div>
+                    <div class="s-value" id="sumAverage">0</div>
+                    <div class="remark-text" id="sumRemark">—</div>
+                </div>
+                <div class="summary-item">
+                    <div class="s-label">Status</div>
+                    <div class="s-value" style="font-size:1rem;margin-top:.4rem">
+                        <span class="status-badge" id="sumStatus">—</span>
                     </div>
+                </div>
+            </div>
+        </div>
 
-                    <div class="form-actions">
+        <!-- ─── Save ─── -->
+        <div class="form-actions">
+            <a href="dashboard.html" class="btn btn-secondary">Cancel</a>
+            <button type="button" id="saveBtn" class="btn btn-primary" disabled>Save Results</button>
+        </div>
+    </div>
+</main>
 
-                        <a
-                            href="dashboard.html"
-                            class="btn btn-secondary">
-                            Cancel
-                        </a>
+<script type="module">
+import { supabase } from '../src/supabase.js';
 
-                        <button
-                            type="submit"
-                            id="saveButton"
-                            class="btn btn-primary">
-                            Save Result
-                        </button>
+/* ──────────────────────────────────────────────────────────────
+   CONSTANTS
+────────────────────────────────────────────────────────────── */
+// Assessment weights (must sum to 100)
+const WEIGHTS = {
+    assignment: { max: 10,  label: 'Assignment' },
+    quiz:       { max: 10,  label: 'Quiz'       },
+    test:       { max: 20,  label: 'Test'       },
+    midterm:    { max: 25,  label: 'Midterm'    },
+    final:      { max: 35,  label: 'Final Exam' },
+};
+const ASSESS_KEYS = Object.keys(WEIGHTS);
 
-                    </div>
+/* ──────────────────────────────────────────────────────────────
+   STATE
+────────────────────────────────────────────────────────────── */
+let subjectRows = [];   // [{ code, name, marks:{assignment,quiz,test,midterm,final}, total }]
+let allSubjects = [];   // from Supabase subjects table
+let currentUser = null;
+let resolvedStudentId = null; // actual student_id string after lookup
 
-                </form>
+/* ──────────────────────────────────────────────────────────────
+   SIDEBAR / LOGOUT / AVATAR
+────────────────────────────────────────────────────────────── */
+document.getElementById('toggleSidebar').addEventListener('click', () =>
+    document.getElementById('sidebar').classList.toggle('mobile-open')
+);
+document.getElementById('logoutBtn').addEventListener('click', async e => {
+    e.preventDefault();
+    await supabase.auth.signOut();
+    window.location.href = '../login.html';
+});
+supabase.auth.getUser().then(({ data: { user } }) => {
+    currentUser = user;
+    if (!user) return;
+    supabase.from('profiles').select('first_name').eq('id', user.id).maybeSingle()
+        .then(({ data }) => {
+            if (data?.first_name) document.getElementById('userAvatar').textContent = data.first_name[0].toUpperCase();
+        });
+});
 
-            </section>
+/* ──────────────────────────────────────────────────────────────
+   LOAD SUBJECTS
+────────────────────────────────────────────────────────────── */
+async function loadSubjects() {
+    const { data, error } = await supabase
+        .from('subjects')
+        .select('subject_code, subject_name')
+        .order('subject_name');
 
-        </section>
+    if (error || !data?.length) {
+        document.getElementById('addSubjectSelect').innerHTML = '<option value="">No subjects found</option>';
+        return;
+    }
+    allSubjects = data;
+    populateSubjectSelect();
+    document.getElementById('addSubjectBtn').disabled = false;
+}
 
-        <footer class="admin-footer">
+function populateSubjectSelect() {
+    const usedCodes = subjectRows.map(r => r.code);
+    const available = allSubjects.filter(s => !usedCodes.includes(s.subject_code));
+    const sel = document.getElementById('addSubjectSelect');
+    if (!available.length) {
+        sel.innerHTML = '<option value="">All subjects added</option>';
+        document.getElementById('addSubjectBtn').disabled = true;
+        return;
+    }
+    document.getElementById('addSubjectBtn').disabled = false;
+    sel.innerHTML = '<option value="">— Select Subject —</option>' +
+        available.map(s => `<option value="${s.subject_code}">${s.subject_name} (${s.subject_code})</option>`).join('');
+}
 
-            <span>
-                © 2026 Sululta School Portal
-            </span>
+/* ──────────────────────────────────────────────────────────────
+   STUDENT LOOKUP
+────────────────────────────────────────────────────────────── */
+let lookupTimer;
+document.getElementById('studentId').addEventListener('input', function () {
+    clearTimeout(lookupTimer);
+    const preview = document.getElementById('studentPreview');
+    const val = this.value.trim();
+    document.getElementById('studentName').value = '';
+    resolvedStudentId = null;
+    if (!val) { preview.style.display = 'none'; return; }
 
-            <span>
-                School Management System
-            </span>
+    lookupTimer = setTimeout(async () => {
+        const { data } = await supabase
+            .from('students')
+            .select('student_id, first_name, last_name, class')
+            .eq('student_id', val)
+            .maybeSingle();
 
-        </footer>
+        if (data) {
+            resolvedStudentId = data.student_id;
+            document.getElementById('studentName').value = `${data.first_name} ${data.last_name}`;
+            preview.className = 'student-preview ok';
+            preview.textContent = `✓ ${data.first_name} ${data.last_name}${data.class ? ' — ' + data.class : ''}`;
+            preview.style.display = 'block';
+        } else {
+            resolvedStudentId = null;
+            preview.className = 'student-preview err';
+            preview.textContent = '⚠ Student ID not found';
+            preview.style.display = 'block';
+        }
+    }, 400);
+});
 
-    </main>
+/* ──────────────────────────────────────────────────────────────
+   ADD SUBJECT ROW
+────────────────────────────────────────────────────────────── */
+document.getElementById('addSubjectBtn').addEventListener('click', () => {
+    const sel = document.getElementById('addSubjectSelect');
+    const code = sel.value;
+    if (!code) return;
+    const subj = allSubjects.find(s => s.subject_code === code);
+    if (!subj) return;
 
-</div>
+    subjectRows.push({ code: subj.subject_code, name: subj.subject_name,
+        marks: { assignment: '', quiz: '', test: '', midterm: '', final: '' }, total: 0 });
+    renderTable();
+    populateSubjectSelect();
+});
 
-<script
-    type="module"
-    src="../src/results-add.js">
+/* ──────────────────────────────────────────────────────────────
+   RENDER TABLE
+────────────────────────────────────────────────────────────── */
+function renderTable() {
+    const tbody = document.getElementById('subjectRows');
+
+    if (!subjectRows.length) {
+        tbody.innerHTML = `<tr id="emptyRow"><td colspan="8" style="text-align:center;color:#94a3b8;padding:1.5rem;font-size:.875rem">No subjects added yet.</td></tr>`;
+        updateSummary();
+        return;
+    }
+
+    tbody.innerHTML = subjectRows.map((row, idx) => `
+        <tr data-idx="${idx}">
+            <td><strong>${esc(row.name)}</strong><br><small style="color:#94a3b8">${esc(row.code)}</small></td>
+            ${ASSESS_KEYS.map(key => `
+                <td>
+                    <input type="number" min="0" max="${WEIGHTS[key].max}" step="0.5"
+                        class="assess-input" data-idx="${idx}" data-key="${key}"
+                        value="${row.marks[key]}"
+                        placeholder="/${WEIGHTS[key].max}"
+                        style="width:64px;text-align:center;padding:.375rem .5rem;font-size:.8125rem;border:1px solid #e2e8f0;border-radius:6px">
+                </td>
+            `).join('')}
+            <td>
+                <span class="subject-total ${row.total >= 50 ? 'pass' : (row.total > 0 ? 'fail' : '')}"
+                    id="total-${idx}">${row.total > 0 ? row.total.toFixed(1) : '—'}</span>
+            </td>
+            <td>
+                <button type="button" class="btn-remove" data-idx="${idx}" title="Remove subject">✕</button>
+            </td>
+        </tr>
+    `).join('');
+
+    // Attach input listeners
+    tbody.querySelectorAll('.assess-input').forEach(inp => {
+        inp.addEventListener('input', onMarkInput);
+    });
+    tbody.querySelectorAll('.btn-remove').forEach(btn => {
+        btn.addEventListener('click', () => {
+            subjectRows.splice(parseInt(btn.dataset.idx), 1);
+            renderTable();
+            populateSubjectSelect();
+        });
+    });
+
+    updateSummary();
+}
+
+/* ──────────────────────────────────────────────────────────────
+   MARK INPUT HANDLER
+────────────────────────────────────────────────────────────── */
+function onMarkInput(e) {
+    const idx = parseInt(e.target.dataset.idx);
+    const key = e.target.dataset.key;
+    const max = WEIGHTS[key].max;
+    let val = e.target.value === '' ? '' : parseFloat(e.target.value);
+
+    // Clamp
+    if (val !== '' && val > max) { val = max; e.target.value = max; }
+    if (val !== '' && val < 0)  { val = 0;   e.target.value = 0;  }
+
+    subjectRows[idx].marks[key] = val;
+    subjectRows[idx].total = calcTotal(subjectRows[idx].marks);
+
+    // Update the total cell without full re-render (avoids losing focus)
+    const totalEl = document.getElementById(`total-${idx}`);
+    if (totalEl) {
+        const t = subjectRows[idx].total;
+        totalEl.textContent = t > 0 ? t.toFixed(1) : '—';
+        totalEl.className = `subject-total ${t >= 50 ? 'pass' : (t > 0 ? 'fail' : '')}`;
+    }
+
+    updateSummary();
+}
+
+/* ──────────────────────────────────────────────────────────────
+   CALCULATE TOTAL FOR ONE SUBJECT
+────────────────────────────────────────────────────────────── */
+function calcTotal(marks) {
+    // Each assessment contributes its raw mark (already on the correct scale)
+    // assignment/10, quiz/10, test/20, midterm/25, final/35 — they sum to 100
+    let total = 0;
+    let entered = false;
+    ASSESS_KEYS.forEach(key => {
+        const v = parseFloat(marks[key]);
+        if (!isNaN(v) && marks[key] !== '') {
+            total += v;
+            entered = true;
+        }
+    });
+    return entered ? Math.min(100, Math.round(total * 10) / 10) : 0;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   PERFORMANCE REMARK (no letter grades)
+────────────────────────────────────────────────────────────── */
+function getRemark(avg) {
+    if (avg >= 90) return 'Excellent';
+    if (avg >= 80) return 'Very Good';
+    if (avg >= 70) return 'Good';
+    if (avg >= 60) return 'Satisfactory';
+    if (avg >= 50) return 'Pass';
+    return 'Fail';
+}
+
+/* ──────────────────────────────────────────────────────────────
+   UPDATE SUMMARY PANEL
+────────────────────────────────────────────────────────────── */
+function updateSummary() {
+    const card = document.getElementById('summaryCard');
+    const saveBtn = document.getElementById('saveBtn');
+
+    const rowsWithMarks = subjectRows.filter(r => r.total > 0);
+
+    if (rowsWithMarks.length === 0) {
+        card.style.display = 'none';
+        saveBtn.disabled = true;
+        return;
+    }
+
+    card.style.display = 'block';
+
+    const n = rowsWithMarks.length;
+    const totalMarks = rowsWithMarks.reduce((s, r) => s + r.total, 0);
+    const avg = totalMarks / n;
+    const remark = getRemark(avg);
+    const pass = avg >= 50;
+
+    document.getElementById('sumSubjects').textContent = n;
+    document.getElementById('sumTotal').textContent = totalMarks.toFixed(1);
+    document.getElementById('sumAverage').textContent = avg.toFixed(1);
+    document.getElementById('sumRemark').textContent = remark;
+
+    const statusEl = document.getElementById('sumStatus');
+    statusEl.textContent = pass ? 'Pass' : 'Fail';
+    statusEl.className = `status-badge ${pass ? 'status-pass' : 'status-fail'}`;
+
+    saveBtn.disabled = !resolvedStudentId;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   SAVE RESULTS
+────────────────────────────────────────────────────────────── */
+document.getElementById('saveBtn').addEventListener('click', async () => {
+    const msgBox = document.getElementById('messageBox');
+    msgBox.className = 'message';
+
+    if (!resolvedStudentId) { showMsg('Please enter a valid Student ID.', 'error'); return; }
+
+    const rowsWithMarks = subjectRows.filter(r => r.total > 0);
+    if (!rowsWithMarks.length) { showMsg('Please add at least one subject with marks.', 'error'); return; }
+
+    const academicYear = document.getElementById('academicYear').value;
+    const semester     = document.getElementById('semester').value;
+    const examType     = semester; // stored in exam_type field
+
+    const saveBtn = document.getElementById('saveBtn');
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving...';
+
+    const { data: { user } } = await supabase.auth.getUser();
+
+    // Build rows to insert — one row per subject
+    const inserts = rowsWithMarks.map(r => ({
+        student_id:   resolvedStudentId,
+        subject_code: r.code,
+        exam_type:    `${examType} — ${academicYear}`,
+        mark:         r.total,
+        grade:        null,                  // no letter grades
+        remark:       getRemark(r.total),
+        recorded_by:  user?.id ?? null,
+    }));
+
+    // Delete existing records for this student/semester/year to avoid duplicates
+    await supabase
+        .from('results')
+        .delete()
+        .eq('student_id', resolvedStudentId)
+        .eq('exam_type', `${examType} — ${academicYear}`);
+
+    const { error } = await supabase.from('results').insert(inserts);
+
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save Results';
+
+    if (error) {
+        showMsg('Error saving results: ' + error.message, 'error');
+    } else {
+        showMsg(`Results saved successfully! ${rowsWithMarks.length} subject(s) recorded.`, 'success');
+        setTimeout(() => window.location.href = 'dashboard.html', 1500);
+    }
+});
+
+/* ──────────────────────────────────────────────────────────────
+   HELPERS
+────────────────────────────────────────────────────────────── */
+function showMsg(text, type) {
+    const el = document.getElementById('messageBox');
+    el.textContent = text;
+    el.className = 'message ' + type;
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+function esc(s) {
+    return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ── Init ── */
+loadSubjects();
 </script>
-
 </body>
-
 </html>

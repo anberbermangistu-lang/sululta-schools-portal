@@ -119,7 +119,6 @@ async function loadStudent() {
                 email,
                 address,
                 status,
-                photo,
                 photo_url
             `)
             .eq(

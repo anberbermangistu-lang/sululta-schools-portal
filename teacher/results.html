@@ -2,450 +2,734 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Result | Sululta Secondary School</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/src/style.css">
+    <style>
+        .page-container {
+            max-width: 1040px;
+            margin: 0 auto;
+            padding: 1.5rem 2rem 3rem;
+        }
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+        .page-top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
 
-    <title>
-        Results | Sululta School
-    </title>
+        .page-title-group h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0;
+            letter-spacing: -0.02em;
+        }
 
-    <link
-        rel="icon"
-        href="data:,"
-    >
+        .page-title-group p {
+            color: #64748b;
+            font-size: 0.9375rem;
+            margin: 0.35rem 0 0;
+        }
 
-    <link
-        rel="stylesheet"
-        href="../src/style.css"
-    >
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: #e2e8f0;
+            color: #334155;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
 
+        .btn-back:hover {
+            background: #cbd5e1;
+            color: #1e293b;
+        }
+
+        /* ── Card Styling ── */
+        .result-card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+            border: 1px solid #eef2f6;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .result-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 0.875rem;
+            margin-bottom: 1.25rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .result-card-title {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .result-card-title svg {
+            width: 20px;
+            height: 20px;
+            color: #6366f1;
+            stroke-width: 2;
+        }
+
+        .card-caption {
+            font-size: 0.8125rem;
+            color: #64748b;
+            font-weight: 400;
+        }
+
+        /* ── Form Grid ── */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .form-group label {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .form-group label span {
+            color: #ef4444;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 0.65rem 0.875rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            color: #1e293b;
+            background: #ffffff;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        .form-group input[readonly] {
+            background: #f8fafc;
+            color: #64748b;
+            cursor: default;
+        }
+
+        /* ── Student Preview ── */
+        .student-preview-pill {
+            display: none;
+            border-radius: 6px;
+            padding: 0.4rem 0.75rem;
+            font-size: 0.8125rem;
+            margin-top: 0.25rem;
+            font-weight: 500;
+        }
+
+        .student-preview-pill.ok {
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+            display: inline-block;
+        }
+
+        .student-preview-pill.err {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+            display: inline-block;
+        }
+
+        /* ── Assessment Table ── */
+        .assessment-table-wrapper {
+            overflow-x: auto;
+            border-radius: 8px;
+        }
+
+        .assessment-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8125rem;
+        }
+
+        .assessment-table th {
+            padding: 0.75rem 0.65rem;
+            background: #f8fafc;
+            color: #475569;
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            border-bottom: 2px solid #e2e8f0;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .assessment-table th.th-subject {
+            text-align: left;
+            min-width: 180px;
+            padding-left: 1rem;
+        }
+
+        .assessment-table th small {
+            font-weight: 500;
+            color: #94a3b8;
+            text-transform: lowercase;
+            font-size: 0.6875rem;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .assessment-table td {
+            padding: 0.65rem 0.65rem;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        .assessment-table td.td-subject {
+            text-align: left;
+            padding-left: 1rem;
+        }
+
+        .assessment-table td.td-subject strong {
+            font-size: 0.875rem;
+            color: #1e293b;
+            display: block;
+        }
+
+        .assessment-table td.td-subject small {
+            color: #94a3b8;
+            font-size: 0.75rem;
+        }
+
+        .assessment-table tr:hover td {
+            background: #fafbfc;
+        }
+
+        .assess-input {
+            width: 68px;
+            text-align: center;
+            padding: 0.45rem 0.4rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #1e293b;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            outline: none;
+            transition: all 0.15s;
+        }
+
+        .assess-input:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        .subject-total-badge {
+            font-size: 0.9375rem;
+            font-weight: 700;
+            color: #64748b;
+            display: inline-block;
+            min-width: 44px;
+        }
+
+        .subject-total-badge.pass {
+            color: #16a34a;
+        }
+
+        .subject-total-badge.fail {
+            color: #dc2626;
+        }
+
+        .btn-remove-row {
+            background: none;
+            border: none;
+            color: #dc2626;
+            font-size: 1.15rem;
+            cursor: pointer;
+            padding: 0.35rem 0.5rem;
+            border-radius: 6px;
+            transition: background 0.15s;
+        }
+
+        .btn-remove-row:hover {
+            background: #fef2f2;
+        }
+
+        /* ── Add Subject Row ── */
+        .add-subject-dashed-row {
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            padding: 1rem 1.25rem;
+            background: #fafbfc;
+            border-radius: 10px;
+            border: 1.5px dashed #cbd5e1;
+            margin-top: 1.25rem;
+        }
+
+        .add-subject-dashed-row select {
+            flex: 1;
+            padding: 0.65rem 0.875rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            color: #1e293b;
+            background: #ffffff;
+            outline: none;
+        }
+
+        .btn-add-subject {
+            padding: 0.65rem 1.35rem;
+            background: #4f46e5;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            white-space: nowrap;
+        }
+
+        .btn-add-subject:hover {
+            background: #4338ca;
+            transform: translateY(-1px);
+        }
+
+        .btn-add-subject:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ── Summary Card ── */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        .summary-box {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+
+        .summary-box .sum-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 0.35rem;
+        }
+
+        .summary-box .sum-val {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .summary-box.highlight {
+            background: linear-gradient(135deg, #eef2ff, #f0fdf4);
+            border-color: #c7d2fe;
+        }
+
+        .summary-box.highlight .sum-val {
+            color: #4338ca;
+            font-size: 1.65rem;
+        }
+
+        .summary-remark {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-top: 0.25rem;
+        }
+
+        .status-pill {
+            display: inline-block;
+            padding: 0.3rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 0.8125rem;
+            font-weight: 700;
+            margin-top: 0.35rem;
+        }
+
+        .status-pill.pass {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .status-pill.fail {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        /* ── Form Actions ── */
+        .form-actions-bar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 0.875rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn-cancel {
+            padding: 0.65rem 1.5rem;
+            background: #e2e8f0;
+            color: #475569;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-decoration: none;
+            border: 1px solid transparent;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+
+        .btn-cancel:hover {
+            background: #cbd5e1;
+            color: #1e293b;
+        }
+
+        .btn-save-results {
+            padding: 0.65rem 1.85rem;
+            background: linear-gradient(135deg, #7c74db 0%, #9c84e2 100%);
+            color: #ffffff;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(124, 116, 219, 0.3);
+            transition: all 0.2s;
+        }
+
+        .btn-save-results:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(124, 116, 219, 0.4);
+        }
+
+        .btn-save-results:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ── Messages ── */
+        .message-toast {
+            padding: 0.875rem 1.25rem;
+            border-radius: 8px;
+            margin-bottom: 1.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: none;
+        }
+
+        .message-toast.error {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+            display: block;
+        }
+
+        .message-toast.success {
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .page-container {
+                padding: 1rem;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .summary-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .card-caption {
+                display: none;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
 <div class="admin-page">
 
-    <aside class="admin-sidebar">
-
+    <aside class="admin-sidebar" id="adminSidebar">
         <div class="sidebar-brand">
-
-            <div class="school-logo">
-                SS
-            </div>
-
+            <div class="school-logo">SS</div>
             <div class="school-info">
-
-                <strong>
-                    Sululta School
-                </strong>
-
-                <span>
-                    Teacher Portal
-                </span>
-
+                <strong>Sululta School</strong>
+                <span>Teacher Portal</span>
             </div>
-
         </div>
 
         <nav class="sidebar-menu">
-
-            <div class="menu-title">
-                MAIN
-            </div>
-
-            <a
-                href="/teacher/dashboard.html"
-                class="sidebar-link"
-            >
+            <div class="menu-title">MAIN</div>
+            <a href="/teacher/dashboard.html" class="sidebar-link">
                 <span>🏠</span>
                 <span>Dashboard</span>
             </a>
 
-            <div class="menu-title">
-                ACADEMIC
-            </div>
-
-            <a
-                href="/teacher/classes.html"
-                class="sidebar-link"
-            >
+            <div class="menu-title">ACADEMIC</div>
+            <a href="/teacher/classes.html" class="sidebar-link">
                 <span>🏫</span>
                 <span>My Classes</span>
             </a>
-
-            <a
-                href="/teacher/students.html"
-                class="sidebar-link"
-            >
+            <a href="/teacher/students.html" class="sidebar-link">
                 <span>👨‍🎓</span>
                 <span>My Students</span>
             </a>
-
-            <a
-                href="/teacher/attendance.html"
-                class="sidebar-link"
-            >
+            <a href="/teacher/attendance.html" class="sidebar-link">
                 <span>📅</span>
                 <span>Attendance</span>
             </a>
-
-            <a
-                href="/teacher/results.html"
-                class="sidebar-link active"
-            >
+            <a href="/teacher/results.html" class="sidebar-link active">
                 <span>📊</span>
-                <span>Results</span>
+                <span>Add Result</span>
             </a>
-
-            <a
-                href="/teacher/timetable.html"
-                class="sidebar-link"
-            >
+            <a href="/teacher/timetable.html" class="sidebar-link">
                 <span>🗓️</span>
                 <span>Timetable</span>
             </a>
 
-            <div class="menu-title">
-                ACCOUNT
-            </div>
-
-            <a
-                href="/teacher/profile.html"
-                class="sidebar-link"
-            >
+            <div class="menu-title">ACCOUNT</div>
+            <a href="/teacher/profile.html" class="sidebar-link">
                 <span>👤</span>
                 <span>My Profile</span>
             </a>
-
-            <a
-                href="/teacher/password.html"
-                class="sidebar-link"
-            >
+            <a href="/teacher/password.html" class="sidebar-link">
                 <span>🔐</span>
                 <span>Change Password</span>
             </a>
-
         </nav>
 
         <div class="sidebar-bottom">
-
-            <button
-                type="button"
-                class="logout-button"
-                id="logoutButton"
-            >
+            <button type="button" class="logout-button" id="logoutButton">
                 <span>↪</span>
                 <span>Logout</span>
             </button>
-
         </div>
-
     </aside>
 
     <main class="admin-main">
 
         <header class="admin-header">
-
             <div class="header-left">
-
-                <button
-                    type="button"
-                    class="sidebar-toggle"
-                    id="sidebarToggle"
-                    aria-label="Toggle sidebar"
-                >
+                <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
                     ☰
                 </button>
-
                 <div>
-
-                    <span class="header-label">
-                        TEACHER PORTAL
-                    </span>
-
-                    <h1>
-                        Results
-                    </h1>
-
+                    <span class="header-label">TEACHER PORTAL</span>
+                    <h1>Add Result</h1>
                 </div>
-
             </div>
 
             <div class="admin-profile">
-
-                <div
-                    class="admin-avatar"
-                    id="teacherAvatar"
-                >
-                    T
-                </div>
-
+                <div class="admin-avatar" id="teacherAvatar">T</div>
                 <div class="admin-profile-info">
-
-                    <strong id="teacherHeaderName">
-                        Teacher
-                    </strong>
-
-                    <span>
-                        Teacher
-                    </span>
-
+                    <strong id="teacherHeaderName">Teacher</strong>
+                    <span>Teacher</span>
                 </div>
-
             </div>
-
         </header>
 
         <section class="page-container">
 
-            <div class="page-header">
-
-                <div class="header-left">
-
-                    <div class="page-icon">
-                        📊
-                    </div>
-
-                    <div>
-
-                        <span class="welcome-label">
-                            ACADEMIC PERFORMANCE
-                        </span>
-
-                        <h1>
-                            Student Results
-                        </h1>
-
-                        <p>
-                            Enter and manage academic results for your students.
-                        </p>
-
-                    </div>
-
+            <!-- ── Top Title Row ── -->
+            <div class="page-top-header">
+                <div class="page-title-group">
+                    <h1>Add Result</h1>
+                    <p>Record student subject results</p>
                 </div>
-
-                <div class="header-actions">
-
-                    <button
-                        type="button"
-                        id="refreshResults"
-                        class="btn btn-secondary"
-                    >
-                        ↻ Refresh
-                    </button>
-
-                </div>
-
+                <a href="/teacher/dashboard.html" class="btn-back">← Back</a>
             </div>
 
-            <div
-                id="resultsMessage"
-                class="message"
-                hidden
-            ></div>
+            <div id="messageToast" class="message-toast"></div>
 
-            <section class="students-records-card">
+            <!-- ── 1. Student Information Card ── -->
+            <div class="result-card">
+                <div class="result-card-header">
+                    <div class="result-card-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        Student Information
+                    </div>
+                </div>
 
-                <div class="panel-header">
-
-                    <div>
-
-                        <h2>
-                            Select Class
-                        </h2>
-
-                        <p>
-                            Select one of your assigned classes and subject.
-                        </p>
-
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="studentId">Student ID <span>*</span></label>
+                        <input type="text" id="studentId" placeholder="e.g. STU001" autocomplete="off">
+                        <div class="student-preview-pill" id="studentPreview"></div>
                     </div>
 
-                </div>
-
-                <div class="students-filter-bar">
-
-                    <select id="classSelect">
-
-                        <option value="">
-                            Select Class
-                        </option>
-
-                    </select>
-
-                    <select id="subjectSelect">
-
-                        <option value="">
-                            Select Subject
-                        </option>
-
-                    </select>
-
-                    <select id="examType">
-
-                        <option value="">
-                            Select Exam Type
-                        </option>
-
-                        <option value="Midterm">
-                            Midterm
-                        </option>
-
-                        <option value="Final">
-                            Final
-                        </option>
-
-                        <option value="Quiz">
-                            Quiz
-                        </option>
-
-                        <option value="Assignment">
-                            Assignment
-                        </option>
-
-                    </select>
-
-                    <button
-                        type="button"
-                        id="loadStudents"
-                        class="btn btn-primary"
-                    >
-                        Load Students
-                    </button>
-
-                </div>
-
-            </section>
-
-            <section
-                class="students-records-card"
-                id="resultsPanel"
-                hidden
-            >
-
-                <div class="panel-header">
-
-                    <div>
-
-                        <h2 id="selectedClassTitle">
-                            Student Results
-                        </h2>
-
-                        <p>
-                            Enter marks for your students.
-                        </p>
-
+                    <div class="form-group">
+                        <label for="studentName">Student Name</label>
+                        <input type="text" id="studentName" readonly placeholder="Auto-filled">
                     </div>
 
-                    <span
-                        class="panel-badge"
-                        id="studentCount"
-                    >
-                        0 Students
-                    </span>
+                    <div class="form-group">
+                        <label for="academicYear">Academic Year <span>*</span></label>
+                        <select id="academicYear">
+                            <option value="2025/2026">2025/2026</option>
+                            <option value="2026/2027" selected>2026/2027</option>
+                            <option value="2027/2028">2027/2028</option>
+                        </select>
+                    </div>
 
+                    <div class="form-group">
+                        <label for="semester">Semester <span>*</span></label>
+                        <select id="semester">
+                            <option value="Semester 1" selected>Semester 1</option>
+                            <option value="Semester 2">Semester 2</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── 2. Subject Assessment Marks Card ── -->
+            <div class="result-card">
+                <div class="result-card-header">
+                    <div class="result-card-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                        </svg>
+                        Subject Assessment Marks
+                    </div>
+                    <span class="card-caption">Assessment weights: Assignment 10% · Quiz 10% · Test 20% · Midterm 25% · Final 35%</span>
                 </div>
 
-                <div class="students-toolbar">
-
-                    <span>
-                        Enter marks from 0 to 100
-                    </span>
-
-                    <button
-                        type="button"
-                        id="saveResults"
-                        class="btn btn-primary"
-                    >
-                        Save Results
-                    </button>
-
-                </div>
-
-                <div class="students-table-wrapper">
-
-                    <table class="students-table">
-
+                <div class="assessment-table-wrapper">
+                    <table class="assessment-table">
                         <thead>
-
                             <tr>
-
-                                <th>
-                                    #
-                                </th>
-
-                                <th>
-                                    Student
-                                </th>
-
-                                <th>
-                                    Student ID
-                                </th>
-
-                                <th>
-                                    Mark
-                                </th>
-
-                                <th>
-                                    Grade
-                                </th>
-
-                                <th>
-                                    Remark
-                                </th>
-
+                                <th class="th-subject">Subject</th>
+                                <th>Assignment<small>/10</small></th>
+                                <th>Quiz<small>/10</small></th>
+                                <th>Test<small>/20</small></th>
+                                <th>Midterm<small>/25</small></th>
+                                <th>Final Exam<small>/35</small></th>
+                                <th>Total<small>/100</small></th>
+                                <th style="width: 40px;"></th>
                             </tr>
-
                         </thead>
-
-                        <tbody id="resultsTableBody">
-
-                            <tr>
-
-                                <td
-                                    colspan="6"
-                                    class="table-empty"
-                                >
-                                    Select a class, subject and exam type,
-                                    then click Load Students.
+                        <tbody id="subjectRowsBody">
+                            <tr id="emptySubjectRow">
+                                <td colspan="8" style="text-align: center; color: #94a3b8; padding: 2.25rem 1rem; font-size: 0.875rem;">
+                                    No subjects added yet. Use the form below to add subjects.
                                 </td>
-
                             </tr>
-
                         </tbody>
-
                     </table>
-
                 </div>
 
-            </section>
+                <!-- Add Subject Row -->
+                <div class="add-subject-dashed-row">
+                    <select id="addSubjectSelect">
+                        <option value="">Loading subjects...</option>
+                    </select>
+                    <button type="button" class="btn-add-subject" id="addSubjectBtn" disabled>
+                        <span>+</span> Add Subject
+                    </button>
+                </div>
+            </div>
+
+            <!-- ── 3. Overall Result Summary Card ── -->
+            <div class="result-card" id="summaryCard" style="display: none;">
+                <div class="result-card-header">
+                    <div class="result-card-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                        </svg>
+                        Overall Result Summary
+                    </div>
+                </div>
+
+                <div class="summary-grid">
+                    <div class="summary-box">
+                        <div class="sum-label">Subjects</div>
+                        <div class="sum-val" id="sumSubjects">0</div>
+                    </div>
+                    <div class="summary-box">
+                        <div class="sum-label">Total Marks</div>
+                        <div class="sum-val" id="sumTotal">0</div>
+                    </div>
+                    <div class="summary-box highlight">
+                        <div class="sum-label">Average / 100</div>
+                        <div class="sum-val" id="sumAverage">0</div>
+                        <div class="summary-remark" id="sumRemark">—</div>
+                    </div>
+                    <div class="summary-box">
+                        <div class="sum-label">Status</div>
+                        <div>
+                            <span class="status-pill" id="sumStatus">—</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Bottom Action Buttons ── -->
+            <div class="form-actions-bar">
+                <a href="/teacher/dashboard.html" class="btn-cancel">Cancel</a>
+                <button type="button" id="saveResultsBtn" class="btn-save-results" disabled>Save Results</button>
+            </div>
 
         </section>
 
         <footer class="admin-footer">
-
-            <span>
-                © 2026 Sululta School Portal
-            </span>
-
-            <span>
-                Teacher Portal
-            </span>
-
+            <span>© 2026 Sululta Secondary School</span>
+            <span>Teacher Portal</span>
         </footer>
 
     </main>
 
 </div>
 
-<script
-    type="module"
-    src="../src/teacher-results.js"
-></script>
+<script type="module" src="../src/teacher-results.js"></script>
 
 </body>
 

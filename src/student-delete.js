@@ -26,7 +26,7 @@ async function loadStudent() {
             last_name,
             class,
             section,
-            photo
+            photo_url
         `)
         .eq("id", id)
         .single();

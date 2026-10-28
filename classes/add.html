@@ -1,499 +1,160 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        Add Class | Sululta Secondary School
-    </title>
-
-    <link
-        rel="icon"
-        href="data:,"
-    >
-
-    <link
-        rel="stylesheet"
-        href="/src/style.css"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Class - Sululta School Portal</title>
+    <link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
+    <link rel="stylesheet" href="../src/sidebar.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; }
+        .main-content { margin-left: 260px; min-height: 100vh; }
+        .top-bar { background: white; padding: 1.25rem 2rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .page-title { font-size: 1.75rem; font-weight: 700; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; }
+        .content-area { padding: 2rem; max-width: 1200px; }
+        .form-card { background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 1.5rem; }
+        .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .form-group label { font-weight: 600; font-size: 0.875rem; }
+        .form-group input, .form-group select { padding: 0.625rem 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem; }
+        .form-actions { display: flex; gap: 1rem; justify-content: flex-end; padding-top: 1.5rem; border-top: 1px solid #e2e8f0; }
+        .btn { padding: 0.625rem 1.25rem; border-radius: 8px; border: none; font-weight: 600; font-size: 0.875rem; cursor: pointer; text-decoration: none; display: inline-block; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-secondary { background: #e2e8f0; color: #2d3748; }
+        .message { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; display: none; }
+        .message.success { background: #f0fdf4; color: #22543d; }
+        .message.error { background: #fff5f5; color: #742a2a; }
+        .message.show { display: block; }
+        @media (max-width: 768px) {
+            .main-content { margin-left: 0; }
+            .form-grid { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
-
 <body>
-
-<div class="admin-page">
-
-    <aside class="admin-sidebar">
-
-        <div class="sidebar-brand">
-
-            <div class="school-logo">
-                SS
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <img src="../public/school-logo.svg" alt="Logo" class="logo-image">
+                <span class="logo-text">Sululta School</span>
             </div>
-
-            <div class="school-info">
-
-                <strong>
-                    Sululta Secondary School
-                </strong>
-
-                <span>
-                    School Management Portal
-                </span>
-
-            </div>
-
+            <button class="toggle-btn" id="toggleSidebar"><span></span><span></span><span></span></button>
         </div>
-
-        <nav class="sidebar-menu">
-
-            <div class="menu-title">
-                MAIN
-            </div>
-
-            <a
-                href="/admin/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🏠</span>
-                <span>Dashboard</span>
-            </a>
-
-            <div class="menu-title">
-                MANAGEMENT
-            </div>
-
-            <a
-                href="/students/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>👨‍🎓</span>
-                <span>Students</span>
-            </a>
-
-            <a
-                href="/teachers/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>👨‍🏫</span>
-                <span>Teachers</span>
-            </a>
-
-            <a
-                href="/parents/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>👨‍👩‍👧</span>
-                <span>Parents</span>
-            </a>
-
-            <a
-                href="/classes/dashboard.html"
-                class="sidebar-link active"
-            >
-                <span>🏫</span>
-                <span>Classes</span>
-            </a>
-
-            <a
-                href="/subjects/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📚</span>
-                <span>Subjects</span>
-            </a>
-
-            <a
-                href="/exams/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📝</span>
-                <span>Exams</span>
-            </a>
-
-            <div class="menu-title">
-                ACADEMIC
-            </div>
-
-            <a
-                href="/attendance/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📅</span>
-                <span>Attendance</span>
-            </a>
-
-            <a
-                href="/results/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📊</span>
-                <span>Results</span>
-            </a>
-
-            <a
-                href="/timetable/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🗓️</span>
-                <span>Timetable</span>
-            </a>
-
-            <div class="menu-title">
-                SCHOOL
-            </div>
-
-            <a
-                href="/books/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📖</span>
-                <span>Books</span>
-            </a>
-
-            <a
-                href="/fees/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>💰</span>
-                <span>Fees</span>
-            </a>
-
-            <a
-                href="/events/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🎉</span>
-                <span>Events</span>
-            </a>
-
-            <a
-                href="/notices/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🔔</span>
-                <span>Notices</span>
-            </a>
-
+        <nav class="sidebar-nav">
+            <a href="../admin/dashboard.html" class="nav-item"><span class="nav-icon">📊</span><span class="nav-text">Dashboard</span></a>
+            <a href="../students/dashboard.html" class="nav-item"><span class="nav-icon">👨‍🎓</span><span class="nav-text">Students</span></a>
+            <a href="../teachers/dashboard.html" class="nav-item"><span class="nav-icon">👨‍🏫</span><span class="nav-text">Teachers</span></a>
+            <a href="../classes/dashboard.html" class="nav-item active"><span class="nav-icon">🏫</span><span class="nav-text">Classes</span></a>
+            <a href="../subjects/dashboard.html" class="nav-item"><span class="nav-icon">📚</span><span class="nav-text">Subjects</span></a>
+            <a href="../attendance/dashboard.html" class="nav-item"><span class="nav-icon">📋</span><span class="nav-text">Attendance</span></a>
+            <a href="../results/dashboard.html" class="nav-item"><span class="nav-icon">🎯</span><span class="nav-text">Results</span></a>
+            <a href="../timetable/dashboard.html" class="nav-item"><span class="nav-icon">📅</span><span class="nav-text">Timetable</span></a>
+            <a href="../library/dashboard.html" class="nav-item"><span class="nav-icon">📖</span><span class="nav-text">Library</span></a>
         </nav>
-
-        <div class="sidebar-bottom">
-
-            <button
-                type="button"
-                class="logout-button"
-                id="logoutButton"
-            >
-                <span>↪</span>
-                <span>Sign Out</span>
-            </button>
-
+        <div class="sidebar-footer">
+            <a href="#" class="nav-item" id="logoutBtn"><span class="nav-icon">🚪</span><span class="nav-text">Logout</span></a>
         </div>
-
     </aside>
 
-
-    <main class="admin-main">
-
-        <header class="admin-header">
-
-            <div class="header-left">
-
-                <button
-                    type="button"
-                    class="sidebar-toggle"
-                    id="sidebarToggle"
-                >
-                    ☰
-                </button>
-
-                <div>
-
-                    <span class="header-label">
-                        ACADEMIC MANAGEMENT
-                    </span>
-
-                    <h1>
-                        Add Class
-                    </h1>
-
-                </div>
-
-            </div>
-
-            <div class="admin-profile">
-
-                <div
-                    class="admin-avatar"
-                    id="adminAvatar"
-                >
-                    A
-                </div>
-
-                <div class="admin-profile-info">
-
-                    <strong>
-                        Administrator
-                    </strong>
-
-                    <span>
-                        Admin
-                    </span>
-
-                </div>
-
-            </div>
-
-        </header>
-
-
-        <section class="page-container">
-
-            <div class="page-header">
-
-                <div class="header-left">
-
-                    <div class="page-icon">
-                        🏫
-                    </div>
-
-                    <div>
-
-                        <h1>
-                            Add Class
-                        </h1>
-
-                        <p>
-                            Create a new class and assign a class teacher
-                        </p>
-
-                    </div>
-
-                </div>
-
-                <div class="header-actions">
-
-                    <a
-                        href="/classes/dashboard.html"
-                        class="btn btn-secondary"
-                    >
-                        ← Back
-                    </a>
-
-                </div>
-
-            </div>
-
-
-            <div
-                id="message"
-                class="message"
-                hidden
-            ></div>
-
-
-            <section class="form-card">
-
-                <div class="panel-header">
-
-                    <div>
-
-                        <h2>
-                            Class Information
-                        </h2>
-
-                        <p>
-                            Enter the class details below.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
+    <main class="main-content">
+        <div class="top-bar">
+            <h1 class="page-title">Add Class</h1>
+            <div class="user-avatar">A</div>
+        </div>
+        <div class="content-area">
+            <div id="messageBox" class="message"></div>
+            <div class="form-card">
                 <form id="classForm">
-
                     <div class="form-grid">
-
                         <div class="form-group">
-
-                            <label for="className">
-                                Class Name
-                                <span>*</span>
-                            </label>
-
-                            <input
-                                type="text"
-                                id="className"
-                                name="class_name"
-                                placeholder="Example: Grade 9"
-                                maxlength="100"
-                                required
-                            >
-
+                            <label for="className">Class Name <span style="color:#e53e3e">*</span></label>
+                            <input type="text" id="className" name="class_name" required placeholder="Grade 9">
                         </div>
-
-
                         <div class="form-group">
-
-                            <label for="section">
-                                Section
-                            </label>
-
-                            <input
-                                type="text"
-                                id="section"
-                                name="section"
-                                placeholder="Example: A"
-                                maxlength="30"
-                            >
-
+                            <label for="section">Section <span style="color:#e53e3e">*</span></label>
+                            <input type="text" id="section" name="section" required placeholder="A">
                         </div>
-
-
                         <div class="form-group">
-
-                            <label for="roomNumber">
-                                Room Number
-                            </label>
-
-                            <input
-                                type="text"
-                                id="roomNumber"
-                                name="room_number"
-                                placeholder="Example: Room 101"
-                                maxlength="50"
-                            >
-
+                            <label for="roomNumber">Room Number</label>
+                            <input type="text" id="roomNumber" name="room_number" placeholder="Room 101">
                         </div>
-
-
                         <div class="form-group">
-
-                            <label for="academicYear">
-                                Academic Year
-                                <span>*</span>
-                            </label>
-
-                            <input
-                                type="text"
-                                id="academicYear"
-                                name="academic_year"
-                                placeholder="Example: 2026/2027"
-                                maxlength="30"
-                                required
-                            >
-
+                            <label for="academicYear">Academic Year <span style="color:#e53e3e">*</span></label>
+                            <input type="text" id="academicYear" name="academic_year" required placeholder="2026/2027">
                         </div>
-
-
                         <div class="form-group">
-
-                            <label for="classTeacher">
-                                Class Teacher
-                            </label>
-
-                            <select
-                                id="classTeacher"
-                                name="class_teacher"
-                            >
-
-                                <option value="">
-                                    Select Class Teacher
-                                </option>
-
+                            <label for="classTeacher">Class Teacher</label>
+                            <select id="classTeacher" name="class_teacher">
+                                <option value="">Loading teachers...</option>
                             </select>
-
-                            <small>
-                                Select a teacher responsible for this class.
-                            </small>
-
                         </div>
-
-
                         <div class="form-group">
-
-                            <label for="status">
-                                Status
-                                <span>*</span>
-                            </label>
-
-                            <select
-                                id="status"
-                                name="status"
-                                required
-                            >
-
-                                <option value="active">
-                                    Active
-                                </option>
-
-                                <option value="inactive">
-                                    Inactive
-                                </option>
-
+                            <label for="status">Status <span style="color:#e53e3e">*</span></label>
+                            <select id="status" name="status" required>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
                             </select>
-
                         </div>
-
                     </div>
-
-
                     <div class="form-actions">
-
-                        <a
-                            href="/classes/dashboard.html"
-                            class="btn btn-secondary"
-                        >
-                            Cancel
-                        </a>
-
-                        <button
-                            type="submit"
-                            id="saveButton"
-                            class="btn btn-primary"
-                        >
-                            Save Class
-                        </button>
-
+                        <a href="dashboard.html" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary" id="saveBtn">Save Class</button>
                     </div>
-
                 </form>
-
-            </section>
-
-        </section>
-
-
-        <footer class="admin-footer">
-
-            <span>
-                © 2026 Sululta Secondary School
-            </span>
-
-            <span>
-                School Management Portal
-            </span>
-
-        </footer>
-
+            </div>
+        </div>
     </main>
 
-</div>
+    <script type="module">
+        import { supabase } from '../src/supabase.js';
 
+        document.getElementById('toggleSidebar').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        });
 
-<script
-    type="module"
-    src="/src/add-class.js"
-></script>
+        async function loadTeachers() {
+            const { data } = await supabase.from('teachers').select('id, first_name, last_name').order('first_name');
+            const select = document.getElementById('classTeacher');
+            select.innerHTML = '<option value="">Select Teacher (Optional)</option>' +
+                (data || []).map(t => `<option value="${t.id}">${t.first_name} ${t.last_name}</option>`).join('');
+        }
 
+        document.getElementById('classForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('saveBtn');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            Object.keys(data).forEach(key => {
+                if (data[key] === '') data[key] = null;
+            });
+
+            const { error } = await supabase.from('classes').insert([data]);
+
+            const msgBox = document.getElementById('messageBox');
+            if (error) {
+                msgBox.textContent = 'Error: ' + error.message;
+                msgBox.className = 'message error show';
+                btn.disabled = false;
+                btn.textContent = 'Save Class';
+            } else {
+                msgBox.textContent = 'Class added successfully!';
+                msgBox.className = 'message success show';
+                setTimeout(() => window.location.href = 'dashboard.html', 1500);
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await supabase.auth.signOut();
+            window.location.href = '../login.html';
+        });
+
+        loadTeachers();
+    </script>
 </body>
-
 </html>

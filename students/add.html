@@ -1,820 +1,231 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        Add Student | Sululta Secondary School
-    </title>
-
-    <link
-        rel="icon"
-        href="data:,"
-    >
-
-    <link
-        rel="stylesheet"
-        href="/src/style.css"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Student - Sululta School Portal</title>
+    <link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
+    <link rel="stylesheet" href="../src/sidebar.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; }
+        .main-content { margin-left: 260px; min-height: 100vh; transition: margin-left 0.3s; }
+        .sidebar.collapsed + .main-content { margin-left: 70px; }
+        .top-bar { background: white; padding: 1.25rem 2rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .page-title { font-size: 1.75rem; font-weight: 700; color: #1a202c; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; }
+        .content-area { padding: 2rem; max-width: 1200px; }
+        .page-header { margin-bottom: 2rem; }
+        .page-header h2 { font-size: 1.5rem; color: #1a202c; margin-bottom: 0.5rem; }
+        .page-header p { color: #718096; }
+        .form-card { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 2rem; }
+        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 1.5rem; }
+        .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .form-group label { font-weight: 600; font-size: 0.875rem; color: #2d3748; }
+        .form-group label span { color: #e53e3e; }
+        .form-group input, .form-group select, .form-group textarea { padding: 0.625rem 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #667eea; }
+        .form-group-full { grid-column: 1 / -1; }
+        .form-actions { display: flex; gap: 1rem; justify-content: flex-end; padding-top: 1.5rem; border-top: 1px solid #e2e8f0; }
+        .btn { padding: 0.625rem 1.25rem; border-radius: 8px; border: none; font-weight: 600; font-size: 0.875rem; cursor: pointer; text-decoration: none; display: inline-block; transition: all 0.2s; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
+        .btn-secondary { background: #e2e8f0; color: #2d3748; }
+        .btn-secondary:hover { background: #cbd5e0; }
+        .message { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; display: none; }
+        .message.success { background: #f0fdf4; color: #22543d; border: 1px solid #c6f6d5; }
+        .message.error { background: #fff5f5; color: #742a2a; border: 1px solid #fed7d7; }
+        .message.show { display: block; }
+        @media (max-width: 768px) {
+            .main-content { margin-left: 0; }
+            .form-grid { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
-
 <body>
-
-<div class="admin-page">
-
-    <aside class="admin-sidebar">
-
-        <div class="sidebar-brand">
-
-            <div class="school-logo">
-                SS
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <img src="../public/school-logo.svg" alt="Logo" class="logo-image">
+                <span class="logo-text">Sululta School</span>
             </div>
-
-            <div class="school-info">
-
-                <strong>
-                    Sululta Secondary School
-                </strong>
-
-                <span>
-                    School Management Portal
-                </span>
-
-            </div>
-
+            <button class="toggle-btn" id="toggleSidebar"><span></span><span></span><span></span></button>
         </div>
-
-
-        <nav class="sidebar-menu">
-
-            <div class="menu-title">
-                MAIN
-            </div>
-
-
-            <a
-                href="/admin/dashboard.html"
-                class="sidebar-link"
-            >
-
-                <span>
-                    🏠
-                </span>
-
-                <span>
-                    Dashboard
-                </span>
-
-            </a>
-
-
-            <div class="menu-title">
-                MANAGEMENT
-            </div>
-
-
-            <a
-                href="/students/dashboard.html"
-                class="sidebar-link active"
-            >
-
-                <span>
-                    👨‍🎓
-                </span>
-
-                <span>
-                    Students
-                </span>
-
-            </a>
-
-
-            <a
-                href="/teachers/dashboard.html"
-                class="sidebar-link"
-            >
-
-                <span>
-                    👨‍🏫
-                </span>
-
-                <span>
-                    Teachers
-                </span>
-
-            </a>
-
-
-            <a
-                href="/parents/dashboard.html"
-                class="sidebar-link"
-            >
-
-                <span>
-                    👨‍👩‍👧
-                </span>
-
-                <span>
-                    Parents
-                </span>
-
-            </a>
-
-
-            <a
-                href="/classes/dashboard.html"
-                class="sidebar-link"
-            >
-
-                <span>
-                    🏫
-                </span>
-
-                <span>
-                    Classes
-                </span>
-
-            </a>
-
-
-            <a
-                href="/subjects/dashboard.html"
-                class="sidebar-link"
-            >
-
-                <span>
-                    📚
-                </span>
-
-                <span>
-                    Subjects
-                </span>
-
-            </a>
-
-
-            <div class="menu-title">
-                ACADEMIC
-            </div>
-
-
-            <a
-                href="/exams/dashboard.html"
-                class="sidebar-link"
-            >
-
-                <span>
-                    📝
-                </span>
-
-                <span>
-                    Exams
-                </span>
-
-            </a>
-
-
-            <a
-                href="/attendance/dashboard.html"
-                class="sidebar-link"
-            >
-
-                <span>
-                    📅
-                </span>
-
-                <span>
-                    Attendance
-                </span>
-
-            </a>
-
-
-            <a
-                href="/results/dashboard.html"
-                class="sidebar-link"
-            >
-
-                <span>
-                    📊
-                </span>
-
-                <span>
-                    Results
-                </span>
-
-            </a>
-
-
-            <a
-                href="/timetable/dashboard.html"
-                class="sidebar-link"
-            >
-
-                <span>
-                    🗓️
-                </span>
-
-                <span>
-                    Timetable
-                </span>
-
-            </a>
-
-
-            <div class="menu-title">
-                SCHOOL
-            </div>
-
-
-            <a
-                href="/library/dashboard.html"
-                class="sidebar-link"
-            >
-
-                <span>
-                    📖
-                </span>
-
-                <span>
-                    Books
-                </span>
-
-            </a>
-
-
-            <a
-                href="/fees/dashboard.html"
-                class="sidebar-link"
-            >
-
-                <span>
-                    💰
-                </span>
-
-                <span>
-                    Fees
-                </span>
-
-            </a>
-
-
-            <a
-                href="/events/dashboard.html"
-                class="sidebar-link"
-            >
-
-                <span>
-                    🎉
-                </span>
-
-                <span>
-                    Events
-                </span>
-
-            </a>
-
-
-            <a
-                href="/notices/dashboard.html"
-                class="sidebar-link"
-            >
-
-                <span>
-                    🔔
-                </span>
-
-                <span>
-                    Notices
-                </span>
-
-            </a>
-
+        <nav class="sidebar-nav">
+            <a href="../admin/dashboard.html" class="nav-item"><span class="nav-icon">📊</span><span class="nav-text">Dashboard</span></a>
+            <a href="../students/dashboard.html" class="nav-item active"><span class="nav-icon">👨‍🎓</span><span class="nav-text">Students</span></a>
+            <a href="../teachers/dashboard.html" class="nav-item"><span class="nav-icon">👨‍🏫</span><span class="nav-text">Teachers</span></a>
+            <a href="../classes/dashboard.html" class="nav-item"><span class="nav-icon">🏫</span><span class="nav-text">Classes</span></a>
+            <a href="../subjects/dashboard.html" class="nav-item"><span class="nav-icon">📚</span><span class="nav-text">Subjects</span></a>
+            <a href="../attendance/dashboard.html" class="nav-item"><span class="nav-icon">📋</span><span class="nav-text">Attendance</span></a>
+            <a href="../library/dashboard.html" class="nav-item"><span class="nav-icon">📖</span><span class="nav-text">Library</span></a>
         </nav>
-
-
-        <div class="sidebar-bottom">
-
-            <button
-                type="button"
-                class="logout-button"
-                id="logoutButton"
-            >
-
-                <span>
-                    ↪
-                </span>
-
-                <span>
-                    Sign Out
-                </span>
-
-            </button>
-
+        <div class="sidebar-footer">
+            <a href="#" class="nav-item" id="logoutBtn"><span class="nav-icon">🚪</span><span class="nav-text">Logout</span></a>
         </div>
-
     </aside>
 
-
-    <main class="admin-main">
-
-
-        <header class="admin-header">
-
-            <div class="header-left">
-
-                <button
-                    type="button"
-                    class="sidebar-toggle"
-                    id="sidebarToggle"
-                    aria-label="Toggle sidebar"
-                >
-                    ☰
-                </button>
-
-
-                <div>
-
-                    <span class="header-label">
-                        SCHOOL MANAGEMENT
-                    </span>
-
-                    <h1>
-                        Add Student
-                    </h1>
-
-                </div>
-
-            </div>
-
-
-            <div class="admin-profile">
-
-                <div
-                    class="admin-avatar"
-                    id="adminAvatar"
-                >
-                    A
-                </div>
-
-
-                <div class="admin-profile-info">
-
-                    <strong id="adminHeaderName">
-                        Administrator
-                    </strong>
-
-                    <span>
-                        Admin
-                    </span>
-
-                </div>
-
-            </div>
-
-        </header>
-
-
-        <section class="dashboard-content">
-
-
-            <div class="student-management-card">
-
-                <div class="student-management-content">
-
-                    <span class="student-management-label">
-                        STUDENT MANAGEMENT
-                    </span>
-
-                    <h2>
-                        Add Student
-                    </h2>
-
-                    <p>
-                        Register a new student and assign the student to a class.
-                    </p>
-
-                </div>
-
-
-                <div class="student-management-icon">
-                    👨‍🎓
-                </div>
-
-            </div>
-
-
-            <div
-                id="messageBox"
-                class="message"
-                hidden
-            ></div>
-
-
+    <main class="main-content">
+        <div class="top-bar">
+            <h1 class="page-title">Add Student</h1>
+            <div class="user-avatar" id="userAvatar">A</div>
+        </div>
+        <div class="content-area">
             <div class="page-header">
-
-                <div>
-
-                    <span class="welcome-label">
-                        STUDENT RECORDS
-                    </span>
-
-                    <h1>
-                        Add Student
-                    </h1>
-
-                    <p>
-                        Enter the student's personal and academic information.
-                    </p>
-
-                </div>
-
-
-                <div class="header-actions">
-
-                    <a
-                        href="/students/dashboard.html"
-                        class="btn btn-secondary"
-                    >
-                        ← Back
-                    </a>
-
-                </div>
-
+                <h2>New Student Registration</h2>
+                <p>Enter the student's personal and academic information</p>
             </div>
-
-
-            <section class="dashboard-panel">
-
-
-                <div class="panel-header">
-
-                    <div>
-
-                        <h2>
-                            Student Information
-                        </h2>
-
-                        <p>
-                            Enter the student's personal and academic information.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <form
-                    id="studentForm"
-                    enctype="multipart/form-data"
-                >
-
-
+            <div id="messageBox" class="message"></div>
+            <div class="form-card">
+                <form id="studentForm">
                     <div class="form-grid">
-
-
                         <div class="form-group">
-
-                            <label for="studentId">
-
-                                Student ID
-
-                                <span>
-                                    *
-                                </span>
-
-                            </label>
-
-
-                            <input
-                                type="text"
-                                id="studentId"
-                                name="student_id"
-                                placeholder="Example: STU001"
-                                maxlength="50"
-                                required
-                            >
-
+                            <label for="firstName">First Name <span>*</span></label>
+                            <input type="text" id="firstName" name="first_name" required>
                         </div>
-
-
                         <div class="form-group">
-
-                            <label for="firstName">
-
-                                First Name
-
-                                <span>
-                                    *
-                                </span>
-
-                            </label>
-
-
-                            <input
-                                type="text"
-                                id="firstName"
-                                name="first_name"
-                                placeholder="Enter first name"
-                                maxlength="100"
-                                required
-                            >
-
+                            <label for="lastName">Last Name <span>*</span></label>
+                            <input type="text" id="lastName" name="last_name" required>
                         </div>
-
-
                         <div class="form-group">
-
-                            <label for="lastName">
-
-                                Last Name
-
-                                <span>
-                                    *
-                                </span>
-
-                            </label>
-
-
-                            <input
-                                type="text"
-                                id="lastName"
-                                name="last_name"
-                                placeholder="Enter last name"
-                                maxlength="100"
-                                required
-                            >
-
+                            <label for="dateOfBirth">Date of Birth</label>
+                            <input type="date" id="dateOfBirth" name="date_of_birth">
                         </div>
-
-
                         <div class="form-group">
-
-                            <label for="gender">
-
-                                Gender
-
-                                <span>
-                                    *
-                                </span>
-
-                            </label>
-
-
-                            <select
-                                id="gender"
-                                name="gender"
-                                required
-                            >
-
-                                <option value="">
-                                    Select Gender
-                                </option>
-
-                                <option value="male">
-                                    Male
-                                </option>
-
-                                <option value="female">
-                                    Female
-                                </option>
-
+                            <label for="gender">Gender <span>*</span></label>
+                            <select id="gender" name="gender" required>
+                                <option value="">Select Gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
                             </select>
-
                         </div>
-
-
                         <div class="form-group">
-
-                            <label for="dateOfBirth">
-                                Date of Birth
-                            </label>
-
-
-                            <input
-                                type="date"
-                                id="dateOfBirth"
-                                name="date_of_birth"
-                            >
-
+                            <label for="studentId">Student ID <span>*</span></label>
+                            <input type="text" id="studentId" name="student_id" required>
                         </div>
-
-
                         <div class="form-group">
-
-                            <label for="phone">
-                                Phone
-                            </label>
-
-
-                            <input
-                                type="tel"
-                                id="phone"
-                                name="phone"
-                                placeholder="Example: 0911000000"
-                                maxlength="30"
-                            >
-
-                        </div>
-
-
-                        <div class="form-group">
-
-                            <label for="email">
-                                Email
-                            </label>
-
-
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                placeholder="student@example.com"
-                                maxlength="150"
-                            >
-
-                        </div>
-
-
-                        <div class="form-group">
-
-                            <label for="classId">
-
-                                Class
-
-                                <span>
-                                    *
-                                </span>
-
-                            </label>
-
-
-                            <select
-                                id="classId"
-                                name="class_id"
-                                required
-                            >
-
-                                <option value="">
-                                    Loading classes...
-                                </option>
-
+                            <label for="classId">Class <span>*</span></label>
+                            <select id="classId" name="class_id" required>
+                                <option value="">Loading classes...</option>
                             </select>
-
-
-                            <small class="form-help">
-                                Select the class assigned to this student.
-                            </small>
-
                         </div>
 
-
                         <div class="form-group">
-
-                            <label for="section">
-                                Section
-                            </label>
-
-
-                            <input
-                                type="text"
-                                id="section"
-                                name="section"
-                                placeholder="Example: A"
-                                maxlength="20"
-                            >
-
+                            <label for="email">Login Email <span>*</span></label>
+                            <input type="email" id="email" name="email" required autocomplete="email">
                         </div>
-
-
                         <div class="form-group">
-
-                            <label for="status">
-
-                                Status
-
-                                <span>
-                                    *
-                                </span>
-
-                            </label>
-
-
-                            <select
-                                id="status"
-                                name="status"
-                                required
-                            >
-
-                                <option value="active">
-                                    Active
-                                </option>
-
-                                <option value="inactive">
-                                    Inactive
-                                </option>
-
+                            <label for="password">Temporary Password <span>*</span></label>
+                            <input type="password" id="password" name="password" required minlength="8" autocomplete="new-password">
+                            <small>At least 8 characters. Share it securely and have the student change it after signing in.</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="tel" id="phone" name="phone">
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Status <span>*</span></label>
+                            <select id="status" name="status" required>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
                             </select>
-
                         </div>
-
+                        <div class="form-group">
+                            <label for="photoUrl">Photo URL</label>
+                            <input type="url" id="photoUrl" name="photo_url" placeholder="https://example.com/photo.jpg">
+                        </div>
+                        <div class="form-group form-group-full">
+                            <label for="address">Address</label>
+                            <textarea id="address" name="address" rows="3"></textarea>
+                        </div>
                     </div>
-
-
-                    <div class="form-group">
-
-
-                        <label for="photo">
-                            Student Photo
-                        </label>
-
-
-                        <input
-                            type="file"
-                            id="photo"
-                            name="photo"
-                            accept="image/jpeg,image/png,image/webp"
-                        >
-
-
-                        <small class="form-help">
-                            JPG, PNG or WEBP. Maximum size: 5 MB.
-                        </small>
-
-                    </div>
-
-
-                    <div
-                        id="photoPreview"
-                        hidden
-                    >
-
-                        <img
-                            id="previewImage"
-                            src=""
-                            alt="Student photo preview"
-                        >
-
-                    </div>
-
-
                     <div class="form-actions">
-
-
-                        <a
-                            href="/students/dashboard.html"
-                            class="btn btn-secondary"
-                        >
-                            Cancel
-                        </a>
-
-
-                        <button
-                            type="submit"
-                            id="saveButton"
-                            class="btn btn-primary"
-                        >
-                            Save Student
-                        </button>
-
-
+                        <a href="dashboard.html" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary" id="saveBtn">Save Student</button>
                     </div>
-
-
                 </form>
-
-            </section>
-
-        </section>
-
-
-        <footer class="admin-footer">
-
-            <span>
-                © 2026 Sululta Secondary School
-            </span>
-
-            <span>
-                School Management Portal
-            </span>
-
-        </footer>
-
+            </div>
+        </div>
     </main>
 
-</div>
-<script
-    type="module"
-    src="/src/student-add.js"
-></script>
-</body>
+    <script type="module">
+        import { supabase } from '../src/supabase.js';
 
+        document.getElementById('toggleSidebar').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        });
+
+        async function loadDropdowns() {
+            const classes = await supabase.from('classes').select('id, class_name, section').order('class_name');
+
+            const classSelect = document.getElementById('classId');
+            classSelect.innerHTML = '<option value="">Select Class</option>' + 
+                (classes.data || []).map(c => `<option value="${c.id}">${c.class_name} ${c.section || ''}</option>`).join('');
+        }
+
+        document.getElementById('studentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.currentTarget;
+            const btn = document.getElementById('saveBtn');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+
+            const formData = new FormData(form);
+            const raw = Object.fromEntries(formData);
+            const payload = {
+                role: 'student',
+                email: raw.email,
+                password: raw.password,
+                record: {
+                    first_name: raw.first_name || null,
+                    last_name: raw.last_name || null,
+                    date_of_birth: raw.date_of_birth || null,
+                    gender: raw.gender || null,
+                    student_id: raw.student_id || null,
+                    class_id: raw.class_id ? Number(raw.class_id) : null,
+                    phone: raw.phone || null,
+                    status: raw.status || 'active',
+                    photo_url: raw.photo_url || null,
+                    address: raw.address || null,
+                }
+            };
+            const msgBox = document.getElementById('messageBox');
+            try {
+                const { data, error } = await supabase.functions.invoke('admin-create-school-account', {
+                    body: payload
+                });
+                if (error) {
+                    if (/failed to send a request/i.test(error.message || '')) {
+                        throw new Error(`Could not reach the account service. Deploy the admin-create-school-account Edge Function and allow this site origin in ALLOWED_ORIGINS: ${window.location.origin}`);
+                    }
+                    const details = error.context && typeof error.context.json === 'function'
+                        ? await error.context.json().catch(() => null)
+                        : null;
+                    throw new Error(details?.error || error.message);
+                }
+                if (!data?.success) throw new Error('Student account could not be created.');
+                msgBox.textContent = payload.record.status === 'active'
+                    ? 'Student account created. They can now sign in with the email and temporary password you provided.'
+                    : 'Student account created but is inactive. Activate the account before the student can sign in.';
+                msgBox.className = 'message success show';
+                form.reset();
+                setTimeout(() => window.location.href = 'dashboard.html', 2500);
+            } catch (error) {
+                console.error('Create student account error:', error);
+                msgBox.textContent = 'Error: ' + (error?.message || 'Unable to create student account.');
+                msgBox.className = 'message error show';
+                btn.disabled = false;
+                btn.textContent = 'Save Student';
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await supabase.auth.signOut();
+            window.location.href = '../login.html';
+        });
+
+        loadDropdowns();
+    </script>
+</body>
 </html>

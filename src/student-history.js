@@ -131,7 +131,6 @@ async function getCurrentStudent() {
             last_name,
             email,
             photo_url,
-            photo,
             status
         `)
         .ilike("email", profile.email)

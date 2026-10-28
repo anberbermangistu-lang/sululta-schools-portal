@@ -141,19 +141,13 @@ async function saveUser(event) {
     const email =
         document.getElementById("email")?.value.trim();
 
-    const username =
-        document.getElementById("username")?.value.trim();
-
     const phone =
         document.getElementById("phone")?.value.trim();
-
-    const role =
-        document.getElementById("role")?.value;
 
     const status =
         document.getElementById("status")?.value;
 
-    if (!firstName || !lastName || !email || !role || !status) {
+    if (!firstName || !lastName || !email || !status) {
 
         showMessage(
             "Please complete all required fields.",
@@ -173,10 +167,7 @@ async function saveUser(event) {
             .update({
                 first_name: firstName,
                 last_name: lastName,
-                email: email,
-                username: username || null,
                 phone: phone || null,
-                role: role,
                 status: status
             })
             .eq("id", user.id);

@@ -3,261 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Information - Sululta Secondary School</title>
-    <link rel="stylesheet" href="../src/style.css">
+    <title>View Account - Sululta School Portal</title>
+    <link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
+    <link rel="stylesheet" href="../src/sidebar.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; }
+        .main-content { margin-left: 260px; min-height: 100vh; }
+        .top-bar { background: white; padding: 1.25rem 2rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .page-title { font-size: 1.75rem; font-weight: 700; color: #1a202c; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; }
+        .content-area { padding: 2rem; max-width: 900px; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .btn { padding: 0.625rem 1.25rem; border-radius: 8px; border: none; font-weight: 600; font-size: 0.875rem; cursor: pointer; text-decoration: none; display: inline-block; transition: all 0.2s; }
+        .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102,126,234,0.4); }
+        .btn-secondary { background: #e2e8f0; color: #2d3748; }
+        .btn-secondary:hover { background: #cbd5e0; }
+        .btn-danger { background: #fed7d7; color: #c53030; }
+        .btn-danger:hover { background: #feb2b2; }
+        .card { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 2rem; margin-bottom: 1.5rem; }
+        .profile-header { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid #e2e8f0; }
+        .photo-wrap { width: 80px; height: 80px; border-radius: 50%; overflow: hidden; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; font-weight: 700; flex-shrink: 0; }
+        .photo-wrap img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-name { font-size: 1.5rem; font-weight: 700; color: #1a202c; }
+        .profile-meta { font-size: 0.875rem; color: #718096; margin-top: 0.25rem; }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+        .detail-item { display: flex; flex-direction: column; gap: 0.25rem; }
+        .detail-label { font-size: 0.75rem; font-weight: 700; color: #718096; text-transform: uppercase; letter-spacing: 0.05em; }
+        .detail-value { font-size: 0.9375rem; color: #2d3748; font-weight: 500; }
+        .badge { display: inline-block; padding: 0.2rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+        .badge-active   { background: #f0fff4; color: #276749; }
+        .badge-inactive { background: #fff5f5; color: #c53030; }
+        .action-row { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+        .message { padding: 0.875rem 1rem; border-radius: 8px; margin-bottom: 1.25rem; font-size: 0.875rem; }
+        .message.error   { background: #fff5f5; color: #c53030; border: 1px solid #fed7d7; }
+        .message.success { background: #f0fff4; color: #276749; border: 1px solid #c6f6d5; }
+        .loading-text { padding: 3rem; text-align: center; color: #718096; }
+        @media (max-width: 768px) { .main-content { margin-left: 0; } .detail-grid { grid-template-columns: 1fr; } }
+    </style>
 </head>
 <body>
-
-<div class="admin-page">
-
-    <aside class="admin-sidebar">
-
-        <div class="sidebar-brand">
-            <div class="sidebar-school">
-                <strong>Sululta School</strong>
-                <span>Admin Portal</span>
+    <aside class="sidebar admin-sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <img src="../public/school-logo.svg" alt="Logo" class="logo-image">
+                <span class="logo-text">Sululta School</span>
             </div>
+            <button class="toggle-btn" id="sidebarToggle"><span></span><span></span><span></span></button>
         </div>
-
-        <nav class="sidebar-menu">
-
-            <div class="menu-title">MAIN</div>
-
-            <a href="/admin/dashboard.html" class="sidebar-link">
-                <span>🏠</span>
-                <span>Dashboard</span>
-            </a>
-
-            <div class="menu-title">MANAGEMENT</div>
-
-            <a href="/students/dashboard.html" class="sidebar-link">
-                <span>👨‍🎓</span>
-                <span>Students</span>
-            </a>
-
-            <a href="/teachers/dashboard.html" class="sidebar-link">
-                <span>👨‍🏫</span>
-                <span>Teachers</span>
-            </a>
-
-            <a href="/classes/dashboard.html" class="sidebar-link">
-                <span>🏫</span>
-                <span>Classes</span>
-            </a>
-
-            <a href="/parents/dashboard.html" class="sidebar-link">
-                <span>👨‍👩‍👧</span>
-                <span>Parents</span>
-            </a>
-
-            <a href="/subjects/dashboard.html" class="sidebar-link">
-                <span>📚</span>
-                <span>Subjects</span>
-            </a>
-
-            <a href="/attendance/dashboard.html" class="sidebar-link">
-                <span>📋</span>
-                <span>Attendance</span>
-            </a>
-
-            <a href="/results/dashboard.html" class="sidebar-link">
-                <span>📊</span>
-                <span>Results</span>
-            </a>
-
-            <a href="/exams/dashboard.html" class="sidebar-link">
-                <span>📝</span>
-                <span>Exams</span>
-            </a>
-
-            <a href="/fees/dashboard.html" class="sidebar-link">
-                <span>💰</span>
-                <span>Fees</span>
-            </a>
-
-            <a href="/notices/dashboard.html" class="sidebar-link">
-                <span>📢</span>
-                <span>Notices</span>
-            </a>
-
-            <div class="menu-title">ACCOUNT</div>
-
-            <a href="/admin/users.html" class="sidebar-link active">
-                <span>👥</span>
-                <span>Users</span>
-            </a>
-
-            <a href="/admin/user-add.html" class="sidebar-link">
-                <span>➕</span>
-                <span>Create User</span>
-            </a>
-
+        <nav class="sidebar-nav">
+            <a href="/admin/dashboard.html" class="nav-item active"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span><span class="nav-text">Dashboard</span></a>
+            <a href="/students/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="nav-text">Students</span></a>
+            <a href="/teachers/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="12" cy="5" r="2"/></svg></span><span class="nav-text">Teachers</span></a>
+            <a href="/admin/users.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg></span><span class="nav-text">Users</span></a>
         </nav>
-
-        <div class="sidebar-bottom">
-            <button type="button" class="sidebar-link sidebar-logout" id="logoutButton">
-                <span>🚪</span>
-                <span>Logout</span>
-            </button>
+        <div class="sidebar-footer">
+            <button class="nav-item" id="logoutButton" style="background:none;border:none;width:100%;cursor:pointer;"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span class="nav-text">Logout</span></button>
         </div>
-
     </aside>
 
-    <main class="admin-main">
-
-        <header class="admin-header">
-
-            <div class="header-left">
-                <button type="button" class="sidebar-toggle" id="sidebarToggle">☰</button>
-
-                <div>
-                    <span class="header-label">USER MANAGEMENT</span>
-                    <h1>User Information</h1>
-                </div>
-            </div>
-
-            <div class="admin-profile">
-                <div class="admin-avatar">A</div>
-                <div class="admin-profile-info">
-                    <strong>Admin</strong>
-                    <span>Administrator</span>
-                </div>
-            </div>
-
-        </header>
-
-        <section class="page-container">
-
+    <main class="main-content">
+        <div class="top-bar">
+            <h1 class="page-title">Account Details</h1>
+            <div class="user-avatar">A</div>
+        </div>
+        <div class="content-area">
             <div class="page-header">
-
-                <div>
-                    <div class="page-title-row">
-                        <div class="page-title-icon">👤</div>
-                        <div>
-                            <h2>User Information</h2>
-                            <p>Complete information about this user account.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <a href="/admin/users.html" class="btn btn-secondary">
-                    ← Back
-                </a>
-
+                <div></div>
+                <a href="/admin/users.html" class="btn btn-secondary">← Back to Users</a>
             </div>
 
             <div id="messageBox" class="message" hidden></div>
 
-            <div id="loadingState" class="form-card">
-                <div class="empty-state">
-                    <h3>Loading user information...</h3>
-                    <p>Please wait.</p>
+            <!-- Loading state -->
+            <div id="loadingState" class="card">
+                <div class="loading-text">Loading account information...</div>
+            </div>
+
+            <!-- Error state -->
+            <div id="errorState" class="card" hidden>
+                <div class="loading-text" style="color:#c53030;">
+                    <div id="errorMessage">Failed to load user.</div>
+                    <button id="retryButton" class="btn btn-secondary" style="margin-top:1rem;">Retry</button>
                 </div>
             </div>
 
-            <div id="errorState" class="form-card" hidden>
-                <div class="empty-state">
-                    <h3>Unable to load user</h3>
-                    <p id="errorMessage">An error occurred.</p>
-                    <button type="button" class="btn btn-primary" id="retryButton">
-                        Try Again
-                    </button>
-                </div>
-            </div>
-
-            <div id="userContent" class="form-card" hidden>
-
-                <div class="student-profile-card">
-
-                    <div class="student-profile-photo">
-                        <div id="photoContainer" class="student-photo-placeholder">
-                            👤
+            <!-- User content -->
+            <div id="userContent" hidden>
+                <div class="card">
+                    <div class="profile-header">
+                        <div class="photo-wrap" id="photoContainer">U</div>
+                        <div>
+                            <div class="profile-name" id="userName">—</div>
+                            <div class="profile-meta" id="userEmail">—</div>
+                            <div class="profile-meta" style="margin-top:0.4rem;">
+                                Status: <span id="userStatus">—</span>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="student-profile-main">
-                        <span class="student-profile-label">User Account</span>
-                        <h2 id="userName">User</h2>
-                        <p id="userEmail" class="student-profile-id">N/A</p>
-                        <span id="userStatus" class="status-badge">Active</span>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">First Name</span>
+                            <span class="detail-value" id="detailFirstName">—</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Last Name</span>
+                            <span class="detail-value" id="detailLastName">—</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Email Address</span>
+                            <span class="detail-value" id="detailEmail">—</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Username</span>
+                            <span class="detail-value" id="detailUsername">—</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Phone</span>
+                            <span class="detail-value" id="detailPhone">—</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Role</span>
+                            <span class="detail-value" id="detailRole">—</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Status</span>
+                            <span class="detail-value" id="detailStatus">—</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Created</span>
+                            <span class="detail-value" id="detailCreated">—</span>
+                        </div>
                     </div>
 
+                    <div class="action-row" style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid #e2e8f0;">
+                        <a href="#" id="editUserButton" class="btn btn-primary">Edit Account</a>
+                        <button id="deleteUserButton" class="btn btn-danger">Delete Account</button>
+                    </div>
                 </div>
-
-                <div class="panel-header">
-                    <h2>User Details</h2>
-                </div>
-
-                <div class="student-details-grid">
-
-                    <div class="information-item">
-                        <span class="information-label">First Name</span>
-                        <strong id="detailFirstName">N/A</strong>
-                    </div>
-
-                    <div class="information-item">
-                        <span class="information-label">Last Name</span>
-                        <strong id="detailLastName">N/A</strong>
-                    </div>
-
-                    <div class="information-item">
-                        <span class="information-label">Email</span>
-                        <strong id="detailEmail">N/A</strong>
-                    </div>
-
-                    <div class="information-item">
-                        <span class="information-label">Username</span>
-                        <strong id="detailUsername">N/A</strong>
-                    </div>
-
-                    <div class="information-item">
-                        <span class="information-label">Phone</span>
-                        <strong id="detailPhone">N/A</strong>
-                    </div>
-
-                    <div class="information-item">
-                        <span class="information-label">Role</span>
-                        <strong id="detailRole">N/A</strong>
-                    </div>
-
-                    <div class="information-item">
-                        <span class="information-label">Status</span>
-                        <strong id="detailStatus">N/A</strong>
-                    </div>
-
-                    <div class="information-item">
-                        <span class="information-label">Created</span>
-                        <strong id="detailCreated">N/A</strong>
-                    </div>
-
-                </div>
-
-                <div class="student-view-actions">
-
-                    <a href="#" class="btn btn-primary" id="editUserButton">
-                        ✏️ Edit User
-                    </a>
-
-                    <button type="button" class="btn btn-danger" id="deleteUserButton">
-                        🗑️ Delete User
-                    </button>
-
-                </div>
-
             </div>
-
-        </section>
-
-        <footer class="admin-footer">
-            <span>© 2026 Sululta Secondary School</span>
-            <span>Admin Portal</span>
-        </footer>
-
+        </div>
     </main>
 
-</div>
-
-<script type="module" src="../src/admin-user-view.js"></script>
-
+    <script type="module" src="/src/admin-user-view.js"></script>
 </body>
 </html>

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Sululta Secondary School</title>
+    <link rel="icon" type="image/svg+xml" href="/school-logo.svg">
+    <link rel="stylesheet" href="/src/dashboard.css">
+    <!-- Chart.js for student distribution donut chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body class="dash-body">
+<div class="dash-layout">
+
+    <!-- ═══════════ 1. PROFESSIONAL DARK NAVY-BLUE SIDEBAR ═══════════ -->
+    <aside class="dash-sidebar" id="dashSidebar">
+
+        <!-- School Brand Header -->
+        <div class="ds-brand">
+            <div class="ds-logo">
+                <img src="/school-logo.svg" alt="SS" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                <span class="ds-logo-fallback">SS</span>
+            </div>
+            <div class="ds-brand-text">
+                <strong>Sululta Secondary School</strong>
+                <span>School Management Portal</span>
+            </div>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="ds-nav" aria-label="Main Navigation">
+            <div class="ds-nav-group">
+                <a href="/admin/dashboard.html" class="ds-link active">
+                    <span class="ds-link-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                            <polyline points="9 22 9 12 15 12 15 22"/>
+                        </svg>
+                    </span>
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="/students/dashboard.html" class="ds-link">
+                    <span class="ds-link-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                    </span>
+                    <span>Students</span>
+                </a>
+
+                <a href="/teachers/dashboard.html" class="ds-link">
+                    <span class="ds-link-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+                            <circle cx="12" cy="5" r="2"/>
+                        </svg>
+                    </span>
+                    <span>Teachers</span>
+                </a>
+
+                <a href="/classes/dashboard.html" class="ds-link">
+                    <span class="ds-link-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <rect x="3" y="3" width="7" height="7"/>
+                            <rect x="14" y="3" width="7" height="7"/>
+                            <rect x="3" y="14" width="7" height="7"/>
+                            <rect x="14" y="14" width="7" height="7"/>
+                        </svg>
+                    </span>
+                    <span>Classes</span>
+                </a>
+
+                <a href="/subjects/dashboard.html" class="ds-link">
+                    <span class="ds-link-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                        </svg>
+                    </span>
+                    <span>Subjects</span>
+                </a>
+
+                <a href="/attendance/dashboard.html" class="ds-link">
+                    <span class="ds-link-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <rect x="3" y="4" width="18" height="18" rx="2"/>
+                            <line x1="16" y1="2" x2="16" y2="6"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                    </span>
+                    <span>Attendance</span>
+                </a>
+
+                <a href="/results/dashboard.html" class="ds-link">
+                    <span class="ds-link-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <line x1="18" y1="20" x2="18" y2="10"/>
+                            <line x1="12" y1="20" x2="12" y2="4"/>
+                            <line x1="6" y1="20" x2="6" y2="14"/>
+                        </svg>
+                    </span>
+                    <span>Results</span>
+                </a>
+
+                <a href="/timetable/dashboard.html" class="ds-link">
+                    <span class="ds-link-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <rect x="3" y="4" width="18" height="18" rx="2"/>
+                            <line x1="16" y1="2" x2="16" y2="6"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
+                            <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/>
+                        </svg>
+                    </span>
+                    <span>Timetable</span>
+                </a>
+
+                <a href="/library/dashboard.html" class="ds-link">
+                    <span class="ds-link-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                        </svg>
+                    </span>
+                    <span>Library</span>
+                </a>
+            </div>
+        </nav>
+
+        <div class="ds-footer-text">
+            Learn • Grow •<br>Build Your Future
+        </div>
+
+        <div class="ds-logout-wrap">
+            <button id="logoutBtn" class="ds-link" type="button">
+                <span class="ds-link-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                </span>
+                <span>Logout</span>
+            </button>
+        </div>
+
+    </aside>
+
+    <!-- ═══════════ 2. MAIN DASHBOARD CONTENT ═══════════ -->
+    <div class="dash-main" id="dashMain">
+
+        <!-- Top Navigation Bar -->
+        <header class="dash-topbar">
+            <div class="dt-left">
+                <button class="dt-menu-btn" id="menuBtn" aria-label="Toggle navigation menu">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <line x1="3" y1="6"  x2="21" y2="6"/>
+                        <line x1="3" y1="12" x2="21" y2="12"/>
+                        <line x1="3" y1="18" x2="21" y2="18"/>
+                    </svg>
+                </button>
+                <div class="dt-search">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="text" placeholder="Search anything..." id="globalSearch" autocomplete="off">
+                </div>
+            </div>
+
+            <div class="dt-right">
+                <button class="dt-notif-btn" aria-label="View notifications">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                    </svg>
+                    <span class="dt-notif-badge">3</span>
+                </button>
+
+                <!-- User Profile & Dropdown -->
+                <div class="dt-profile-wrap">
+                    <div class="dt-profile" id="profileDropdownBtn">
+                        <div class="dt-avatar" id="topAvatar">
+                            <img id="topAvatarImg" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                            <span id="topAvatarInitial">A</span>
+                        </div>
+                        <div class="dt-profile-info">
+                            <strong id="topName">Admin</strong>
+                            <span id="topRole">Administrator</span>
+                        </div>
+                        <svg class="dt-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"/>
+                        </svg>
+                    </div>
+
+                    <div class="dt-dropdown" id="userDropdownMenu">
+                        <div class="dt-dropdown-header">
+                            <span>Signed in as</span>
+                            <strong id="dropdownUserEmail">admin@school.com</strong>
+                        </div>
+                        <a href="/admin/users.html">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
+                                <circle cx="12" cy="12" r="3"/>
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                            </svg>
+                            System Settings
+                        </a>
+                        <hr>
+                        <button type="button" id="dropdownLogoutBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:#dc2626;">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                                <polyline points="16 17 21 12 16 7"/>
+                                <line x1="21" y1="12" x2="9" y2="12"/>
+                            </svg>
+                            Sign out
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <main class="dash-content">
+
+            <!-- ── 4. DASHBOARD SUMMARY CARDS ── -->
+            <section class="dash-stats">
+                <!-- Total Students (Blue) -->
+                <div class="ds-card ds-card-blue">
+                    <div class="dsc-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                    </div>
+                    <div class="dsc-info">
+                        <p class="dsc-label">Total Students</p>
+                        <h2 class="dsc-value" id="statStudents">—</h2>
+                        <span class="dsc-badge badge-blue">Active Enrolled</span>
+                    </div>
+                </div>
+
+                <!-- Total Teachers (Green) -->
+                <div class="ds-card ds-card-green">
+                    <div class="dsc-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+                            <circle cx="12" cy="5" r="2"/>
+                        </svg>
+                    </div>
+                    <div class="dsc-info">
+                        <p class="dsc-label">Total Teachers</p>
+                        <h2 class="dsc-value" id="statTeachers">—</h2>
+                        <span class="dsc-badge badge-green">Faculty Staff</span>
+                    </div>
+                </div>
+
+                <!-- Total Classes (Purple) -->
+                <div class="ds-card ds-card-purple">
+                    <div class="dsc-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <rect x="3" y="3" width="7" height="7"/>
+                            <rect x="14" y="3" width="7" height="7"/>
+                            <rect x="3" y="14" width="7" height="7"/>
+                            <rect x="14" y="14" width="7" height="7"/>
+                        </svg>
+                    </div>
+                    <div class="dsc-info">
+                        <p class="dsc-label">Total Classes</p>
+                        <h2 class="dsc-value" id="statClasses">—</h2>
+                        <span class="dsc-badge badge-purple">Class Sections</span>
+                    </div>
+                </div>
+
+                <!-- Total Subjects (Orange) -->
+                <div class="ds-card ds-card-orange">
+                    <div class="dsc-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                        </svg>
+                    </div>
+                    <div class="dsc-info">
+                        <p class="dsc-label">Total Subjects</p>
+                        <h2 class="dsc-value" id="statSubjects">—</h2>
+                        <span class="dsc-badge badge-orange">Curriculum Subjects</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── 5. STUDENTS BY GRADE SECTION ── -->
+            <section class="dash-panel">
+                <div class="dp-header">
+                    <div>
+                        <h2 class="dp-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 2a10 10 0 0 1 10 10"/>
+                            </svg>
+                            Students by Grade
+                        </h2>
+                        <p class="dp-subtitle">Total <span id="gradeTotal">—</span> students enrolled across all secondary grades</p>
+                    </div>
+                </div>
+
+                <div class="grade-section-body">
+                    <!-- Left: Grade breakdown rows with progress bars & stats -->
+                    <div class="grade-breakdown-list" id="gradeBreakdownList">
+                        <!-- Populated dynamically by JS with real DB data -->
+                        <div style="padding: 24px; text-align: center; color: #94a3b8;">Loading student grade distribution...</div>
+                    </div>
+
+                    <!-- Right: Professional Donut Chart -->
+                    <div class="donut-container-wrap">
+                        <div class="donut-chart-box">
+                            <canvas id="gradeChart"></canvas>
+                            <div class="donut-center-content">
+                                <strong id="donutTotal">—</strong>
+                                <span>Students</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+</div>
+
+<div class="dash-overlay" id="dashOverlay"></div>
+
+<script type="module" src="/src/admin-dashboard.js"></script>
+</body>
+</html>

@@ -1,517 +1,195 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>Add Attendance | Sululta School Portal</title>
-
-    <link
-        rel="icon"
-        href="data:,"
-    >
-
-    <link
-        rel="stylesheet"
-        href="../src/style.css"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mark Attendance - Sululta School Portal</title>
+    <link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
+    <link rel="stylesheet" href="../src/sidebar.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; }
+        .main-content { margin-left: 260px; min-height: 100vh; transition: margin-left 0.3s; }
+        .sidebar.collapsed + .main-content { margin-left: 70px; }
+        .top-bar { background: white; padding: 1.25rem 2rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .page-title { font-size: 1.75rem; font-weight: 700; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; }
+        .content-area { padding: 2rem; max-width: 1400px; }
+        .form-card { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 2rem; }
+        .form-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid #e2e8f0; }
+        .form-header h2 { font-size: 1.5rem; font-weight: 700; }
+        .btn { padding: 0.625rem 1.25rem; border-radius: 8px; border: none; font-weight: 600; font-size: 0.875rem; cursor: pointer; text-decoration: none; display: inline-block; transition: all 0.2s; }
+        .btn-secondary { background: #e2e8f0; color: #2d3748; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
+        .filter-section { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+        .filter-section label { display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.875rem; font-weight: 600; }
+        .filter-section input, .filter-section select { padding: 0.625rem 1rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem; }
+        .students-list { border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
+        .student-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid #e2e8f0; }
+        .student-item:last-child { border-bottom: none; }
+        .student-item:hover { background: #f7fafc; }
+        .student-info { display: flex; gap: 1rem; align-items: center; flex: 1; }
+        .student-id { font-weight: 600; color: #667eea; min-width: 100px; }
+        .student-name { font-weight: 600; min-width: 200px; }
+        .student-class { color: #718096; font-size: 0.875rem; }
+        .status-controls { display: flex; gap: 1rem; }
+        .status-controls label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; cursor: pointer; }
+        .status-controls input[type="radio"] { cursor: pointer; }
+        .form-actions { display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem; padding-top: 2rem; border-top: 2px solid #e2e8f0; }
+        .alert { padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; }
+        .alert-error { background: #fff5f5; color: #c53030; border: 1px solid #feb2b2; }
+        .alert-success { background: #f0fdf4; color: #22543d; border: 1px solid #9ae6b4; }
+        @media (max-width: 768px) {
+            .main-content { margin-left: 0; }
+            .student-info { flex-direction: column; align-items: flex-start; }
+            .status-controls { flex-wrap: wrap; }
+        }
+    </style>
 </head>
-
 <body>
-
-<div class="admin-page">
-
-
-    <aside class="admin-sidebar">
-
-        <div class="sidebar-brand">
-
-            <div class="school-logo">
-                SS
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <img src="../public/school-logo.svg" alt="Logo" class="logo-image">
+                <span class="logo-text">Sululta School</span>
             </div>
-
-            <div class="school-info">
-
-                <strong>
-                    Sululta School
-                </strong>
-
-                <span>
-                    Admin Portal
-                </span>
-
-            </div>
-
+            <button class="toggle-btn" id="toggleSidebar"><span></span><span></span><span></span></button>
         </div>
-
-
-        <nav class="sidebar-menu">
-
-
-            <div class="menu-title">
-                MAIN
-            </div>
-
-
-            <a
-                href="../admin/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🏠</span>
-                <span>Dashboard</span>
-            </a>
-
-
-            <div class="menu-title">
-                MANAGEMENT
-            </div>
-
-
-            <a
-                href="../students/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>👨‍🎓</span>
-                <span>Students</span>
-            </a>
-
-
-            <a
-                href="../teachers/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>👨‍🏫</span>
-                <span>Teachers</span>
-            </a>
-
-
-            <a
-                href="../parents/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>👨‍👩‍👧</span>
-                <span>Parents</span>
-            </a>
-
-
-            <a
-                href="../classes/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🏫</span>
-                <span>Classes</span>
-            </a>
-
-
-            <a
-                href="../subjects/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📚</span>
-                <span>Subjects</span>
-            </a>
-
-
-            <div class="menu-title">
-                ACADEMIC
-            </div>
-
-
-            <a
-                href="dashboard.html"
-                class="sidebar-link active"
-            >
-                <span>✓</span>
-                <span>Attendance</span>
-            </a>
-
-
-            <a
-                href="../results/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📊</span>
-                <span>Results</span>
-            </a>
-
-
-            <a
-                href="../timetable/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🗓</span>
-                <span>Timetable</span>
-            </a>
-
-
-            <div class="menu-title">
-                SCHOOL
-            </div>
-
-
-            <a
-                href="../library/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📖</span>
-                <span>Books</span>
-            </a>
-
-
-            <a
-                href="../fees/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>💰</span>
-                <span>Fees</span>
-            </a>
-
-
-            <a
-                href="../events/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📅</span>
-                <span>Events</span>
-            </a>
-
-
-            <a
-                href="../notices/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🔔</span>
-                <span>Notices</span>
-            </a>
-
-
+        <nav class="sidebar-nav">
+            <a href="../admin/dashboard.html" class="nav-item"><span class="nav-icon">📊</span><span class="nav-text">Dashboard</span></a>
+            <a href="../students/dashboard.html" class="nav-item"><span class="nav-icon">👨‍🎓</span><span class="nav-text">Students</span></a>
+            <a href="../teachers/dashboard.html" class="nav-item"><span class="nav-icon">👨‍🏫</span><span class="nav-text">Teachers</span></a>
+            <a href="../classes/dashboard.html" class="nav-item"><span class="nav-icon">🏫</span><span class="nav-text">Classes</span></a>
+            <a href="../subjects/dashboard.html" class="nav-item"><span class="nav-icon">📚</span><span class="nav-text">Subjects</span></a>
+            <a href="../attendance/dashboard.html" class="nav-item active"><span class="nav-icon">📋</span><span class="nav-text">Attendance</span></a>
+            <a href="../results/dashboard.html" class="nav-item"><span class="nav-icon">🎯</span><span class="nav-text">Results</span></a>
+            <a href="../timetable/dashboard.html" class="nav-item"><span class="nav-icon">📅</span><span class="nav-text">Timetable</span></a>
+            <a href="../library/dashboard.html" class="nav-item"><span class="nav-icon">📖</span><span class="nav-text">Library</span></a>
         </nav>
-
-
-        <div class="sidebar-bottom">
-
-            <button
-                type="button"
-                class="logout-button"
-                id="logoutButton"
-            >
-
-                <span>↪</span>
-
-                <span>
-                    Sign Out
-                </span>
-
-            </button>
-
+        <div class="sidebar-footer">
+            <a href="#" class="nav-item" id="logoutBtn"><span class="nav-icon">🚪</span><span class="nav-text">Logout</span></a>
         </div>
-
     </aside>
 
-
-
-    <main class="admin-main">
-
-
-        <header class="admin-header">
-
-
-            <div class="header-left">
-
-                <button
-                    type="button"
-                    class="sidebar-toggle"
-                    id="sidebarToggle"
-                >
-                    ☰
-                </button>
-
-
-                <div>
-
-                    <span class="header-label">
-                        ACADEMIC MANAGEMENT
-                    </span>
-
-                    <h1>
-                        Attendance
-                    </h1>
-
+    <main class="main-content">
+        <div class="top-bar">
+            <h1 class="page-title">Mark Attendance</h1>
+            <div class="user-avatar" id="userAvatar">A</div>
+        </div>
+        <div class="content-area">
+            <div class="form-card">
+                <div class="form-header">
+                    <h2>Bulk Attendance Marking</h2>
+                    <a href="dashboard.html" class="btn btn-secondary">← Back</a>
                 </div>
-
-            </div>
-
-
-            <div class="admin-profile">
-
-                <div class="admin-avatar">
-                    A
+                <div id="alertContainer"></div>
+                <div class="filter-section">
+                    <label>Date: <input type="date" id="attendanceDate" required></label>
+                    <label>Class: <select id="classFilter"><option value="">Select Class</option></select></label>
                 </div>
-
-
-                <div class="admin-profile-info">
-
-                    <strong>
-                        Administrator
-                    </strong>
-
-                    <span>
-                        Admin
-                    </span>
-
+                <div id="studentsContainer"><div style="padding: 2rem; text-align: center; color: #718096;">Select a class to load students</div></div>
+                <div class="form-actions">
+                    <a href="dashboard.html" class="btn btn-secondary">Cancel</a>
+                    <button id="saveBtn" class="btn btn-primary" style="display:none;">Save Attendance</button>
                 </div>
-
             </div>
-
-        </header>
-
-
-
-        <section class="page-container">
-
-
-            <div class="page-header">
-
-                <div class="header-left">
-
-                    <div class="page-icon">
-                        ✓
-                    </div>
-
-                    <div>
-
-                        <h1>
-                            Add Attendance
-                        </h1>
-
-                        <p>
-                            Record student attendance
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-
-            <div
-                id="message"
-                class="message"
-                hidden
-            >
-            </div>
-
-
-
-            <div class="content-card">
-
-
-                <div class="section-header">
-
-                    <div>
-
-                        <h2>
-                            Attendance Information
-                        </h2>
-
-                        <p>
-                            Select the student and record attendance.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <form
-                    id="attendanceForm"
-                    novalidate
-                >
-
-
-                    <div class="form-grid">
-
-
-                        <div class="form-group">
-
-
-                            <label for="student_id">
-                                Student <span>*</span>
-                            </label>
-
-
-                            <select
-                                id="student_id"
-                                name="student_id"
-                                required
-                            >
-
-                                <option value="">
-                                    Select Student
-                                </option>
-
-                            </select>
-
-
-                            <small>
-                                Select the student whose attendance you want to record.
-                            </small>
-
-
-                        </div>
-
-
-
-                        <div class="form-group">
-
-
-                            <label for="attendance_date">
-                                Attendance Date <span>*</span>
-                            </label>
-
-
-                            <input
-                                type="date"
-                                id="attendance_date"
-                                name="attendance_date"
-                                required
-                            >
-
-
-                        </div>
-
-
-
-                        <div class="form-group">
-
-
-                            <label for="status">
-                                Status <span>*</span>
-                            </label>
-
-
-                            <select
-                                id="status"
-                                name="status"
-                                required
-                            >
-
-                                <option value="">
-                                    Select Status
-                                </option>
-
-                                <option value="Present">
-                                    Present
-                                </option>
-
-                                <option value="Absent">
-                                    Absent
-                                </option>
-
-                                <option value="Late">
-                                    Late
-                                </option>
-
-                                <option value="Excused">
-                                    Excused
-                                </option>
-
-                            </select>
-
-
-                        </div>
-
-
-
-                        <div class="form-group form-group-full">
-
-
-                            <label for="remark">
-                                Remark
-                            </label>
-
-
-                            <textarea
-                                id="remark"
-                                name="remark"
-                                rows="4"
-                                placeholder="Enter attendance remark..."
-                            ></textarea>
-
-
-                        </div>
-
-
-                    </div>
-
-
-
-                    <div class="form-actions">
-
-
-                        <a
-                            href="dashboard.html"
-                            class="btn btn-secondary"
-                        >
-                            Cancel
-                        </a>
-
-
-                        <button
-                            type="submit"
-                            class="btn btn-primary"
-                            id="saveAttendance"
-                        >
-                            Save Attendance
-                        </button>
-
-
-                    </div>
-
-
-                </form>
-
-
-            </div>
-
-
-        </section>
-
-
-
-        <footer class="admin-footer">
-
-            <span>
-                © 2026 Sululta School Portal
-            </span>
-
-            <span>
-                School Management System
-            </span>
-
-        </footer>
-
-
+        </div>
     </main>
 
+    <script type="module">
+        import { supabase } from '../src/supabase.js';
+        let students = [];
 
-</div>
+        document.getElementById('toggleSidebar').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        });
 
+        document.getElementById('attendanceDate').valueAsDate = new Date();
 
-<script
-    type="module"
-    src="../src/attendance-add.js"
-></script>
+        async function loadClasses() {
+            const { data } = await supabase.from('classes').select('id, class_name, section').order('class_name');
+            const select = document.getElementById('classFilter');
+            data?.forEach(c => {
+                const option = document.createElement('option');
+                option.value = c.id;
+                option.textContent = `${c.class_name} ${c.section || ''}`;
+                select.appendChild(option);
+            });
+        }
 
+        document.getElementById('classFilter').addEventListener('change', async (e) => {
+            const classId = e.target.value;
+            if (!classId) {
+                document.getElementById('studentsContainer').innerHTML = '<div style="padding: 2rem; text-align: center; color: #718096;">Select a class to load students</div>';
+                document.getElementById('saveBtn').style.display = 'none';
+                return;
+            }
+
+            const { data } = await supabase.from('students')
+                .select('id, student_id, first_name, last_name, classes(class_name, section)')
+                .eq('class_id', classId)
+                .eq('status', 'active')
+                .order('first_name');
+
+            students = data || [];
+            if (students.length === 0) {
+                document.getElementById('studentsContainer').innerHTML = '<div style="padding: 2rem; text-align: center; color: #718096;">No students found in this class</div>';
+                document.getElementById('saveBtn').style.display = 'none';
+                return;
+            }
+
+            const html = `<div class="students-list">${students.map((s, idx) => `
+                <div class="student-item">
+                    <div class="student-info">
+                        <span class="student-id">${s.student_id}</span>
+                        <span class="student-name">${s.first_name} ${s.last_name}</span>
+                        <span class="student-class">${s.classes ? `${s.classes.class_name} ${s.classes.section || ''}` : ''}</span>
+                    </div>
+                    <div class="status-controls">
+                        <label><input type="radio" name="status_${idx}" value="present" checked> Present</label>
+                        <label><input type="radio" name="status_${idx}" value="absent"> Absent</label>
+                        <label><input type="radio" name="status_${idx}" value="late"> Late</label>
+                    </div>
+                </div>
+            `).join('')}</div>`;
+            document.getElementById('studentsContainer').innerHTML = html;
+            document.getElementById('saveBtn').style.display = 'inline-block';
+        });
+
+        document.getElementById('saveBtn').addEventListener('click', async () => {
+            const date = document.getElementById('attendanceDate').value;
+            if (!date) {
+                alert('Please select a date');
+                return;
+            }
+
+            const { data: user } = await supabase.auth.getUser();
+            const records = students.map((s, idx) => ({
+                student_id: s.id,
+                attendance_date: date,
+                status: document.querySelector(`input[name="status_${idx}"]:checked`).value,
+                recorded_by: user?.user?.id || null
+            }));
+
+            const { error } = await supabase.from('attendance').insert(records);
+            const alertContainer = document.getElementById('alertContainer');
+            
+            if (error) {
+                alertContainer.innerHTML = `<div class="alert alert-error">Error: ${error.message}</div>`;
+            } else {
+                alertContainer.innerHTML = '<div class="alert alert-success">Attendance saved successfully!</div>';
+                setTimeout(() => window.location.href = 'dashboard.html', 1500);
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await supabase.auth.signOut();
+            window.location.href = '../login.html';
+        });
+
+        loadClasses();
+    </script>
 </body>
-
 </html>

@@ -133,7 +133,6 @@ async function loadProfile() {
                 phone,
                 email,
                 address,
-                photo,
                 photo_url,
                 status
             `)

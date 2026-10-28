@@ -127,10 +127,6 @@ async function loadClasses() {
             status
         `)
         .eq(
-            "class_teacher",
-            teacher.id
-        )
-        .eq(
             "status",
             "active"
         )

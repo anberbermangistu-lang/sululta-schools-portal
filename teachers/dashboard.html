@@ -1,551 +1,171 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        Teachers | Sululta Secondary School
-    </title>
-
-    <link
-        rel="icon"
-        href="data:,"
-    >
-
-    <link
-        rel="stylesheet"
-        href="/src/style.css"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teachers - Sululta School Portal</title>
+    <link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
+    <link rel="stylesheet" href="../src/sidebar.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; }
+        .main-content { margin-left: 260px; min-height: 100vh; transition: margin-left 0.3s; }
+        .sidebar.collapsed + .main-content { margin-left: 70px; }
+        .top-bar { background: white; padding: 1.25rem 2rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .page-title { font-size: 1.75rem; font-weight: 700; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; }
+        .content-area { padding: 2rem; }
+        .page-header { display: flex; justify-content: space-between; margin-bottom: 2rem; }
+        .btn { padding: 0.625rem 1.25rem; border-radius: 8px; border: none; font-weight: 600; font-size: 0.875rem; cursor: pointer; text-decoration: none; display: inline-block; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 4px solid; }
+        .stat-card.total { border-color: #667eea; }
+        .stat-card.active { border-color: #48bb78; }
+        .stat-card.inactive { border-color: #ed8936; }
+        .stat-card.departments { border-color: #4299e1; }
+        .stat-value { font-size: 2rem; font-weight: 700; margin-top: 0.5rem; }
+        .stat-label { font-size: 0.875rem; color: #718096; }
+        .data-table-container { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }
+        .table-header { padding: 1.5rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .search-box input { padding: 0.5rem 1rem; border: 1px solid #e2e8f0; border-radius: 8px; width: 300px; }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th { padding: 1rem 1.5rem; text-align: left; font-size: 0.75rem; font-weight: 700; color: #4a5568; text-transform: uppercase; background: #f7fafc; }
+        .data-table td { padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; }
+        .teacher-info { display: flex; align-items: center; gap: 0.75rem; }
+        .teacher-photo { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; background: #e2e8f0; }
+        .status-badge { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+        .status-badge.active { background: #f0fdf4; color: #22543d; }
+        .status-badge.inactive { background: #fffaf0; color: #7c2d12; }
+        .action-btn { padding: 0.5rem; border: none; background: none; cursor: pointer; border-radius: 6px; color: #718096; }
+        .action-btn:hover { background: #edf2f7; }
+    </style>
 </head>
-
 <body>
-
-<div class="admin-page">
-
-    <aside class="admin-sidebar">
-
-        <div class="sidebar-brand">
-
-            <div class="school-logo">
-                SS
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <img src="../public/school-logo.svg" alt="Logo" class="logo-image">
+                <span class="logo-text">Sululta School</span>
             </div>
-
-            <div class="school-info">
-
-                <strong>
-                    Sululta Secondary School
-                </strong>
-
-                <span>
-                    School Management Portal
-                </span>
-
-            </div>
-
+            <button class="toggle-btn" id="toggleSidebar"><span></span><span></span><span></span></button>
         </div>
-
-        <nav class="sidebar-menu">
-
-            <div class="menu-title">
-                MAIN
-            </div>
-
-            <a
-                href="/admin/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🏠</span>
-                <span>Dashboard</span>
-            </a>
-
-            <div class="menu-title">
-                MANAGEMENT
-            </div>
-
-            <a
-                href="/students/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>👨‍🎓</span>
-                <span>Students</span>
-            </a>
-
-            <a
-                href="/teachers/dashboard.html"
-                class="sidebar-link active"
-            >
-                <span>👨‍🏫</span>
-                <span>Teachers</span>
-            </a>
-
-            <a
-                href="/parents/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>👨‍👩‍👧</span>
-                <span>Parents</span>
-            </a>
-
-            <a
-                href="/classes/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🏫</span>
-                <span>Classes</span>
-            </a>
-
-            <a
-                href="/subjects/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📚</span>
-                <span>Subjects</span>
-            </a>
-
-            <div class="menu-title">
-                ACADEMIC
-            </div>
-
-            <a
-                href="/exams/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📝</span>
-                <span>Exams</span>
-            </a>
-
-            <a
-                href="/attendance/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📅</span>
-                <span>Attendance</span>
-            </a>
-
-            <a
-                href="/results/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📊</span>
-                <span>Results</span>
-            </a>
-
-            <a
-                href="/timetable/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🗓️</span>
-                <span>Timetable</span>
-            </a>
-
-            <div class="menu-title">
-                SCHOOL
-            </div>
-
-            <a
-                href="/library/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📖</span>
-                <span>Books</span>
-            </a>
-
-            <a
-                href="/fees/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>💰</span>
-                <span>Fees</span>
-            </a>
-
-            <a
-                href="/events/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🎉</span>
-                <span>Events</span>
-            </a>
-
-            <a
-                href="/notices/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🔔</span>
-                <span>Notices</span>
-            </a>
-
+        <nav class="sidebar-nav">
+            <a href="../admin/dashboard.html" class="nav-item ${activeName === 'Dashboard' ? 'active' : ''}"><span class="nav-icon">📊</span><span class="nav-text">Dashboard</span></a>
+            <a href="../students/dashboard.html" class="nav-item ${activeName === 'Students' ? 'active' : ''}"><span class="nav-icon">👨‍🎓</span><span class="nav-text">Students</span></a>
+            <a href="../teachers/dashboard.html" class="nav-item ${activeName === 'Teachers' ? 'active' : ''}"><span class="nav-icon">👨‍🏫</span><span class="nav-text">Teachers</span></a>
+            <a href="../classes/dashboard.html" class="nav-item ${activeName === 'Classes' ? 'active' : ''}"><span class="nav-icon">🏫</span><span class="nav-text">Classes</span></a>
+            <a href="../subjects/dashboard.html" class="nav-item ${activeName === 'Subjects' ? 'active' : ''}"><span class="nav-icon">📚</span><span class="nav-text">Subjects</span></a>
+            <a href="../attendance/dashboard.html" class="nav-item ${activeName === 'Attendance' ? 'active' : ''}"><span class="nav-icon">📋</span><span class="nav-text">Attendance</span></a>
+            <a href="../results/dashboard.html" class="nav-item ${activeName === 'Results' ? 'active' : ''}"><span class="nav-icon">🎯</span><span class="nav-text">Results</span></a>
+            <a href="../timetable/dashboard.html" class="nav-item ${activeName === 'Timetable' ? 'active' : ''}"><span class="nav-icon">📅</span><span class="nav-text">Timetable</span></a>
+            <a href="../library/dashboard.html" class="nav-item ${activeName === 'Library' ? 'active' : ''}"><span class="nav-icon">📖</span><span class="nav-text">Library</span></a>
         </nav>
-
-        <div class="sidebar-bottom">
-
-            <button
-                type="button"
-                class="logout-button"
-                id="logoutButton"
-            >
-                <span>↪</span>
-                <span>Sign Out</span>
-            </button>
-
+        <div class="sidebar-footer">
+            <a href="#" class="nav-item" id="logoutBtn"><span class="nav-icon">🚪</span><span class="nav-text">Logout</span></a>
         </div>
-
     </aside>
 
-    <main class="admin-main">
-
-        <header class="admin-header">
-
-            <div class="header-left">
-
-                <button
-                    type="button"
-                    class="sidebar-toggle"
-                    id="sidebarToggle"
-                    aria-label="Toggle sidebar"
-                >
-                    ☰
-                </button>
-
-                <div>
-
-                    <span class="header-label">
-                        MANAGEMENT
-                    </span>
-
-                    <h1>
-                        Teachers
-                    </h1>
-
-                </div>
-
-            </div>
-
-            <div class="admin-profile">
-
-                <div
-                    class="admin-avatar"
-                    id="adminAvatar"
-                >
-                    A
-                </div>
-
-                <div class="admin-profile-info">
-
-                    <strong>
-                        Administrator
-                    </strong>
-
-                    <span>
-                        Admin
-                    </span>
-
-                </div>
-
-            </div>
-
-        </header>
-
-        <section class="dashboard-content">
-
+    <main class="main-content">
+        <div class="top-bar">
+            <h1 class="page-title">Teachers Management</h1>
+            <div class="user-avatar" id="userAvatar">A</div>
+        </div>
+        <div class="content-area">
             <div class="page-header">
-
-                <div>
-
-                    <h2>
-                        Teacher Management
-                    </h2>
-
-                    <p>
-                        View and manage registered teachers.
-                    </p>
-
-                </div>
-
-                <a
-                    href="/teachers/add.html"
-                    class="btn btn-primary"
-                >
-                    + Add Teacher
-                </a>
-
+                <div></div>
+                <a href="add.html" class="btn btn-primary">➕ Add Teacher</a>
             </div>
-
             <div class="stats-grid">
-
-                <div class="stat-card">
-
-                    <div class="stat-icon">
-                        👨‍🏫
-                    </div>
-
-                    <div class="stat-content">
-
-                        <span>
-                            Total Teachers
-                        </span>
-
-                        <strong id="totalTeachers">
-                            0
-                        </strong>
-
-                    </div>
-
-                </div>
-
-                <div class="stat-card">
-
-                    <div class="stat-icon">
-                        👨
-                    </div>
-
-                    <div class="stat-content">
-
-                        <span>
-                            Male Teachers
-                        </span>
-
-                        <strong id="maleTeachers">
-                            0
-                        </strong>
-
-                    </div>
-
-                </div>
-
-                <div class="stat-card">
-
-                    <div class="stat-icon">
-                        👩
-                    </div>
-
-                    <div class="stat-content">
-
-                        <span>
-                            Female Teachers
-                        </span>
-
-                        <strong id="femaleTeachers">
-                            0
-                        </strong>
-
-                    </div>
-
-                </div>
-
-                <div class="stat-card">
-
-                    <div class="stat-icon">
-                        ✓
-                    </div>
-
-                    <div class="stat-content">
-
-                        <span>
-                            Active Teachers
-                        </span>
-
-                        <strong id="activeTeachers">
-                            0
-                        </strong>
-
-                    </div>
-
-                </div>
-
+                <div class="stat-card total"><div class="stat-label">Total Teachers</div><div class="stat-value" id="totalTeachers">0</div></div>
+                <div class="stat-card active"><div class="stat-label">Active</div><div class="stat-value" id="activeTeachers">0</div></div>
+                <div class="stat-card inactive"><div class="stat-label">Inactive</div><div class="stat-value" id="inactiveTeachers">0</div></div>
+                <div class="stat-card departments"><div class="stat-label">Departments</div><div class="stat-value" id="totalDepartments">0</div></div>
             </div>
-
-            <section class="dashboard-panel">
-
-                <div class="panel-header">
-
-                    <div>
-
-                        <h2>
-                            Teacher List
-                        </h2>
-
-                        <p id="recordSummary">
-                            Showing 0 of 0 records
-                        </p>
-
-                    </div>
-
-                    <span
-                        class="status-badge active"
-                        id="recordBadge"
-                    >
-                        0 Records
-                    </span>
-
+            <div class="data-table-container">
+                <div class="table-header">
+                    <h2>All Teachers</h2>
+                    <div class="search-box"><input type="text" id="searchInput" placeholder="Search..."></div>
                 </div>
-
-                <div class="filter-bar">
-
-                    <div class="search-box">
-
-                        <input
-                            type="search"
-                            id="teacherSearch"
-                            placeholder="Search teacher..."
-                            autocomplete="off"
-                        >
-
-                    </div>
-
-                    <select id="genderFilter">
-
-                        <option value="all">
-                            All Gender
-                        </option>
-
-                        <option value="male">
-                            Male
-                        </option>
-
-                        <option value="female">
-                            Female
-                        </option>
-
-                    </select>
-
-                    <select id="statusFilter">
-
-                        <option value="all">
-                            All Status
-                        </option>
-
-                        <option value="active">
-                            Active
-                        </option>
-
-                        <option value="inactive">
-                            Inactive
-                        </option>
-
-                    </select>
-
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        id="clearFilters"
-                    >
-                        Clear
-                    </button>
-
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        id="refreshTeachers"
-                    >
-                        Refresh
-                    </button>
-
-                </div>
-
-                <div class="table-responsive">
-
-                    <table class="data-table">
-
-                        <thead>
-
-                            <tr>
-
-                                <th>
-                                    #
-                                </th>
-
-                                <th>
-                                    Teacher
-                                </th>
-
-                                <th>
-                                    Gender
-                                </th>
-
-                                <th>
-                                    Qualification
-                                </th>
-
-                                <th>
-                                    Phone
-                                </th>
-
-                                <th>
-                                    Email
-                                </th>
-
-                                <th>
-                                    Status
-                                </th>
-
-                                <th>
-                                    Action
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-                        <tbody id="teachersTableBody">
-
-                            <tr>
-
-                                <td
-                                    colspan="8"
-                                    class="loading-cell"
-                                >
-                                    Loading teacher records...
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-                <div
-                    class="empty-dashboard"
-                    id="emptyState"
-                    hidden
-                >
-                    No teacher records found.
-                </div>
-
-            </section>
-
-        </section>
-
-        <footer class="admin-footer">
-
-            <span>
-                © 2026 Sululta Secondary School
-            </span>
-
-            <span>
-                School Management Portal
-            </span>
-
-        </footer>
-
+                <div id="tableContent"><div style="padding: 3rem; text-align: center; color: #718096;">Loading...</div></div>
+            </div>
+        </div>
     </main>
 
-</div>
+    <script type="module">
+        import { supabase } from '../src/supabase.js';
+        let allTeachers = [];
 
-<script
-    type="module"
-    src="/src/teachers-dashboard.js"
-></script>
+        document.getElementById('toggleSidebar').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        });
 
+        async function loadData() {
+            const { data: teachers } = await supabase.from('teachers').select('*').order('first_name');
+            allTeachers = teachers || [];
+            
+            const active = teachers?.filter(t => t.status === 'active').length || 0;
+            const departments = new Set(teachers?.map(t => t.department)).size || 0;
+            
+            document.getElementById('totalTeachers').textContent = teachers?.length || 0;
+            document.getElementById('activeTeachers').textContent = active;
+            document.getElementById('inactiveTeachers').textContent = (teachers?.length || 0) - active;
+            document.getElementById('totalDepartments').textContent = departments;
+            
+            renderTable(teachers || []);
+        }
+
+        function renderTable(teachers) {
+            const html = teachers.length ? `
+                <table class="data-table">
+                    <thead><tr><th>Teacher</th><th>Employee ID</th><th>Department</th><th>Email</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody>${teachers.map(t => `
+                        <tr>
+                            <td><div class="teacher-info">
+                                <img src="${t.photo_url || 'https://via.placeholder.com/40'}" class="teacher-photo" alt="${t.first_name}">
+                                <div>${t.first_name} ${t.last_name}</div>
+                            </div></td>
+                            <td>${t.employee_id || 'N/A'}</td>
+                            <td>${t.department || 'N/A'}</td>
+                            <td>${t.email}</td>
+                            <td>${t.phone || 'N/A'}</td>
+                            <td><span class="status-badge ${t.status}">${t.status}</span></td>
+                            <td>
+                                <button class="action-btn" onclick="viewTeacher('${t.id}')">👁️</button>
+                                <button class="action-btn" onclick="editTeacher('${t.id}')">✏️</button>
+                                <button class="action-btn" onclick="deleteTeacher('${t.id}')">🗑️</button>
+                            </td>
+                        </tr>
+                    `).join('')}</tbody>
+                </table>
+            ` : '<div style="padding: 3rem; text-align: center; color: #718096;">No teachers found</div>';
+            document.getElementById('tableContent').innerHTML = html;
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const filtered = allTeachers.filter(t => 
+                `${t.first_name} ${t.last_name} ${t.email} ${t.department}`.toLowerCase().includes(query)
+            );
+            renderTable(filtered);
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await supabase.auth.signOut();
+            window.location.href = '../login.html';
+        });
+
+        window.viewTeacher = (id) => window.location.href = `view.html?id=${id}`;
+        window.editTeacher = (id) => window.location.href = `edit.html?id=${id}`;
+        window.deleteTeacher = async (id) => {
+            if (confirm('Delete this teacher?')) {
+                await supabase.from('teachers').delete().eq('id', id);
+                loadData();
+            }
+        };
+
+        loadData();
+    </script>
 </body>
-
 </html>

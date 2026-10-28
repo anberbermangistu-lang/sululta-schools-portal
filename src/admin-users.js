@@ -588,62 +588,25 @@ async function resetUserPassword(id) {
         return;
     }
 
+    // Use Supabase's built-in password reset email instead of the Edge Function
     try {
-        const {
-            data: sessionData,
-            error: sessionError
-        } = await supabase.auth.getSession();
+        const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
+            redirectTo: `${window.location.origin}/reset-password.html`
+        });
 
-        if (sessionError || !sessionData.session) {
-            window.location.href =
-                "/login.html";
-
-            return;
-        }
-
-        const response =
-            await fetch(
-                `${supabase.supabaseUrl}/functions/v1/reset-user-password`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization":
-                            `Bearer ${sessionData.session.access_token}`,
-                        "apikey":
-                            supabase.supabaseKey
-                    },
-                    body: JSON.stringify({
-                        user_id: id,
-                        password
-                    })
-                }
-            );
-
-        const result =
-            await response.json();
-
-        if (!response.ok || result.error) {
-            throw new Error(
-                result.error ||
-                "Failed to reset user password."
-            );
+        if (error) {
+            throw new Error(error.message);
         }
 
         showMessage(
-            `Password reset successfully for ${fullName}.`,
+            `Password reset email sent to ${user.email}.`,
             "success"
         );
 
     } catch (error) {
-        console.error(
-            "Reset password error:",
-            error
-        );
-
+        console.error("Reset password error:", error);
         showMessage(
-            error?.message ||
-            "Unable to reset user password.",
+            error?.message || "Unable to send password reset email.",
             "error"
         );
     }

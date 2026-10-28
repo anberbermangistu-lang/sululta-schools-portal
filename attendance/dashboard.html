@@ -1,555 +1,220 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        Attendance | Sululta School Portal
-    </title>
-
-    <link
-        rel="icon"
-        href="data:,"
-    >
-
-    <link
-        rel="stylesheet"
-        href="../src/style.css"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance - Sululta School Portal</title>
+    <link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
+    <link rel="stylesheet" href="../src/sidebar.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; }
+        .main-content { margin-left: 260px; min-height: 100vh; transition: margin-left 0.3s; }
+        .sidebar.collapsed + .main-content { margin-left: 70px; }
+        .top-bar { background: white; padding: 1.25rem 2rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .page-title { font-size: 1.75rem; font-weight: 700; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; }
+        .content-area { padding: 2rem; }
+        .page-header { display: flex; justify-content: space-between; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+        .btn { padding: 0.625rem 1.25rem; border-radius: 8px; border: none; font-weight: 600; font-size: 0.875rem; cursor: pointer; text-decoration: none; display: inline-block; transition: all 0.2s; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 4px solid; }
+        .stat-card.total { border-color: #667eea; }
+        .stat-card.present { border-color: #48bb78; }
+        .stat-card.absent { border-color: #e53e3e; }
+        .stat-card.rate { border-color: #4299e1; }
+        .stat-value { font-size: 2rem; font-weight: 700; margin-top: 0.5rem; }
+        .stat-label { font-size: 0.875rem; color: #718096; }
+        .data-table-container { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }
+        .table-header { padding: 1.5rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .table-header h2 { font-size: 1.25rem; }
+        .search-filter-group { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+        .search-box input, select, input[type="date"] { padding: 0.5rem 1rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem; }
+        .search-box input { width: 250px; }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th { padding: 1rem 1.5rem; text-align: left; font-size: 0.75rem; font-weight: 700; color: #4a5568; text-transform: uppercase; background: #f7fafc; }
+        .data-table td { padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; }
+        .status-badge { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+        .status-badge.present { background: #f0fdf4; color: #22543d; }
+        .status-badge.absent { background: #fff5f5; color: #c53030; }
+        .status-badge.late { background: #fffaf0; color: #7c2d12; }
+        .action-btn { padding: 0.5rem; border: none; background: none; cursor: pointer; border-radius: 6px; color: #718096; font-size: 1.125rem; }
+        .action-btn:hover { background: #edf2f7; }
+        @media (max-width: 768px) {
+            .main-content { margin-left: 0; }
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
-
 <body>
-
-<div class="admin-page">
-
-    <aside class="admin-sidebar">
-
-        <div class="sidebar-brand">
-
-            <div class="school-logo">
-                SS
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <img src="../public/school-logo.svg" alt="Logo" class="logo-image">
+                <span class="logo-text">Sululta School</span>
             </div>
-
-            <div class="school-info">
-
-                <strong>
-                    Sululta School
-                </strong>
-
-                <span>
-                    Admin Portal
-                </span>
-
-            </div>
-
+            <button class="toggle-btn" id="toggleSidebar"><span></span><span></span><span></span></button>
         </div>
-
-        <nav class="sidebar-menu">
-
-            <div class="menu-title">
-                MAIN
-            </div>
-
-            <a
-                href="../admin/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🏠</span>
-                <span>Dashboard</span>
-            </a>
-
-            <div class="menu-title">
-                MANAGEMENT
-            </div>
-
-            <a
-                href="../students/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>👨‍🎓</span>
-                <span>Students</span>
-            </a>
-
-            <a
-                href="../teachers/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>👨‍🏫</span>
-                <span>Teachers</span>
-            </a>
-
-            <a
-                href="../parents/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>👨‍👩‍👧</span>
-                <span>Parents</span>
-            </a>
-
-            <a
-                href="../classes/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🏫</span>
-                <span>Classes</span>
-            </a>
-
-            <a
-                href="../subjects/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📚</span>
-                <span>Subjects</span>
-            </a>
-
-            <a
-                href="../exams/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📝</span>
-                <span>Exams</span>
-            </a>
-
-            <div class="menu-title">
-                ACADEMIC
-            </div>
-
-            <a
-                href="dashboard.html"
-                class="sidebar-link active"
-            >
-                <span>✓</span>
-                <span>Attendance</span>
-            </a>
-
-            <a
-                href="../results/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📊</span>
-                <span>Results</span>
-            </a>
-
-            <a
-                href="../timetable/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🗓️</span>
-                <span>Timetable</span>
-            </a>
-
-            <div class="menu-title">
-                SCHOOL
-            </div>
-
-            <a
-                href="../library/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📖</span>
-                <span>Books</span>
-            </a>
-
-            <a
-                href="../fees/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>💰</span>
-                <span>Fees</span>
-            </a>
-
-            <a
-                href="../events/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>🎉</span>
-                <span>Events</span>
-            </a>
-
-            <a
-                href="../notices/dashboard.html"
-                class="sidebar-link"
-            >
-                <span>📢</span>
-                <span>Notices</span>
-            </a>
-
+        <nav class="sidebar-nav">
+            <a href="../admin/dashboard.html" class="nav-item"><span class="nav-icon">📊</span><span class="nav-text">Dashboard</span></a>
+            <a href="../students/dashboard.html" class="nav-item"><span class="nav-icon">👨‍🎓</span><span class="nav-text">Students</span></a>
+            <a href="../teachers/dashboard.html" class="nav-item"><span class="nav-icon">👨‍🏫</span><span class="nav-text">Teachers</span></a>
+            <a href="../classes/dashboard.html" class="nav-item"><span class="nav-icon">🏫</span><span class="nav-text">Classes</span></a>
+            <a href="../subjects/dashboard.html" class="nav-item"><span class="nav-icon">📚</span><span class="nav-text">Subjects</span></a>
+            <a href="../attendance/dashboard.html" class="nav-item active"><span class="nav-icon">📋</span><span class="nav-text">Attendance</span></a>
+            <a href="../results/dashboard.html" class="nav-item"><span class="nav-icon">🎯</span><span class="nav-text">Results</span></a>
+            <a href="../timetable/dashboard.html" class="nav-item"><span class="nav-icon">📅</span><span class="nav-text">Timetable</span></a>
+            <a href="../library/dashboard.html" class="nav-item"><span class="nav-icon">📖</span><span class="nav-text">Library</span></a>
         </nav>
-
-        <div class="sidebar-bottom">
-
-            <button
-                type="button"
-                class="logout-button"
-                id="logoutButton"
-            >
-                <span>↪</span>
-                <span>Sign Out</span>
-            </button>
-
+        <div class="sidebar-footer">
+            <a href="#" class="nav-item" id="logoutBtn"><span class="nav-icon">🚪</span><span class="nav-text">Logout</span></a>
         </div>
-
     </aside>
 
-    <main class="admin-main">
-
-        <header class="admin-header">
-
-            <div class="header-left">
-
-                <button
-                    type="button"
-                    class="sidebar-toggle"
-                    id="sidebarToggle"
-                    aria-label="Toggle sidebar"
-                >
-                    ☰
-                </button>
-
-                <div>
-
-                    <span class="header-label">
-                        ACADEMIC MANAGEMENT
-                    </span>
-
-                    <h1>
-                        Attendance
-                    </h1>
-
-                </div>
-
-            </div>
-
-            <div class="admin-profile">
-
-                <div class="admin-avatar">
-                    A
-                </div>
-
-                <div class="admin-profile-info">
-
-                    <strong>
-                        Administrator
-                    </strong>
-
-                    <span>
-                        Admin
-                    </span>
-
-                </div>
-
-            </div>
-
-        </header>
-
-        <section class="page-container">
-
+    <main class="main-content">
+        <div class="top-bar">
+            <h1 class="page-title">Attendance Management</h1>
+            <div class="user-avatar" id="userAvatar">A</div>
+        </div>
+        <div class="content-area">
             <div class="page-header">
-
-                <div class="header-left">
-
-                    <div class="page-icon">
-                        ✓
-                    </div>
-
-                    <div>
-
-                        <h1>
-                            Attendance
-                        </h1>
-
-                        <p>
-                            Record and manage student attendance
-                        </p>
-
-                    </div>
-
-                </div>
-
-                <div class="header-actions">
-
-                    <button
-                        type="button"
-                        id="refreshAttendance"
-                        class="btn btn-secondary"
-                    >
-                        ↻ Refresh
-                    </button>
-
-                    <a
-                        href="add.html"
-                        class="btn btn-primary"
-                    >
-                        ＋ Record Attendance
-                    </a>
-
-                </div>
-
+                <div></div>
+                <a href="add.html" class="btn btn-primary">➕ Mark Attendance</a>
             </div>
-
-            <div
-                id="message"
-                class="message"
-                hidden
-            ></div>
-
             <div class="stats-grid">
-
-                <div class="stat-card">
-
-                    <div class="stat-icon">
-                        ✓
-                    </div>
-
-                    <div class="stat-content">
-
-                        <span>
-                            Total Records
-                        </span>
-
-                        <strong id="totalAttendance">
-                            0
-                        </strong>
-
-                    </div>
-
+                <div class="stat-card total">
+                    <div class="stat-label">Total Students</div>
+                    <div class="stat-value" id="totalStudents">0</div>
                 </div>
-
-                <div class="stat-card">
-
-                    <div class="stat-icon">
-                        ✅
-                    </div>
-
-                    <div class="stat-content">
-
-                        <span>
-                            Present
-                        </span>
-
-                        <strong id="presentCount">
-                            0
-                        </strong>
-
-                    </div>
-
+                <div class="stat-card present">
+                    <div class="stat-label">Present Today</div>
+                    <div class="stat-value" id="presentToday">0</div>
                 </div>
-
-                <div class="stat-card">
-
-                    <div class="stat-icon">
-                        ❌
-                    </div>
-
-                    <div class="stat-content">
-
-                        <span>
-                            Absent
-                        </span>
-
-                        <strong id="absentCount">
-                            0
-                        </strong>
-
-                    </div>
-
+                <div class="stat-card absent">
+                    <div class="stat-label">Absent Today</div>
+                    <div class="stat-value" id="absentToday">0</div>
                 </div>
-
-                <div class="stat-card">
-
-                    <div class="stat-icon">
-                        ⏰
-                    </div>
-
-                    <div class="stat-content">
-
-                        <span>
-                            Late
-                        </span>
-
-                        <strong id="lateCount">
-                            0
-                        </strong>
-
-                    </div>
-
+                <div class="stat-card rate">
+                    <div class="stat-label">Attendance Rate</div>
+                    <div class="stat-value" id="attendanceRate">0%</div>
                 </div>
-
             </div>
-
-            <section class="content-card">
-
-                <div class="panel-header">
-
-                    <div>
-
-                        <h2>
-                            Attendance Records
-                        </h2>
-
-                        <p>
-                            View and manage student attendance records
-                        </p>
-
+            <div class="data-table-container">
+                <div class="table-header">
+                    <h2>Attendance Records</h2>
+                    <div class="search-filter-group">
+                        <input type="date" id="dateFilter">
+                        <div class="search-box"><input type="text" id="searchInput" placeholder="Search students..."></div>
+                        <select id="statusFilter">
+                            <option value="">All Status</option>
+                            <option value="present">Present</option>
+                            <option value="absent">Absent</option>
+                            <option value="late">Late</option>
+                        </select>
                     </div>
-
                 </div>
-
-                <div class="student-toolbar">
-
-                    <div class="search-box">
-
-                        <input
-                            type="search"
-                            id="attendanceSearch"
-                            placeholder="Search student, ID or class..."
-                            autocomplete="off"
-                        >
-
-                    </div>
-
-                    <input
-                        type="date"
-                        id="dateFilter"
-                        class="filter-select"
-                    >
-
-                    <select
-                        id="statusFilter"
-                    >
-
-                        <option value="">
-                            All Status
-                        </option>
-
-                        <option value="present">
-                            Present
-                        </option>
-
-                        <option value="absent">
-                            Absent
-                        </option>
-
-                        <option value="late">
-                            Late
-                        </option>
-
-                        <option value="excused">
-                            Excused
-                        </option>
-
-                    </select>
-
-                    <button
-                        type="button"
-                        id="clearFilters"
-                        class="btn btn-secondary"
-                    >
-                        Clear
-                    </button>
-
-                </div>
-
-                <div class="table-wrapper">
-
-                    <div class="table-responsive">
-
-                        <table class="data-table">
-
-                            <thead>
-
-                                <tr>
-
-                                    <th>
-                                        #
-                                    </th>
-
-                                    <th>
-                                        Date
-                                    </th>
-
-                                    <th>
-                                        Student ID
-                                    </th>
-
-                                    <th>
-                                        Student
-                                    </th>
-
-                                    <th>
-                                        Class
-                                    </th>
-
-                                    <th>
-                                        Status
-                                    </th>
-
-                                    <th>
-                                        Remarks
-                                    </th>
-
-                                    <th>
-                                        Actions
-                                    </th>
-
-                                </tr>
-
-                            </thead>
-
-                            <tbody id="attendanceTableBody">
-
-                                <tr>
-
-                                    <td
-                                        colspan="8"
-                                        class="table-empty"
-                                    >
-                                        Loading attendance...
-                                    </td>
-
-                                </tr>
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-        </section>
-
-        <footer class="admin-footer">
-
-            <span>
-                © 2026 Sululta School Portal
-            </span>
-
-            <span>
-                School Management System
-            </span>
-
-        </footer>
-
+                <div id="tableContent"><div style="padding: 3rem; text-align: center; color: #718096;">Loading...</div></div>
+            </div>
+        </div>
     </main>
 
-</div>
+    <script type="module">
+        import { supabase } from '../src/supabase.js';
+        let allAttendance = [];
 
-<script
-    type="module"
-    src="../src/attendance-dashboard.js"
-></script>
+        document.getElementById('toggleSidebar').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        });
 
+        // Set today's date as default
+        document.getElementById('dateFilter').valueAsDate = new Date();
+
+        async function loadData() {
+            const selectedDate = document.getElementById('dateFilter').value || new Date().toISOString().split('T')[0];
+            
+            const [attendanceRes, studentsRes] = await Promise.all([
+                supabase.from('attendance')
+                    .select('*, students(student_id, first_name, last_name, class_id, classes(class_name, section))')
+                    .eq('attendance_date', selectedDate)
+                    .order('id', { ascending: false }),
+                supabase.from('students').select('id')
+            ]);
+
+            allAttendance = attendanceRes.data || [];
+            const totalStudents = studentsRes.data?.length || 0;
+
+            const presentCount = allAttendance.filter(a => a.status === 'present').length;
+            const absentCount = allAttendance.filter(a => a.status === 'absent').length;
+            const rate = allAttendance.length > 0 ? ((presentCount / allAttendance.length) * 100).toFixed(1) : 0;
+
+            document.getElementById('totalStudents').textContent = totalStudents;
+            document.getElementById('presentToday').textContent = presentCount;
+            document.getElementById('absentToday').textContent = absentCount;
+            document.getElementById('attendanceRate').textContent = rate + '%';
+
+            renderTable(allAttendance);
+        }
+
+        function renderTable(attendance) {
+            const html = attendance.length ? `
+                <table class="data-table">
+                    <thead><tr><th>Student ID</th><th>Name</th><th>Class</th><th>Date</th><th>Status</th><th>Remark</th><th>Actions</th></tr></thead>
+                    <tbody>${attendance.map(a => `
+                        <tr>
+                            <td>${a.students?.student_id || 'N/A'}</td>
+                            <td><strong>${a.students ? `${a.students.first_name} ${a.students.last_name}` : 'N/A'}</strong></td>
+                            <td>${a.students?.classes ? `${a.students.classes.class_name} ${a.students.classes.section || ''}` : 'N/A'}</td>
+                            <td>${new Date(a.attendance_date).toLocaleDateString()}</td>
+                            <td><span class="status-badge ${a.status}">${a.status.toUpperCase()}</span></td>
+                            <td>${a.remark || '-'}</td>
+                            <td>
+                                <button class="action-btn" onclick="viewAttendance(${a.id})" title="View">👁️</button>
+                                <button class="action-btn" onclick="editAttendance(${a.id})" title="Edit">✏️</button>
+                                <button class="action-btn" onclick="deleteAttendance(${a.id})" title="Delete">🗑️</button>
+                            </td>
+                        </tr>
+                    `).join('')}</tbody>
+                </table>
+            ` : '<div style="padding: 3rem; text-align: center; color: #718096;">No attendance records found for this date</div>';
+            document.getElementById('tableContent').innerHTML = html;
+        }
+
+        function applyFilters() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const status = document.getElementById('statusFilter').value;
+
+            const filtered = allAttendance.filter(a => {
+                const matchSearch = !search || 
+                    `${a.students?.student_id} ${a.students?.first_name} ${a.students?.last_name}`.toLowerCase().includes(search);
+                const matchStatus = !status || a.status === status;
+                return matchSearch && matchStatus;
+            });
+            renderTable(filtered);
+        }
+
+        document.getElementById('dateFilter').addEventListener('change', loadData);
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+        document.getElementById('statusFilter').addEventListener('change', applyFilters);
+
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await supabase.auth.signOut();
+            window.location.href = '../login.html';
+        });
+
+        window.viewAttendance = (id) => window.location.href = `view.html?id=${id}`;
+        window.editAttendance = (id) => window.location.href = `edit.html?id=${id}`;
+        window.deleteAttendance = async (id) => {
+            if (confirm('Delete this attendance record?')) {
+                const { error } = await supabase.from('attendance').delete().eq('id', id);
+                if (error) alert('Error: ' + error.message);
+                else loadData();
+            }
+        };
+
+        loadData();
+    </script>
 </body>
-
 </html>

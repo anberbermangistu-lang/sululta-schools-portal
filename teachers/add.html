@@ -1,576 +1,209 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0">
-
-    <title>
-        Add Teacher | Sululta Secondary School
-    </title>
-
-    <link
-        rel="icon"
-        href="data:,">
-
-    <link
-        rel="stylesheet"
-        href="/src/style.css">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Teacher - Sululta School Portal</title>
+    <link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
+    <link rel="stylesheet" href="../src/sidebar.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; }
+        .main-content { margin-left: 260px; min-height: 100vh; transition: margin-left 0.3s; }
+        .sidebar.collapsed + .main-content { margin-left: 70px; }
+        .top-bar { background: white; padding: 1.25rem 2rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .page-title { font-size: 1.75rem; font-weight: 700; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; }
+        .content-area { padding: 2rem; max-width: 1200px; margin: 0 auto; }
+        .form-container { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 2rem; }
+        .form-header { margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #e2e8f0; }
+        .form-header h2 { font-size: 1.5rem; font-weight: 700; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group.full-width { grid-column: 1 / -1; }
+        .form-group label { font-size: 0.875rem; font-weight: 600; color: #4a5568; margin-bottom: 0.5rem; }
+        .form-group input, .form-group select, .form-group textarea { padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem; transition: all 0.2s; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+        .form-group textarea { resize: vertical; min-height: 100px; }
+        .form-actions { display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #e2e8f0; }
+        .btn { padding: 0.75rem 1.5rem; border-radius: 8px; border: none; font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-block; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
+        .btn-secondary { background: white; color: #4a5568; border: 1px solid #e2e8f0; }
+        .btn-secondary:hover { background: #f7fafc; }
+        .alert { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; display: none; }
+        .alert.success { background: #f0fdf4; color: #22543d; border: 1px solid #9ae6b4; }
+        .alert.error { background: #fff5f5; color: #c53030; border: 1px solid #feb2b2; }
+    </style>
 </head>
-
 <body>
-
-<div class="admin-page">
-
-    <aside class="admin-sidebar">
-
-        <div class="sidebar-brand">
-
-            <div class="school-logo">
-                SS
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <img src="../public/school-logo.svg" alt="Logo" class="logo-image">
+                <span class="logo-text">Sululta School</span>
             </div>
-
-            <div class="school-info">
-
-                <strong>
-                    Sululta Secondary School
-                </strong>
-
-                <span>
-                    School Management Portal
-                </span>
-
-            </div>
-
+            <button class="toggle-btn" id="toggleSidebar"><span></span><span></span><span></span></button>
         </div>
-
-        <nav class="sidebar-menu">
-
-            <div class="menu-title">
-                MAIN
-            </div>
-
-            <a
-                href="/admin/dashboard.html"
-                class="sidebar-link">
-
-                <span>🏠</span>
-                <span>Dashboard</span>
-
-            </a>
-
-            <div class="menu-title">
-                MANAGEMENT
-            </div>
-
-            <a
-                href="/students/dashboard.html"
-                class="sidebar-link">
-
-                <span>👨‍🎓</span>
-                <span>Students</span>
-
-            </a>
-
-            <a
-                href="/teachers/dashboard.html"
-                class="sidebar-link active">
-
-                <span>👨‍🏫</span>
-                <span>Teachers</span>
-
-            </a>
-
-            <a
-                href="/parents/dashboard.html"
-                class="sidebar-link">
-
-                <span>👨‍👩‍👧</span>
-                <span>Parents</span>
-
-            </a>
-
-            <a
-                href="/classes/dashboard.html"
-                class="sidebar-link">
-
-                <span>🏫</span>
-                <span>Classes</span>
-
-            </a>
-
-            <a
-                href="/subjects/dashboard.html"
-                class="sidebar-link">
-
-                <span>📚</span>
-                <span>Subjects</span>
-
-            </a>
-
-            <a
-                href="/exams/dashboard.html"
-                class="sidebar-link">
-
-                <span>📝</span>
-                <span>Exams</span>
-
-            </a>
-
-            <div class="menu-title">
-                ACADEMIC
-            </div>
-
-            <a
-                href="/attendance/dashboard.html"
-                class="sidebar-link">
-
-                <span>📅</span>
-                <span>Attendance</span>
-
-            </a>
-
-            <a
-                href="/results/dashboard.html"
-                class="sidebar-link">
-
-                <span>📊</span>
-                <span>Results</span>
-
-            </a>
-
-            <a
-                href="/timetable/dashboard.html"
-                class="sidebar-link">
-
-                <span>🗓️</span>
-                <span>Timetable</span>
-
-            </a>
-
-            <div class="menu-title">
-                SCHOOL
-            </div>
-
-            <a
-                href="/library/dashboard.html"
-                class="sidebar-link">
-
-                <span>📖</span>
-                <span>Library</span>
-
-            </a>
-
-            <a
-                href="/events/dashboard.html"
-                class="sidebar-link">
-
-                <span>🎉</span>
-                <span>Events</span>
-
-            </a>
-
-            <a
-                href="/notices/dashboard.html"
-                class="sidebar-link">
-
-                <span>🔔</span>
-                <span>Notices</span>
-
-            </a>
-
-            <div class="menu-title">
-                FINANCE
-            </div>
-
-            <a
-                href="/fees/dashboard.html"
-                class="sidebar-link">
-
-                <span>💰</span>
-                <span>Fees</span>
-
-            </a>
-
+        <nav class="sidebar-nav">
+            <a href="../admin/dashboard.html" class="nav-item"><span class="nav-icon">📊</span><span class="nav-text">Dashboard</span></a>
+            <a href="../students/dashboard.html" class="nav-item"><span class="nav-icon">👨‍🎓</span><span class="nav-text">Students</span></a>
+            <a href="../teachers/dashboard.html" class="nav-item active"><span class="nav-icon">👨‍🏫</span><span class="nav-text">Teachers</span></a>
+            <a href="../classes/dashboard.html" class="nav-item"><span class="nav-icon">🏫</span><span class="nav-text">Classes</span></a>
+            <a href="../subjects/dashboard.html" class="nav-item"><span class="nav-icon">📚</span><span class="nav-text">Subjects</span></a>
+            <a href="../attendance/dashboard.html" class="nav-item"><span class="nav-icon">📋</span><span class="nav-text">Attendance</span></a>
         </nav>
-
-        <div class="sidebar-bottom">
-
-            <button
-                type="button"
-                class="logout-button"
-                id="logoutButton">
-
-                <span>↪</span>
-
-                <span>
-                    Sign Out
-                </span>
-
-            </button>
-
+        <div class="sidebar-footer">
+            <a href="#" class="nav-item" id="logoutBtn"><span class="nav-icon">🚪</span><span class="nav-text">Logout</span></a>
         </div>
-
     </aside>
 
-    <main class="admin-main">
-
-        <header class="admin-header">
-
-            <div class="header-left">
-
-                <button
-                    type="button"
-                    class="sidebar-toggle"
-                    id="sidebarToggle">
-
-                    ☰
-
-                </button>
-
-                <div>
-
-                    <span class="header-label">
-                        MANAGEMENT
-                    </span>
-
-                    <h1>
-                        Add Teacher
-                    </h1>
-
+    <main class="main-content">
+        <div class="top-bar">
+            <h1 class="page-title">Add New Teacher</h1>
+            <div class="user-avatar" id="userAvatar">A</div>
+        </div>
+        <div class="content-area">
+            <div class="form-container">
+                <div class="form-header">
+                    <h2>Teacher Information</h2>
                 </div>
-
-            </div>
-
-            <div class="admin-profile">
-
-                <div class="admin-avatar">
-                    A
-                </div>
-
-                <div class="admin-profile-info">
-
-                    <strong>
-                        Administrator
-                    </strong>
-
-                    <span>
-                        Admin
-                    </span>
-
-                </div>
-
-            </div>
-
-        </header>
-
-        <section class="page-container">
-
-            <div class="page-header">
-
-                <div class="header-left">
-
-                    <div class="page-icon">
-                        👨‍🏫
-                    </div>
-
-                    <div>
-
-                        <h1>
-                            Add Teacher
-                        </h1>
-
-                        <p>
-                            Register a new teacher and professional information
-                        </p>
-
-                    </div>
-
-                </div>
-
-                <div class="header-actions">
-
-                    <a
-                        href="/teachers/dashboard.html"
-                        class="btn btn-secondary">
-
-                        ← Back
-
-                    </a>
-
-                </div>
-
-            </div>
-
-            <div
-                id="messageBox"
-                class="message"
-                hidden>
-            </div>
-
-            <section class="form-card">
-
-                <div class="panel-header">
-
-                    <div>
-
-                        <h2>
-                            Teacher Information
-                        </h2>
-
-                        <p>
-                            Enter the teacher's personal and professional information.
-                        </p>
-
-                    </div>
-
-                </div>
-
-                <form id="teacherForm">
-
+                <div id="alertBox" class="alert"></div>
+                <form id="addTeacherForm">
                     <div class="form-grid">
-
                         <div class="form-group">
-
-                            <label for="teacherId">
-                                Teacher ID
-                                <span>*</span>
-                            </label>
-
-                            <input
-                                type="text"
-                                id="teacherId"
-                                name="teacher_id"
-                                placeholder="Example: TCH001"
-                                maxlength="50"
-                                required>
-
+                            <label for="firstName">First Name *</label>
+                            <input type="text" id="firstName" required>
                         </div>
-
                         <div class="form-group">
-
-                            <label for="firstName">
-                                First Name
-                                <span>*</span>
-                            </label>
-
-                            <input
-                                type="text"
-                                id="firstName"
-                                name="first_name"
-                                placeholder="Enter first name"
-                                maxlength="100"
-                                required>
-
+                            <label for="lastName">Last Name *</label>
+                            <input type="text" id="lastName" required>
                         </div>
-
                         <div class="form-group">
-
-                            <label for="lastName">
-                                Last Name
-                                <span>*</span>
-                            </label>
-
-                            <input
-                                type="text"
-                                id="lastName"
-                                name="last_name"
-                                placeholder="Enter last name"
-                                maxlength="100"
-                                required>
-
+                            <label for="email">Email *</label>
+                            <input type="email" id="email" required autocomplete="email">
                         </div>
-
                         <div class="form-group">
-
-                            <label for="gender">
-                                Gender
-                                <span>*</span>
-                            </label>
-
-                            <select
-                                id="gender"
-                                name="gender"
-                                required>
-
-                                <option value="">
-                                    Select Gender
-                                </option>
-
-                                <option value="male">
-                                    Male
-                                </option>
-
-                                <option value="female">
-                                    Female
-                                </option>
-
+                            <label for="password">Temporary Password *</label>
+                            <input type="password" id="password" required minlength="8" autocomplete="new-password">
+                            <small>At least 8 characters. Share it securely and have the teacher change it after signing in.</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone *</label>
+                            <input type="tel" id="phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="employeeId">Teacher ID *</label>
+                            <input type="text" id="employeeId" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="gender">Gender</label>
+                            <select id="gender">
+                                <option value="">Select Gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
                             </select>
-
                         </div>
-
                         <div class="form-group">
-
-                            <label for="phone">
-                                Phone
-                            </label>
-
-                            <input
-                                type="tel"
-                                id="phone"
-                                name="phone"
-                                placeholder="Example: 0911000000"
-                                maxlength="30">
-
+                            <label for="qualification">Qualification *</label>
+                            <input type="text" id="qualification" required>
                         </div>
-
                         <div class="form-group">
-
-                            <label for="email">
-                                Email
-                            </label>
-
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                placeholder="teacher@example.com"
-                                maxlength="150">
-
-                        </div>
-
-                        <div class="form-group">
-
-                            <label for="qualification">
-                                Qualification
-                                <span>*</span>
-                            </label>
-
-                            <input
-                                type="text"
-                                id="qualification"
-                                name="qualification"
-                                placeholder="Example: BSc Mathematics"
-                                maxlength="150"
-                                required>
-
-                        </div>
-
-                        <div class="form-group">
-
-                            <label for="status">
-                                Status
-                                <span>*</span>
-                            </label>
-
-                            <select
-                                id="status"
-                                name="status"
-                                required>
-
-                                <option value="active">
-                                    Active
-                                </option>
-
-                                <option value="inactive">
-                                    Inactive
-                                </option>
-
+                            <label for="status">Status</label>
+                            <select id="status">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
                             </select>
-
                         </div>
-
+                        <div class="form-group full-width">
+                            <label for="address">Address</label>
+                            <textarea id="address"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="photoUrl">Photo URL</label>
+                            <input type="url" id="photoUrl" placeholder="https://example.com/photo.jpg">
+                        </div>
                     </div>
-
-                    <div class="form-group">
-
-                        <label for="photo">
-                            Teacher Photo
-                        </label>
-
-                        <input
-                            type="file"
-                            id="photo"
-                            name="photo"
-                            accept="image/jpeg,image/png,image/webp">
-
-                        <small>
-                            JPG, PNG or WEBP. Maximum size: 2 MB.
-                        </small>
-
-                    </div>
-
-                    <div
-                        id="photoPreview"
-                        style="display:none; margin-top:15px;">
-
-                        <img
-                            id="previewImage"
-                            src=""
-                            alt="Teacher photo preview"
-                            style="
-                                width:120px;
-                                height:120px;
-                                object-fit:cover;
-                                border-radius:12px;
-                                border:1px solid #ddd;
-                            ">
-
-                    </div>
-
                     <div class="form-actions">
-
-                        <a
-                            href="/teachers/dashboard.html"
-                            class="btn btn-secondary">
-
-                            Cancel
-
-                        </a>
-
-                        <button
-                            type="submit"
-                            id="saveButton"
-                            class="btn btn-primary">
-
-                            Save Teacher
-
-                        </button>
-
+                        <a href="dashboard.html" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Add Teacher</button>
                     </div>
-
                 </form>
-
-            </section>
-
-        </section>
-
-        <footer class="admin-footer">
-
-            <span>
-                © 2026 Sululta Secondary School
-            </span>
-
-            <span>
-                School Management Portal
-            </span>
-
-        </footer>
-
+            </div>
+        </div>
     </main>
 
-</div>
+    <script type="module">
+        import { supabase } from '../src/supabase.js';
 
-<script
-    type="module"
-    src="/src/teacher-add.js">
-</script>
+        document.getElementById('toggleSidebar').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        });
 
+        function showAlert(message, type) {
+            const alert = document.getElementById('alertBox');
+            alert.textContent = message;
+            alert.className = `alert ${type}`;
+            alert.style.display = 'block';
+            setTimeout(() => alert.style.display = 'none', 5000);
+        }
+
+        document.getElementById('addTeacherForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.currentTarget;
+            const btn = form.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.textContent = 'Creating Account...';
+            const payload = {
+                role: 'teacher',
+                email: document.getElementById('email').value.trim(),
+                password: document.getElementById('password').value,
+                record: {
+                    teacher_id: document.getElementById('employeeId').value.trim(),
+                    first_name: document.getElementById('firstName').value.trim(),
+                    last_name: document.getElementById('lastName').value.trim(),
+                    phone: document.getElementById('phone').value.trim() || null,
+                    gender: document.getElementById('gender').value || null,
+                    qualification: document.getElementById('qualification').value || null,
+                    address: document.getElementById('address').value || null,
+                    photo_url: document.getElementById('photoUrl').value || null,
+                    status: document.getElementById('status').value
+                }
+            };
+
+            try {
+                const { data, error } = await supabase.functions.invoke('admin-create-school-account', {
+                    body: payload
+                });
+                if (error) {
+                    if (/failed to send a request/i.test(error.message || '')) {
+                        throw new Error(`Could not reach the account service. Deploy the admin-create-school-account Edge Function and allow this site origin in ALLOWED_ORIGINS: ${window.location.origin}`);
+                    }
+                    const details = error.context && typeof error.context.json === 'function'
+                        ? await error.context.json().catch(() => null)
+                        : null;
+                    throw new Error(details?.error || error.message);
+                }
+                if (!data?.success) throw new Error('Teacher account could not be created.');
+                showAlert(payload.record.status === 'active'
+                    ? 'Teacher account created. They can now sign in with the email and temporary password you provided.'
+                    : 'Teacher account created but is inactive. Activate the account before the teacher can sign in.', 'success');
+                form.reset();
+                setTimeout(() => window.location.href = 'dashboard.html', 1500);
+            } catch (error) {
+                console.error('Create teacher account error:', error);
+                showAlert('Error: ' + (error?.message || 'Unable to create teacher account.'), 'error');
+                btn.disabled = false;
+                btn.textContent = 'Add Teacher';
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await supabase.auth.signOut();
+            window.location.href = '../login.html';
+        });
+    </script>
 </body>
-
 </html>

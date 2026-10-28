@@ -61,7 +61,7 @@ try {
     }
 
     showMessage(
-        "Password reset link sent. Please check your email.",
+        "If an account exists for that email address, a password reset link has been sent.",
         "success"
     );
 

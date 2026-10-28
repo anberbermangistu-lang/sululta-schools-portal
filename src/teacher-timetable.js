@@ -2,13 +2,11 @@ import { supabase } from "./supabase.js";
 
 let allTimetable = [];
 let assignedClasses = [];
+let currentTeacherRecord = null;
 
 async function initializeTeacherTimetable() {
-
     const {
-        data: {
-            user
-        },
+        data: { user },
         error: authError
     } = await supabase.auth.getUser();
 
@@ -41,24 +39,15 @@ async function initializeTeacherTimetable() {
         return;
     }
 
-    const role =
-        String(profile.role || "")
-            .trim()
-            .toLowerCase();
-
-    const status =
-        String(profile.status || "")
-            .trim()
-            .toLowerCase();
+    const role = String(profile.role || "").trim().toLowerCase();
+    const status = String(profile.status || "").trim().toLowerCase();
 
     if (role !== "teacher") {
-
         if (role === "admin") {
             window.location.href = "/admin/dashboard.html";
         } else {
             window.location.href = "/login.html";
         }
-
         return;
     }
 
@@ -85,27 +74,15 @@ async function initializeTeacherTimetable() {
         .maybeSingle();
 
     if (teacherError || !teacher) {
-
-        console.error(
-            "Teacher error:",
-            teacherError
-        );
-
-        showMessage(
-            "Teacher record could not be found."
-        );
-
+        console.error("Teacher error:", teacherError);
+        showMessage("Teacher record could not be found.");
         return;
     }
 
-    displayTeacher(
-        profile,
-        teacher
-    );
+    currentTeacherRecord = teacher;
 
-    await loadAssignedClasses(
-        teacher.id
-    );
+    displayTeacher(profile, teacher);
+    await loadAssignedClasses(teacher.id);
 
     setupFilters();
     setupRefresh();
@@ -113,791 +90,324 @@ async function initializeTeacherTimetable() {
     setupSidebar();
 }
 
-async function loadAssignedClasses(
-    teacherId
-) {
-
-    const {
-        data: classes,
-        error
-    } = await supabase
-        .from("classes")
-        .select(`
-            id,
-            class_name,
-            section,
-            room_number,
-            academic_year,
-            status
-        `)
-        .eq(
-            "class_teacher",
-            teacherId
-        )
-        .order(
-            "class_name",
-            {
-                ascending: true
-            }
-        );
-
-    if (error) {
-
-        console.error(
-            "Assigned classes error:",
-            error
-        );
-
-        showMessage(
-            error.message
-        );
-
-        return;
-    }
-
-    assignedClasses =
-        classes || [];
-
-    setText(
-        "totalClasses",
-        assignedClasses.length
-    );
-
-    populateClassFilter();
-
-    await loadTimetable();
-}
-
-async function loadTimetable() {
-
-    const tableBody =
-        document.getElementById(
-            "timetableTableBody"
-        );
-
-    if (!tableBody) {
-        return;
-    }
-
-    tableBody.innerHTML = `
-        <tr>
-            <td
-                colspan="7"
-                class="table-empty"
-            >
-                Loading timetable...
-            </td>
-        </tr>
-    `;
-
-    if (!assignedClasses.length) {
-
-        allTimetable = [];
-
-        updateStatistics(
-            []
-        );
-
-        renderTimetable(
-            []
-        );
-
-        return;
-    }
-
-    const timetableResults = [];
-
-    for (const classItem of assignedClasses) {
-
-        const className =
-            String(
-                classItem.class_name || ""
-            ).trim();
-
-        const section =
-            String(
-                classItem.section || ""
-            ).trim();
-
-        if (!className || !section) {
-            continue;
-        }
-
-        const {
-            data,
-            error
-        } = await supabase
-            .from("timetable")
+async function loadAssignedClasses(teacherId) {
+    const [classesRes, timetableRes] = await Promise.all([
+        supabase
+            .from("classes")
             .select(`
                 id,
                 class_name,
                 section,
-                subject_code,
-                subject_name,
-                day,
-                start_time,
-                end_time,
                 room_number,
-                academic_year
+                class_teacher,
+                academic_year,
+                status
             `)
-            .ilike(
-                "class_name",
-                className
-            )
-            .ilike(
-                "section",
-                section
-            )
-            .order(
-                "day",
-                {
-                    ascending: true
-                }
-            )
-            .order(
-                "start_time",
-                {
-                    ascending: true
-                }
-            );
+            .order("class_name", { ascending: true }),
+        supabase
+            .from("timetable")
+            .select("*")
+            .order("day", { ascending: true })
+            .order("start_time", { ascending: true })
+    ]);
 
-        if (error) {
-
-            console.error(
-                "Timetable error:",
-                error
-            );
-
-            continue;
-        }
-
-        if (data && data.length) {
-            timetableResults.push(
-                ...data
-            );
-        }
+    if (classesRes.error) {
+        console.error("Assigned classes error:", classesRes.error);
+        showMessage(classesRes.error.message);
+        return;
     }
 
-    allTimetable =
-        timetableResults;
+    const allClasses = (classesRes.data || []).filter(c => !c.status || String(c.status).toLowerCase() === "active");
+    const allTimetableData = timetableRes.data || [];
 
-    updateStatistics(
-        allTimetable
-    );
+    let timetableTeachers = {};
+    let teacherAssignments = [];
+    try {
+        timetableTeachers = JSON.parse(localStorage.getItem("sululta_timetable_teachers") || "{}");
+        teacherAssignments = JSON.parse(localStorage.getItem("sululta_teacher_subject_assignments") || "[]");
+    } catch (e) {}
 
-    renderTimetable(
-        allTimetable
-    );
+    // Filter timetable for ONLY this teacher
+    allTimetable = allTimetableData.filter(entry => {
+        // 1. Matched by teacher_id
+        if (entry.teacher_id != null) {
+            if (Number(entry.teacher_id) === Number(teacherId)) return true;
+            if (currentTeacherRecord?.teacher_id && String(entry.teacher_id) === String(currentTeacherRecord.teacher_id)) return true;
+        }
+
+        // 2. Matched by cached timetable mapping
+        const cached = timetableTeachers[entry.id];
+        if (cached?.teacher_id != null) {
+            if (Number(cached.teacher_id) === Number(teacherId)) return true;
+            if (currentTeacherRecord?.teacher_id && String(cached.teacher_id) === String(currentTeacherRecord.teacher_id)) return true;
+        }
+
+        // 3. Matched by teacher name
+        const entryTeacherName = (entry.teacher_name || cached?.teacher_name || "").toLowerCase();
+        if (entryTeacherName && currentTeacherRecord) {
+            if (currentTeacherRecord.last_name && entryTeacherName.includes(currentTeacherRecord.last_name.toLowerCase())) return true;
+            if (currentTeacherRecord.first_name && entryTeacherName.includes(currentTeacherRecord.first_name.toLowerCase())) return true;
+        }
+
+        // 4. Matched by teacher_subject_assignments
+        const match = teacherAssignments.some(a =>
+            (Number(a.teacher_id) === Number(teacherId) || (currentTeacherRecord?.teacher_id && String(a.teacher_id) === String(currentTeacherRecord.teacher_id))) &&
+            a.subject_code === entry.subject_code &&
+            (!a.class_name || (a.class_name === entry.class_name && (!a.section || a.section === entry.section)))
+        );
+        if (match) return true;
+
+        return false;
+    });
+
+    // Derive only the classes where this teacher has timetable entries (or is class_teacher)
+    const timetableClassKeys = new Set(allTimetable.map(t => `${t.class_name}|${t.section}`.toLowerCase()));
+    assignedClasses = allClasses.filter(c => {
+        const key = `${c.class_name}|${c.section}`.toLowerCase();
+        const isClassTeacher = c.class_teacher && (
+            String(c.class_teacher) === String(teacherId) ||
+            (currentTeacherRecord?.teacher_id && String(c.class_teacher) === String(currentTeacherRecord.teacher_id)) ||
+            (currentTeacherRecord?.last_name && String(c.class_teacher).toLowerCase().includes(currentTeacherRecord.last_name.toLowerCase()))
+        );
+        return timetableClassKeys.has(key) || isClassTeacher;
+    });
+
+    setText("totalClasses", assignedClasses.length);
+    populateClassFilter();
+    updateStatistics(allTimetable);
+    renderTimetable(allTimetable);
+}
+
+async function loadTimetable() {
+    const tableBody = document.getElementById("timetableTableBody");
+    if (!tableBody) return;
+
+    tableBody.innerHTML = `
+        <tr>
+            <td colspan="8" class="table-empty">
+                Loading your timetable schedule...
+            </td>
+        </tr>
+    `;
+
+    if (currentTeacherRecord?.id) {
+        await loadAssignedClasses(currentTeacherRecord.id);
+    }
 }
 
 function populateClassFilter() {
+    const select = document.getElementById("classFilter");
+    if (!select) return;
 
-    const select =
-        document.getElementById(
-            "classFilter"
-        );
+    select.innerHTML = `<option value="">All Classes (${assignedClasses.length})</option>`;
 
-    if (!select) {
-        return;
-    }
-
-    select.innerHTML = `
-        <option value="">
-            All Classes
-        </option>
-    `;
-
-    assignedClasses.forEach(
-        item => {
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-            option.value =
-                `${item.class_name}|||${item.section}`;
-
-            option.textContent =
-                `${item.class_name} - ${item.section}`;
-
-            select.appendChild(
-                option
-            );
-        }
-    );
+    assignedClasses.forEach(item => {
+        const opt = document.createElement("option");
+        opt.value = `${item.class_name}|||${item.section}`;
+        opt.textContent = `${item.class_name} - ${item.section}`;
+        select.appendChild(opt);
+    });
 }
 
-function renderTimetable(
-    records
-) {
+function renderTimetable(records) {
+    const tableBody = document.getElementById("timetableTableBody");
+    const emptyState = document.getElementById("timetableEmptyState");
 
-    const tableBody =
-        document.getElementById(
-            "timetableTableBody"
-        );
-
-    const emptyState =
-        document.getElementById(
-            "timetableEmptyState"
-        );
-
-    if (!tableBody) {
-        return;
-    }
+    if (!tableBody) return;
 
     if (!records.length) {
-
         tableBody.innerHTML = `
             <tr>
-                <td
-                    colspan="7"
-                    class="table-empty"
-                >
-                    No timetable records found.
+                <td colspan="8" class="table-empty">
+                    No timetable records found for your assigned classes.
                 </td>
             </tr>
         `;
-
-        if (emptyState) {
-            emptyState.hidden = false;
-        }
-
+        if (emptyState) emptyState.hidden = false;
+        updateSummary(0);
         return;
     }
 
-    if (emptyState) {
-        emptyState.hidden = true;
-    }
+    if (emptyState) emptyState.hidden = true;
 
-    tableBody.innerHTML =
-        records
-            .map(
-                (item, index) => {
+    tableBody.innerHTML = records
+        .map((item, index) => {
+            return `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td><strong>${escapeHtml(`${item.class_name || "—"} - ${item.section || "—"}`)}</strong></td>
+                    <td>${escapeHtml(item.subject_code || "—")}</td>
+                    <td>${escapeHtml(item.subject_name || "—")}</td>
+                    <td>${escapeHtml(item.day || "—")}</td>
+                    <td>${formatTime(item.start_time)}</td>
+                    <td>${formatTime(item.end_time)}</td>
+                    <td>${escapeHtml(item.room_number || "—")}</td>
+                </tr>
+            `;
+        })
+        .join("");
 
-                    return `
-                        <tr>
-
-                            <td>
-                                ${index + 1}
-                            </td>
-
-                            <td>
-                                <strong>
-                                    ${escapeHtml(
-                                        `${item.class_name || "—"} - ${item.section || "—"}`
-                                    )}
-                                </strong>
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    item.subject_code ||
-                                    "—"
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    item.subject_name ||
-                                    "—"
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    item.day ||
-                                    "—"
-                                )}
-                            </td>
-
-                            <td>
-                                ${formatTime(
-                                    item.start_time
-                                )}
-                            </td>
-
-                            <td>
-                                ${formatTime(
-                                    item.end_time
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    item.room_number ||
-                                    "—"
-                                )}
-                            </td>
-
-                        </tr>
-                    `;
-                }
-            )
-            .join("");
-
-    updateSummary(
-        records.length
-    );
+    updateSummary(records.length);
 }
 
 function setupFilters() {
+    const classFilter = document.getElementById("classFilter");
+    const dayFilter = document.getElementById("dayFilter");
+    const subjectSearch = document.getElementById("subjectSearch");
+    const clearButton = document.getElementById("clearFilters");
 
-    const classFilter =
-        document.getElementById(
-            "classFilter"
-        );
+    classFilter?.addEventListener("change", applyFilters);
+    dayFilter?.addEventListener("change", applyFilters);
+    subjectSearch?.addEventListener("input", applyFilters);
 
-    const dayFilter =
-        document.getElementById(
-            "dayFilter"
-        );
-
-    const subjectSearch =
-        document.getElementById(
-            "subjectSearch"
-        );
-
-    const clearButton =
-        document.getElementById(
-            "clearFilters"
-        );
-
-    classFilter?.addEventListener(
-        "change",
-        applyFilters
-    );
-
-    dayFilter?.addEventListener(
-        "change",
-        applyFilters
-    );
-
-    subjectSearch?.addEventListener(
-        "input",
-        applyFilters
-    );
-
-    clearButton?.addEventListener(
-        "click",
-        () => {
-
-            if (classFilter) {
-                classFilter.value = "";
-            }
-
-            if (dayFilter) {
-                dayFilter.value = "";
-            }
-
-            if (subjectSearch) {
-                subjectSearch.value = "";
-            }
-
-            applyFilters();
-        }
-    );
+    clearButton?.addEventListener("click", () => {
+        if (classFilter) classFilter.value = "";
+        if (dayFilter) dayFilter.value = "";
+        if (subjectSearch) subjectSearch.value = "";
+        applyFilters();
+    });
 }
 
 function applyFilters() {
+    const classFilter = document.getElementById("classFilter");
+    const dayFilter = document.getElementById("dayFilter");
+    const subjectSearch = document.getElementById("subjectSearch");
 
-    const classFilter =
-        document.getElementById(
-            "classFilter"
-        );
+    const classValue = classFilter?.value || "";
+    const dayValue = String(dayFilter?.value || "").trim().toLowerCase();
+    const searchValue = String(subjectSearch?.value || "").trim().toLowerCase();
 
-    const dayFilter =
-        document.getElementById(
-            "dayFilter"
-        );
-
-    const subjectSearch =
-        document.getElementById(
-            "subjectSearch"
-        );
-
-    const classValue =
-        classFilter?.value || "";
-
-    const dayValue =
-        String(
-            dayFilter?.value || ""
-        )
-        .trim()
-        .toLowerCase();
-
-    const searchValue =
-        String(
-            subjectSearch?.value || ""
-        )
-        .trim()
-        .toLowerCase();
-
-    let filtered =
-        [...allTimetable];
+    let filtered = [...allTimetable];
 
     if (classValue) {
-
-        const [
-            selectedClass,
-            selectedSection
-        ] =
-            classValue.split(
-                "|||"
-            );
-
-        filtered =
-            filtered.filter(
-                item =>
-                    String(
-                        item.class_name || ""
-                    )
-                    .trim()
-                    .toLowerCase() ===
-                    String(
-                        selectedClass || ""
-                    )
-                    .trim()
-                    .toLowerCase()
-                    &&
-                    String(
-                        item.section || ""
-                    )
-                    .trim()
-                    .toLowerCase() ===
-                    String(
-                        selectedSection || ""
-                    )
-                    .trim()
-                    .toLowerCase()
-            );
+        const [selectedClass, selectedSection] = classValue.split("|||");
+        filtered = filtered.filter(
+            item =>
+                String(item.class_name || "").trim().toLowerCase() === String(selectedClass || "").trim().toLowerCase() &&
+                String(item.section || "").trim().toLowerCase() === String(selectedSection || "").trim().toLowerCase()
+        );
     }
 
     if (dayValue) {
-
-        filtered =
-            filtered.filter(
-                item =>
-                    String(
-                        item.day || ""
-                    )
-                    .trim()
-                    .toLowerCase() ===
-                    dayValue
-            );
+        filtered = filtered.filter(
+            item => String(item.day || "").trim().toLowerCase() === dayValue
+        );
     }
 
     if (searchValue) {
-
-        filtered =
-            filtered.filter(
-                item => {
-
-                    const subject =
-                        String(
-                            item.subject_name ||
-                            ""
-                        )
-                        .toLowerCase();
-
-                    const code =
-                        String(
-                            item.subject_code ||
-                            ""
-                        )
-                        .toLowerCase();
-
-                    return (
-                        subject.includes(
-                            searchValue
-                        )
-                        ||
-                        code.includes(
-                            searchValue
-                        )
-                    );
-                }
-            );
+        filtered = filtered.filter(item => {
+            const subject = String(item.subject_name || "").toLowerCase();
+            const code = String(item.subject_code || "").toLowerCase();
+            return subject.includes(searchValue) || code.includes(searchValue);
+        });
     }
 
-    renderTimetable(
-        filtered
-    );
+    renderTimetable(filtered);
 }
 
-function updateStatistics(
-    records
-) {
+function updateStatistics(records) {
+    setText("totalEntries", records.length);
 
-    setText(
-        "totalEntries",
-        records.length
+    const classSet = new Set(
+        records.map(item => `${item.class_name || ""}-${item.section || ""}`)
     );
-
-    const classSet =
-        new Set(
-            records.map(
-                item =>
-                    `${item.class_name || ""}-${item.section || ""}`
-            )
-        );
 
     setText(
         "totalClasses",
-        assignedClasses.length
-            ? assignedClasses.length
-            : classSet.size
+        assignedClasses.length ? assignedClasses.length : classSet.size
     );
 
-    const subjectSet =
-        new Set(
-            records
-                .map(
-                    item =>
-                        String(
-                            item.subject_code ||
-                            item.subject_name ||
-                            ""
-                        )
-                        .trim()
-                        .toLowerCase()
-                )
-                .filter(Boolean)
-        );
-
-    setText(
-        "totalSubjects",
-        subjectSet.size
-    );
-
-    const years =
+    const subjectSet = new Set(
         records
-            .map(
-                item =>
-                    item.academic_year
-            )
-            .filter(Boolean);
+            .map(item => String(item.subject_code || item.subject_name || "").trim().toLowerCase())
+            .filter(Boolean)
+    );
 
-    const uniqueYears =
-        [...new Set(years)];
+    setText("totalSubjects", subjectSet.size);
+
+    const years = records.map(item => item.academic_year).filter(Boolean);
+    const uniqueYears = [...new Set(years)];
 
     setText(
         "academicYear",
-        uniqueYears.length === 1
-            ? uniqueYears[0]
-            : uniqueYears.length
-                ? uniqueYears.join(", ")
-                : "—"
+        uniqueYears.length === 1 ? uniqueYears[0] : uniqueYears.length ? uniqueYears.join(", ") : "—"
     );
 
-    setText(
-        "recordBadge",
-        `${records.length} Records`
-    );
-
-    setText(
-        "recordSummary",
-        `Showing ${records.length} records`
-    );
+    setText("recordBadge", `${records.length} Record${records.length === 1 ? "" : "s"}`);
 }
 
-function updateSummary(
-    count
-) {
-
-    setText(
-        "recordBadge",
-        `${count} Records`
-    );
-
-    setText(
-        "recordSummary",
-        `Showing ${count} records`
-    );
+function updateSummary(count) {
+    setText("recordSummary", `Showing ${count} record${count === 1 ? "" : "s"}`);
 }
 
-function displayTeacher(
-    profile,
-    teacher
-) {
+function displayTeacher(profile, teacher) {
+    const fullName = `${teacher.first_name || profile.first_name || ""} ${teacher.last_name || profile.last_name || ""}`.trim() || profile.username || "Teacher";
 
-    const fullName =
-        `${teacher.first_name || profile.first_name || ""} ${teacher.last_name || profile.last_name || ""}`
-            .trim()
-        ||
-        profile.username
-        ||
-        "Teacher";
+    setText("teacherHeaderName", fullName);
 
-    setText(
-        "teacherHeaderName",
-        fullName
-    );
+    const avatar = document.getElementById("teacherAvatar");
+    const photo = teacher.photo_url || profile.photo_url;
 
-    const avatar =
-        document.getElementById(
-            "teacherAvatar"
-        );
-
-    const photo =
-        teacher.photo_url ||
-        profile.photo_url;
-
-    if (
-        avatar &&
-        photo
-    ) {
-
+    if (avatar && photo) {
         avatar.innerHTML = "";
-
-        const image =
-            document.createElement(
-                "img"
-            );
-
+        const image = document.createElement("img");
         image.src = photo;
         image.alt = fullName;
-
-        avatar.appendChild(
-            image
-        );
-
+        avatar.appendChild(image);
     } else if (avatar) {
-
-        avatar.textContent =
-            fullName
-                .charAt(0)
-                .toUpperCase();
+        avatar.textContent = fullName.charAt(0).toUpperCase();
     }
 }
 
 function setupRefresh() {
-
-    const button =
-        document.getElementById(
-            "refreshTimetable"
-        );
-
-    button?.addEventListener(
-        "click",
-        async () => {
-
-            await loadTimetable();
-        }
-    );
+    const button = document.getElementById("refreshTimetable");
+    button?.addEventListener("click", async () => {
+        await loadTimetable();
+    });
 }
 
 function setupLogout() {
-
-    const button =
-        document.getElementById(
-            "logoutButton"
-        );
-
-    button?.addEventListener(
-        "click",
-        async () => {
-
-            await supabase.auth.signOut();
-
-            window.location.href =
-                "/login.html";
-        }
-    );
+    const button = document.getElementById("logoutButton");
+    button?.addEventListener("click", async () => {
+        await supabase.auth.signOut();
+        window.location.href = "/login.html";
+    });
 }
 
 function setupSidebar() {
-
-    const toggle =
-        document.getElementById(
-            "sidebarToggle"
-        );
-
-    const sidebar =
-        document.querySelector(
-            ".admin-sidebar"
-        );
-
-    toggle?.addEventListener(
-        "click",
-        () => {
-
-            sidebar?.classList.toggle(
-                "mobile-open"
-            );
-        }
-    );
+    const toggle = document.getElementById("sidebarToggle");
+    const sidebar = document.querySelector(".admin-sidebar");
+    toggle?.addEventListener("click", () => {
+        sidebar?.classList.toggle("mobile-open");
+    });
 }
 
-function formatTime(
-    value
-) {
-
-    if (!value) {
-        return "—";
-    }
-
-    const parts =
-        String(value)
-            .split(":");
-
-    if (parts.length < 2) {
-        return escapeHtml(
-            value
-        );
-    }
-
+function formatTime(value) {
+    if (!value) return "—";
+    const parts = String(value).split(":");
+    if (parts.length < 2) return escapeHtml(value);
     return `${parts[0]}:${parts[1]}`;
 }
 
-function setText(
-    id,
-    value
-) {
-
-    const element =
-        document.getElementById(
-            id
-        );
-
+function setText(id, value) {
+    const element = document.getElementById(id);
     if (element) {
-        element.textContent =
-            value;
+        element.textContent = value;
     }
 }
 
-function showMessage(
-    message
-) {
-
-    const element =
-        document.getElementById(
-            "timetableMessage"
-        );
-
+function showMessage(message) {
+    const element = document.getElementById("timetableMessage");
     if (element) {
-
-        element.textContent =
-            message;
-
-        element.classList.add(
-            "error"
-        );
+        element.textContent = message;
+        element.classList.add("error");
     }
 
-    const tableBody =
-        document.getElementById(
-            "timetableTableBody"
-        );
-
+    const tableBody = document.getElementById("timetableTableBody");
     if (tableBody) {
-
         tableBody.innerHTML = `
             <tr>
-                <td
-                    colspan="8"
-                    class="table-empty"
-                >
+                <td colspan="8" class="table-empty">
                     ${escapeHtml(message)}
                 </td>
             </tr>
@@ -905,31 +415,13 @@ function showMessage(
     }
 }
 
-function escapeHtml(
-    value
-) {
-
+function escapeHtml(value) {
     return String(value)
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
-        );
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
 initializeTeacherTimetable();

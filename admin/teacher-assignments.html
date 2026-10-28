@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Teacher Assignments | Sululta Secondary School</title>
+    <link rel="icon" type="image/svg+xml" href="/school-logo.svg">
+    <link rel="stylesheet" href="/src/style.css">
+    <style>
+        .assignment-content { max-width: 1100px; margin: 0 auto; padding: 28px 20px; }
+        .assignment-card { padding: 24px; margin-bottom: 20px; border-radius: 12px; background: #fff; box-shadow: 0 2px 12px #1f3a5d12; }
+        .assignment-form { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: end; }
+        .assignment-form label { display: grid; gap: 6px; color: #52657e; font-size: 13px; font-weight: 600; }
+        .assignment-form select, .assignment-form button { min-height: 42px; padding: 9px 11px; border: 1px solid #cbd5e1; border-radius: 7px; background: white; font: inherit; }
+        .assignment-form button { border: 0; background: #0a4b86; color: white; cursor: pointer; font-weight: 600; }
+        .assignment-form button:disabled { opacity: .6; cursor: wait; }
+        .assignment-message { margin: 12px 0 0; color: #52657e; }
+        .assignment-message.error { color: #b42318; }
+        .assignment-message.success { color: #137547; }
+        .assignment-table-wrap { overflow-x: auto; }
+        .assignment-table { width: 100%; border-collapse: collapse; text-align: left; }
+        .assignment-table th, .assignment-table td { padding: 12px 9px; border-bottom: 1px solid #e8edf4; }
+        .assignment-table button { padding: 7px 10px; border: 0; border-radius: 6px; background: #fff0ef; color: #b42318; cursor: pointer; }
+        @media (max-width: 760px) { .assignment-form { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="admin-page">
+        <aside class="admin-sidebar">
+            <div class="sidebar-brand">
+                <div class="school-logo">SS</div>
+                <div class="school-info"><strong>Sululta Secondary School</strong><span>Administrator Portal</span></div>
+            </div>
+            <nav class="sidebar-menu">
+                <a class="sidebar-link" href="/admin/dashboard.html">Dashboard</a>
+                <a class="sidebar-link" href="/admin/users.html">User Accounts</a>
+                <a class="sidebar-link" href="/admin/user-add.html">Invite User</a>
+                <a class="sidebar-link active" href="/admin/teacher-assignments.html">Teaching Assignments</a>
+                <a class="sidebar-link" href="/classes/dashboard.html">Classes</a>
+                <a class="sidebar-link" href="/timetable/dashboard.html">Timetable</a>
+            </nav>
+            <div class="sidebar-bottom"><button class="logout-button" id="logoutButton" type="button">Sign Out</button></div>
+        </aside>
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-left"><button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Toggle sidebar">☰</button><div><span class="header-label">ADMINISTRATION</span><h1>Teaching Assignments</h1></div></div>
+                <div class="admin-profile"><div class="admin-avatar">A</div><span>Administrator</span></div>
+            </header>
+            <div class="assignment-content">
+                <section class="assignment-card">
+                    <h2>Assign a subject to a teacher</h2>
+                    <p>Only timetable subjects already linked to the selected class can be assigned. Set each class's class teacher from the class edit page.</p>
+                    <form id="assignmentForm" class="assignment-form">
+                        <label for="teacherSelect">Teacher
+                            <select id="teacherSelect" required><option value="">Loading teachers...</option></select>
+                        </label>
+                        <label for="classSelect">Class
+                            <select id="classSelect" required><option value="">Loading classes...</option></select>
+                        </label>
+                        <label for="subjectSelect">Class subject
+                            <select id="subjectSelect" required disabled><option value="">Select a class first</option></select>
+                        </label>
+                        <button id="assignmentButton" type="submit">Save Assignment</button>
+                    </form>
+                    <p id="assignmentMessage" class="assignment-message" role="status" hidden></p>
+                </section>
+                <section class="assignment-card">
+                    <h2>Current assignments</h2>
+                    <div class="assignment-table-wrap">
+                        <table class="assignment-table">
+                            <thead><tr><th>Teacher</th><th>Class</th><th>Subject</th><th></th></tr></thead>
+                            <tbody id="assignmentRows"><tr><td colspan="4">Loading assignments...</td></tr></tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script type="module" src="/src/teacher-assignments.js"></script>
+</body>
+</html>
