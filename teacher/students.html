@@ -83,17 +83,21 @@
 
             </a>
 
-            <a
-                href="/teacher/students.html"
-                class="sidebar-link active">
+            <div class="sidebar-item-group" id="myStudentsGroup">
+                <a
+                    href="/teacher/students.html"
+                    class="sidebar-link active"
+                    id="myStudentsSidebarLink">
 
-                <span>👨‍🎓</span>
+                    <span>👨‍🎓</span>
 
-                <span>
-                    My Students
-                </span>
+                    <span>
+                        My Students
+                    </span>
 
-            </a>
+                </a>
+                <div class="sidebar-subsections" id="sidebarSectionsList"></div>
+            </div>
 
             <a
                 href="/teacher/attendance.html"
@@ -351,7 +355,7 @@
                     <div class="stat-content">
 
                         <span>
-                            My Classes
+                            My Sections
                         </span>
 
                         <strong id="totalClasses">
@@ -390,6 +394,8 @@
 
                 </div>
 
+                <div class="section-pills-bar" id="sectionPillsBar"></div>
+
                 <div class="results-filter-bar">
 
                     <div class="search-box">
@@ -407,10 +413,11 @@
                     </div>
 
                     <select
-                        id="classFilter">
+                        id="classFilter"
+                        aria-label="Filter by Section">
 
                         <option value="">
-                            All Classes
+                            All My Sections
                         </option>
 
                     </select>

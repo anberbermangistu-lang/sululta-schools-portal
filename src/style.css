@@ -4815,3 +4815,100 @@ button,
         padding-left: 16px;
     }
 }
+
+
+/* ================================================================
+   Teacher Students — Sidebar Subsections & Section Filter Pills
+   ================================================================ */
+.sidebar-subsections {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin: 4px 0 8px 14px;
+    padding-left: 10px;
+    border-left: 2px solid rgba(255, 255, 255, 0.18);
+}
+
+.sidebar-sublink {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 550;
+    color: #cbd5e1;
+    text-decoration: none;
+    border-radius: 7px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.sidebar-sublink:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.12);
+    transform: translateX(2px);
+}
+
+.sidebar-sublink.active {
+    color: #93c5fd;
+    font-weight: 700;
+    background: rgba(99, 102, 241, 0.28);
+    box-shadow: inset 2px 0 0 #818cf8;
+}
+
+.sidebar-sublink .sublink-dot {
+    font-size: 8px;
+    color: #818cf8;
+}
+
+.section-pills-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+    padding: 2px 0;
+}
+
+.section-pill-btn {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #475569;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.section-pill-btn:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+    color: #0f172a;
+}
+
+.section-pill-btn.active {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.28);
+}
+
+.section-pill-btn .pill-count {
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.section-pill-btn.active .pill-count {
+    background: rgba(255, 255, 255, 0.28);
+    color: #ffffff;
+}
