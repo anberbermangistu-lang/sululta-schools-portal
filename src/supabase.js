@@ -1,19 +1,32 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// Production and local default configuration for Sululta Secondary School Portal
+const DEFAULT_SUPABASE_URL = "https://rbkrezomrouycmxfiuzh.supabase.co";
+const DEFAULT_SUPABASE_ANON_KEY = "sb_publishable_Oty_iLtW8mhEKoNEwhkP2A_KeCsrAl9";
 
-if (!supabaseUrl || !supabaseAnonKey) {
-    console.error("Supabase credentials missing. Check your .env.local file.");
+const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL || "").trim();
+const supabaseAnonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY || DEFAULT_SUPABASE_ANON_KEY || "").trim();
+
+export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
+
+let client = null;
+if (isSupabaseConfigured) {
+    try {
+        client = createClient(supabaseUrl, supabaseAnonKey, {
+            auth: {
+                autoRefreshToken: true,
+                persistSession: true,
+                detectSessionInUrl: true
+            }
+        });
+    } catch (err) {
+        console.error("[supabase] Failed to initialize Supabase client:", err);
+    }
+} else {
+    console.error("[supabase] Supabase credentials missing. Check .env configuration.");
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-    auth: {
-        autoRefreshToken: true,
-        persistSession: true,
-        detectSessionInUrl: true
-    }
-});
+export const supabase = client;
 
 const publicPaths = new Set([
     "/",
@@ -24,16 +37,21 @@ const publicPaths = new Set([
 ]);
 const pathname = window.location.pathname;
 
-if (!publicPaths.has(pathname)) {
+if (!publicPaths.has(pathname) && supabase) {
     const requiredRole = pathname.startsWith("/teacher/")
         ? "teacher"
         : pathname.startsWith("/student/")
             ? "student"
-            : "admin";
+            : pathname.startsWith("/parent/")
+                ? "parent"
+                : "admin";
+
     const dashboards = {
         admin: "/admin/dashboard.html",
+        administrator: "/admin/dashboard.html",
         teacher: "/teacher/dashboard.html",
-        student: "/student/dashboard.html"
+        student: "/student/dashboard.html",
+        parent: "/parent/dashboard.html"
     };
 
     document.documentElement.style.visibility = "hidden";
@@ -55,8 +73,10 @@ if (!publicPaths.has(pathname)) {
                 .maybeSingle();
             if (profileError) throw profileError;
 
-            const role = String(profile?.role || "").trim().toLowerCase();
+            let role = String(profile?.role || "").trim().toLowerCase();
+            if (role === "administrator") role = "admin";
             const status = String(profile?.status || "").trim().toLowerCase();
+
             if (status !== "active" || !dashboards[role]) {
                 await supabase.auth.signOut();
                 window.location.replace("/login.html");
