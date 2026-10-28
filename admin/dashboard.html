@@ -8,6 +8,12 @@
     <link rel="stylesheet" href="/src/dashboard.css">
     <!-- Chart.js for student distribution donut chart -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        (function() {
+            const t = localStorage.getItem('sululta_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            if (t === 'dark') document.documentElement.classList.add('dark-theme');
+        })();
+    </script>
 </head>
 <body class="dash-body">
 <div class="dash-layout">
@@ -174,6 +180,11 @@
             </div>
 
             <div class="dt-right">
+                <button class="theme-toggle-btn" id="themeToggleBtn" type="button" aria-label="Toggle dark/light mode" title="Toggle dark/light mode">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="theme-icon theme-moon">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                </button>
                 <button class="dt-notif-btn" aria-label="View notifications">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>

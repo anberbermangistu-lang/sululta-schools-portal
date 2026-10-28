@@ -1,3 +1,4 @@
+import { initThemeToggle } from "./theme.js";
 import { supabase } from "./supabase.js";
 
 const message = document.getElementById("studentMessage");
@@ -741,6 +742,7 @@ logoutButton?.addEventListener("click", async () => {
    INITIALIZE
 ────────────────────────────────────────────────────────────── */
 async function initialize() {
+    initThemeToggle();
     setupTabNavigation();
     try {
         const profileLoaded = await loadStudentProfile();

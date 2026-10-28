@@ -24,6 +24,12 @@
 <style>
 </style>
 
+    <script>
+        (function() {
+            const t = localStorage.getItem('sululta_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            if (t === 'dark') document.documentElement.classList.add('dark-theme');
+        })();
+    </script>
 </head>
 
 <body>
@@ -212,7 +218,13 @@
 
         </div>
 
-        <div class="admin-profile">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <button class="theme-toggle-btn" id="themeToggleBtn" type="button" aria-label="Toggle dark/light mode" title="Toggle dark/light mode">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="theme-icon theme-moon">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
+            </button>
+            <div class="admin-profile">
 
             <div
                 class="admin-avatar"
@@ -234,6 +246,7 @@
 
             </div>
 
+        </div>
         </div>
 
     </header>

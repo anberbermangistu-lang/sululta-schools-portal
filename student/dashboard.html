@@ -365,7 +365,27 @@
             .topbar { align-items: flex-start; }
             .identity span { max-width: 110px; overflow-wrap: anywhere; }
         }
+
+        /* Dark mode overrides */
+        html.dark-theme body { background: #0b1120; color: #f8fafc; }
+        html.dark-theme .card { background: #1e293b; border: 1px solid #334155; color: #f8fafc; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3); }
+        html.dark-theme .topbar h1 { color: #f8fafc; }
+        html.dark-theme .card h2 { color: #60a5fa; }
+        html.dark-theme .fact label { color: #94a3b8; }
+        html.dark-theme .fact strong { color: #f8fafc; }
+        html.dark-theme th { background: #0f172a; color: #94a3b8; border-color: #334155; }
+        html.dark-theme td { color: #cbd5e1; border-color: #334155; }
+        html.dark-theme input { background: #0f172a; border-color: #334155; color: #f8fafc; }
+        html.dark-theme input[readonly] { background: #1e293b; color: #94a3b8; }
+        html.dark-theme .empty, html.dark-theme .message { color: #94a3b8; }
+        html.dark-theme .avatar { background: #1e293b; color: #60a5fa; border: 1px solid #334155; }
     </style>
+    <script>
+        (function() {
+            const t = localStorage.getItem('sululta_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            if (t === 'dark') document.documentElement.classList.add('dark-theme');
+        })();
+    </script>
 </head>
 <body>
     <div class="layout">
@@ -493,6 +513,11 @@
                     <h1 id="studentHeaderName">Student Portal Overview</h1>
                 </div>
                 <div class="identity">
+                    <button class="theme-toggle-btn" id="themeToggleBtn" type="button" aria-label="Toggle dark/light mode" title="Toggle dark/light mode">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="theme-icon theme-moon">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                        </svg>
+                    </button>
                     <div class="avatar" id="studentAvatar">S</div>
                     <span id="studentStatus" class="status-badge">ACTIVE</span>
                 </div>

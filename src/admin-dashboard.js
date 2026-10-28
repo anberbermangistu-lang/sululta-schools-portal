@@ -1,8 +1,10 @@
+import { initThemeToggle } from "./theme.js";
 import { supabase } from "./supabase.js";
 
 document.addEventListener("DOMContentLoaded", init);
 
 async function init() {
+    initThemeToggle();
     setupSidebar();
     setupDropdown();
     setupSearch();

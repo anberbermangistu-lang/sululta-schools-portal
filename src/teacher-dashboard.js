@@ -1,3 +1,4 @@
+import { initThemeToggle } from "./theme.js";
 import { supabase } from "./supabase.js";
 
 let currentTeacher = null;
@@ -6,6 +7,7 @@ let assignedStudents = [];
 let teacherTimetable = [];
 
 document.addEventListener("DOMContentLoaded", async () => {
+    initThemeToggle();
     setupSidebar();
     setupLogout();
     await loadTeacherDashboard();

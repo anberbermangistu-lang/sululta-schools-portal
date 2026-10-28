@@ -4912,3 +4912,209 @@ button,
     background: rgba(255, 255, 255, 0.28);
     color: #ffffff;
 }
+
+
+/* ================================================================
+   DARK THEME — Teacher & Student Dashboards
+   ================================================================ */
+:root.dark-theme,
+body.dark-theme {
+    --bg: #0b1120;
+    --surface: #1e293b;
+    --card: #1e293b;
+    --border: #334155;
+    --text: #f8fafc;
+    --text-dark: #f8fafc;
+    --text-muted: #94a3b8;
+    --muted: #94a3b8;
+}
+
+.dark-theme {
+    background-color: #0b1120;
+    color: #f8fafc;
+}
+
+.dark-theme .admin-main,
+.dark-theme .portal-body,
+.dark-theme .layout,
+.dark-theme main {
+    background: #0b1120 !important;
+    color: #f8fafc;
+}
+
+.dark-theme .admin-header,
+.dark-theme .topbar {
+    background: #0f172a;
+    border-bottom: 1px solid #1e293b;
+}
+
+.dark-theme .admin-header h1,
+.dark-theme .topbar h1 {
+    color: #f8fafc !important;
+}
+
+.dark-theme .header-label {
+    color: #60a5fa;
+}
+
+.dark-theme .admin-profile {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+.dark-theme .admin-profile-info strong {
+    color: #f8fafc;
+}
+
+.dark-theme .admin-profile-info span {
+    color: #94a3b8;
+}
+
+.dark-theme .stat-card,
+.dark-theme .panel,
+.dark-theme .card,
+.dark-theme .welcome-card,
+.dark-theme .results-records-card,
+.dark-theme .dashboard-card {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark-theme .stat-content span,
+.dark-theme .panel-header p,
+.dark-theme .card p,
+.dark-theme .welcome-card p {
+    color: #94a3b8 !important;
+}
+
+.dark-theme .stat-content strong,
+.dark-theme .panel-header h2,
+.dark-theme .card h2,
+.dark-theme .welcome-card h2 {
+    color: #f8fafc !important;
+}
+
+.dark-theme .data-table,
+.dark-theme table,
+.dark-theme .results-table {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+.dark-theme .data-table th,
+.dark-theme table th,
+.dark-theme .results-table th {
+    background: #0f172a !important;
+    color: #94a3b8 !important;
+    border-bottom-color: #334155 !important;
+}
+
+.dark-theme .data-table td,
+.dark-theme table td,
+.dark-theme .results-table td {
+    color: #cbd5e1 !important;
+    border-bottom-color: #334155 !important;
+}
+
+.dark-theme .data-table tr:hover,
+.dark-theme table tr:hover,
+.dark-theme .results-table tr:hover {
+    background: rgba(255, 255, 255, 0.04) !important;
+}
+
+.dark-theme .search-box,
+.dark-theme input,
+.dark-theme select,
+.dark-theme textarea {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    color: #f8fafc !important;
+}
+
+.dark-theme input:focus,
+.dark-theme select:focus,
+.dark-theme textarea:focus {
+    border-color: #3b82f6 !important;
+}
+
+.dark-theme .fact label {
+    color: #94a3b8 !important;
+}
+
+.dark-theme .fact strong {
+    color: #f8fafc !important;
+}
+
+.dark-theme .empty,
+.dark-theme .table-empty {
+    color: #94a3b8 !important;
+}
+
+.dark-theme .section-pill-btn {
+    background: #1e293b;
+    border-color: #334155;
+    color: #cbd5e1;
+}
+
+.dark-theme .section-pill-btn:hover {
+    background: #334155;
+    color: #ffffff;
+}
+
+.dark-theme .section-pill-btn.active {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #ffffff;
+}
+
+.dark-theme .section-pill-btn .pill-count {
+    background: #0f172a;
+    color: #94a3b8;
+}
+
+.dark-theme .section-pill-btn.active .pill-count {
+    background: rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+}
+
+/* Theme toggle button styling for teacher & student */
+.theme-toggle-btn {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 10px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #475569;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.theme-toggle-btn:hover {
+    background: #f1f5f9;
+    color: #2563eb;
+    border-color: #2563eb;
+    transform: scale(1.05);
+}
+
+.theme-toggle-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+.dark-theme .theme-toggle-btn {
+    border-color: #334155;
+    background: #1e293b;
+    color: #fbbf24;
+}
+
+.dark-theme .theme-toggle-btn:hover {
+    background: #334155;
+    color: #fde047;
+    border-color: #fbbf24;
+}
