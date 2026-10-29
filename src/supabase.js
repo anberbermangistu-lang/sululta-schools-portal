@@ -49,9 +49,10 @@ export async function getSession() {
         );
 
         if (hasStoredToken) {
-            // Wait briefly for auth state recovery (INITIAL_SESSION or TOKEN_REFRESHED)
+            // Wait for auth state recovery (INITIAL_SESSION or TOKEN_REFRESHED)
+            // Increased timeout to 3000ms to allow full session restoration
             const recovered = await new Promise(resolve => {
-                const timer = setTimeout(() => resolve(null), 1200);
+                const timer = setTimeout(() => resolve(null), 3000);
                 const { data: { subscription } } = supabase.auth.onAuthStateChange((event, s) => {
                     if (s) {
                         clearTimeout(timer);
@@ -67,8 +68,13 @@ export async function getSession() {
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
-                const { data: { session: refreshedSession } } = await supabase.auth.getSession();
-                return refreshedSession || { user };
+                // Force a session refresh after getting user
+                const { data: { session: refreshedSession } } = await supabase.auth.refreshSession();
+                if (refreshedSession) return refreshedSession;
+                
+                // If refresh fails, try getSession again
+                const { data: { session: currentSession } } = await supabase.auth.getSession();
+                return currentSession || { user };
             }
         } catch (_) {}
 
@@ -168,72 +174,98 @@ if (supabase) {
 
         void (async () => {
             try {
+                // Add small delay to ensure localStorage is read
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
                 const session = await getSession();
                 const user = session?.user;
 
                 if (!user) {
+                    // Double-check: wait a bit longer if we have stored tokens
+                    const hasStoredToken = Object.keys(localStorage).some(
+                        k => k.startsWith("sb-") && k.endsWith("-auth-token")
+                    );
+                    
+                    if (hasStoredToken) {
+                        // Give one more chance for session to restore
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                        const retrySession = await getSession();
+                        if (retrySession?.user) {
+                            // Session recovered, continue with permission check
+                            const retryUser = retrySession.user;
+                            await checkUserPermissions(retryUser);
+                            return;
+                        }
+                    }
+                    
                     // Truly unauthenticated: redirect to login
+                    console.log("[auth] No valid session found, redirecting to login");
                     window.location.replace("/login.html");
                     return;
                 }
 
-                // Retrieve role
-                let profile = await getUserProfile(user.id);
-                let role = String(profile?.role || "").trim().toLowerCase();
-                if (role === "administrator") role = "admin";
+                await checkUserPermissions(user);
 
-                if (!role) {
-                    // Check if teacher
-                    const { data: t } = await supabase
-                        .from("teachers")
-                        .select("id")
-                        .eq("user_id", user.id)
-                        .maybeSingle();
-                    if (t) role = "teacher";
-                }
-
-                // Verify access permissions based on path
-                if (pathname.startsWith("/teacher/")) {
-                    if (role && role !== "teacher" && role !== "admin") {
-                        const target = getRoleDashboard(role);
-                        if (target) {
-                            window.location.replace(target);
-                            return;
-                        }
-                    }
-                } else if (pathname.startsWith("/student/")) {
-                    if (role && role !== "student" && role !== "admin") {
-                        const target = getRoleDashboard(role);
-                        if (target) {
-                            window.location.replace(target);
-                            return;
-                        }
-                    }
-                } else if (pathname.startsWith("/parent/")) {
-                    if (role && role !== "parent" && role !== "admin") {
-                        const target = getRoleDashboard(role);
-                        if (target) {
-                            window.location.replace(target);
-                            return;
-                        }
-                    }
-                } else if (pathname.startsWith("/admin/")) {
-                    if (role && role !== "admin") {
-                        const target = getRoleDashboard(role);
-                        if (target) {
-                            window.location.replace(target);
-                            return;
-                        }
-                    }
-                }
-
-                // Access granted: reveal document
-                document.documentElement.style.visibility = "";
             } catch (error) {
                 console.warn("[auth] Protected-route check notice:", error);
                 // Do not redirect on non-auth network errors; restore visibility
                 document.documentElement.style.visibility = "";
             }
         })();
+        
+        async function checkUserPermissions(user) {
+            // Retrieve role
+            let profile = await getUserProfile(user.id);
+            let role = String(profile?.role || "").trim().toLowerCase();
+            if (role === "administrator") role = "admin";
+
+            if (!role) {
+                // Check if teacher
+                const { data: t } = await supabase
+                    .from("teachers")
+                    .select("id")
+                    .eq("user_id", user.id)
+                    .maybeSingle();
+                if (t) role = "teacher";
+            }
+
+            // Verify access permissions based on path
+            if (pathname.startsWith("/teacher/")) {
+                if (role && role !== "teacher" && role !== "admin") {
+                    const target = getRoleDashboard(role);
+                    if (target) {
+                        window.location.replace(target);
+                        return;
+                    }
+                }
+            } else if (pathname.startsWith("/student/")) {
+                if (role && role !== "student" && role !== "admin") {
+                    const target = getRoleDashboard(role);
+                    if (target) {
+                        window.location.replace(target);
+                        return;
+                    }
+                }
+            } else if (pathname.startsWith("/parent/")) {
+                if (role && role !== "parent" && role !== "admin") {
+                    const target = getRoleDashboard(role);
+                    if (target) {
+                        window.location.replace(target);
+                        return;
+                    }
+                }
+            } else if (pathname.startsWith("/admin/")) {
+                if (role && role !== "admin") {
+                    const target = getRoleDashboard(role);
+                    if (target) {
+                        window.location.replace(target);
+                        return;
+                    }
+                }
+            }
+
+            // Access granted: reveal document
+            document.documentElement.style.visibility = "";
+        }
     }
 }
