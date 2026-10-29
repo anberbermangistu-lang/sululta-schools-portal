@@ -804,6 +804,72 @@
                 </div>
             </div>
 
+            <!-- ── 4. Recorded Student Results & Re-Edit Section ── -->
+            <div class="result-card" id="recordedResultsCard" style="margin-top: 2.5rem; border-top: 3px solid #6366f1;">
+                <div class="result-card-header" style="flex-wrap: wrap; gap: 12px;">
+                    <div>
+                        <div class="result-card-title" style="color: #312e81;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                            Recorded Student Results &amp; Re-Edit
+                        </div>
+                        <p class="card-caption">View, search, and click "Re-Edit" to adjust marks for any student</p>
+                    </div>
+
+                    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                        <input type="text" id="recordedSearchInput" placeholder="Search student ID, name, or subject..." style="padding: 0.5rem 0.85rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.875rem; width: 250px; outline: none;">
+                        <select id="recordedExamFilter" style="padding: 0.5rem 0.85rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.875rem; outline: none;">
+                            <option value="">All Exams / Semesters</option>
+                        </select>
+                        <button type="button" class="btn-back" id="refreshRecordedBtn" style="cursor: pointer; font-size: 0.8125rem;">
+                            ↻ Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Active Re-Editing Banner -->
+                <div id="editingBanner" style="display: none; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 8px; color: #3730a3; font-size: 0.875rem; font-weight: 600;">
+                        <span>✏️</span>
+                        <span id="editingBannerText">Now Re-Editing result for STU001</span>
+                    </div>
+                    <button type="button" id="cancelReEditBtn" class="btn-back" style="padding: 0.25rem 0.6rem; font-size: 0.75rem; background: #ffffff; cursor: pointer;">
+                        Cancel Re-Edit
+                    </button>
+                </div>
+
+                <div class="assessment-table-wrapper" style="max-height: 480px; overflow-y: auto;">
+                    <table class="assessment-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 45px;">#</th>
+                                <th>Student ID</th>
+                                <th>Student Name</th>
+                                <th>Class &amp; Sec</th>
+                                <th>Subject</th>
+                                <th>Exam / Semester</th>
+                                <th>Mark /100</th>
+                                <th>Status</th>
+                                <th>Remark</th>
+                                <th style="width: 140px; text-align: center;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recordedResultsTbody">
+                            <tr>
+                                <td colspan="10" style="text-align: center; color: #94a3b8; padding: 2.5rem 1rem; font-size: 0.875rem;">
+                                    Loading recorded student results...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- ── Bottom Action Buttons ── -->
             <div class="form-actions-bar">
                 <a href="/teacher/dashboard.html" class="btn-cancel">Cancel</a>

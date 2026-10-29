@@ -2,28 +2,263 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile | Sululta School Portal</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/src/style.css">
+    <style>
+        .profile-layout-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+        .profile-photo-card {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-    <title>
-        My Profile | Sululta School
-    </title>
+        .avatar-wrapper {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 1.25rem;
+        }
 
-    <link
-        rel="icon"
-        href="data:,"
-    >
+        .profile-avatar-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: #ffffff;
+            font-size: 3.25rem;
+            font-weight: 700;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+            border: 4px solid #ffffff;
+        }
 
-    <link
-        rel="stylesheet"
-        href="/src/style.css"
-    >
+        .profile-avatar-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
 
+        .btn-photo-upload-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0.5rem 1rem;
+            background: #eff6ff;
+            color: #2563eb;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        .btn-photo-upload-label:hover {
+            background: #2563eb;
+            color: #ffffff;
+            border-color: #2563eb;
+        }
+
+        .photo-hint {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 0.4rem;
+        }
+
+        .profile-card-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-top: 0.75rem;
+        }
+
+        .profile-card-badge {
+            display: inline-block;
+            background: #f1f5f9;
+            color: #475569;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            margin-top: 0.35rem;
+        }
+
+        /* ── Details Card ── */
+        .profile-info-card {
+            background: #ffffff;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            padding: 1.75rem;
+        }
+
+        .info-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1.25rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #f1f5f9;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .info-card-header h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .info-card-header p {
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .profile-details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .detail-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .detail-item span {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #64748b;
+        }
+
+        .detail-item strong {
+            font-size: 0.95rem;
+            color: #0f172a;
+            word-break: break-word;
+        }
+
+        /* ── Edit Form Inputs ── */
+        .edit-form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .edit-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .edit-field label {
+            font-size: 0.8125rem;
+            font-weight: 700;
+            color: #334155;
+        }
+
+        .edit-field label span {
+            color: #ef4444;
+        }
+
+        .edit-field input,
+        .edit-field select,
+        .edit-field textarea {
+            padding: 0.65rem 0.85rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            color: #1e293b;
+            background: #ffffff;
+            outline: none;
+            transition: all 0.15s;
+        }
+
+        .edit-field input:focus,
+        .edit-field select:focus,
+        .edit-field textarea:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        .edit-actions-bar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 1.75rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .btn-edit-primary {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: #ffffff;
+            padding: 0.6rem 1.4rem;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-edit-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+        }
+
+        .btn-edit-cancel {
+            background: #ffffff;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .btn-edit-cancel:hover {
+            background: #f8fafc;
+        }
+
+        @media (max-width: 900px) {
+            .profile-layout-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -31,402 +266,243 @@
 <div class="admin-page">
 
     <aside class="admin-sidebar">
-
         <div class="sidebar-brand">
-
-            <div class="school-logo">
-                SS
-            </div>
-
+            <div class="school-logo">SS</div>
             <div class="school-info">
-
-                <strong>
-                    Sululta School
-                </strong>
-
-                <span>
-                    Teacher Portal
-                </span>
-
+                <strong>Sululta School</strong>
+                <span>Teacher Portal</span>
             </div>
-
         </div>
 
         <nav class="sidebar-menu">
-
-            <div class="menu-title">
-                MAIN
-            </div>
-
-            <a
-                href="/teacher/dashboard.html"
-                class="sidebar-link"
-            >
+            <div class="menu-title">MAIN</div>
+            <a href="/teacher/dashboard.html" class="sidebar-link">
                 <span>🏠</span>
                 <span>Dashboard</span>
             </a>
 
-            <div class="menu-title">
-                ACADEMIC
-            </div>
-
-            <a
-                href="/teacher/classes.html"
-                class="sidebar-link"
-            >
+            <div class="menu-title">ACADEMIC</div>
+            <a href="/teacher/classes.html" class="sidebar-link">
                 <span>🏫</span>
                 <span>My Classes</span>
             </a>
-
-            <a
-                href="/teacher/students.html"
-                class="sidebar-link"
-            >
+            <a href="/teacher/students.html" class="sidebar-link">
                 <span>👨‍🎓</span>
                 <span>My Students</span>
             </a>
-
-            <a
-                href="/teacher/attendance.html"
-                class="sidebar-link"
-            >
+            <a href="/teacher/attendance.html" class="sidebar-link">
                 <span>✓</span>
                 <span>Attendance</span>
             </a>
-
-            <a
-                href="/teacher/results.html"
-                class="sidebar-link"
-            >
+            <a href="/teacher/results.html" class="sidebar-link">
                 <span>📊</span>
                 <span>Results</span>
             </a>
-
-            <a
-                href="/teacher/timetable.html"
-                class="sidebar-link"
-            >
+            <a href="/teacher/timetable.html" class="sidebar-link">
                 <span>🗓️</span>
                 <span>Timetable</span>
             </a>
 
-            <div class="menu-title">
-                ACCOUNT
-            </div>
-
-            <a
-                href="/teacher/profile.html"
-                class="sidebar-link active"
-            >
+            <div class="menu-title">ACCOUNT</div>
+            <a href="/teacher/profile.html" class="sidebar-link active">
                 <span>👤</span>
                 <span>My Profile</span>
             </a>
-
-            <a
-                href="/teacher/password.html"
-                class="sidebar-link"
-            >
+            <a href="/teacher/password.html" class="sidebar-link">
                 <span>🔐</span>
                 <span>Change Password</span>
             </a>
-
         </nav>
 
         <div class="sidebar-bottom">
-
-            <button
-                type="button"
-                class="logout-button"
-                id="logoutButton"
-            >
+            <button type="button" class="logout-button" id="logoutButton">
                 <span>↪</span>
                 <span>Logout</span>
             </button>
-
         </div>
-
     </aside>
 
     <main class="admin-main">
-
         <header class="admin-header">
-
             <div class="header-left">
-
-                <button
-                    type="button"
-                    class="sidebar-toggle"
-                    id="sidebarToggle"
-                    aria-label="Toggle sidebar"
-                >
+                <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
                     ☰
                 </button>
-
                 <div>
-
-                    <span class="header-label">
-                        TEACHER PORTAL
-                    </span>
-
-                    <h1>
-                        My Profile
-                    </h1>
-
+                    <span class="header-label">TEACHER PORTAL</span>
+                    <h1>My Profile</h1>
                 </div>
-
             </div>
 
             <div class="admin-profile">
-
-                <div
-                    class="admin-avatar"
-                    id="teacherAvatar"
-                >
-                    T
-                </div>
-
+                <div class="admin-avatar" id="teacherAvatar">T</div>
                 <div class="admin-profile-info">
-
-                    <strong id="teacherHeaderName">
-                        Teacher
-                    </strong>
-
-                    <span>
-                        Teacher
-                    </span>
-
+                    <strong id="teacherHeaderName">Teacher</strong>
+                    <span>Teacher</span>
                 </div>
-
             </div>
-
         </header>
 
-        <section class="dashboard-content">
-
-            <div class="page-header">
-
+        <section class="dashboard-content" style="padding: 2rem; max-width: 1300px; margin: 0 auto;">
+            <div class="page-header" style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                 <div>
-
-                    <span class="welcome-label">
-                        ACCOUNT
-                    </span>
-
-                    <h2>
-                        My Profile
-                    </h2>
-
-                    <p>
-                        View your teacher account information.
-                    </p>
-
+                    <span class="welcome-label" style="font-size: 0.75rem; font-weight: 700; color: #64748b; letter-spacing: 0.05em; text-transform: uppercase;">TEACHER ACCOUNT</span>
+                    <h2 style="font-size: 1.5rem; font-weight: 800; color: #0f172a; margin-top: 2px;">Profile & Personal Information</h2>
+                    <p style="color: #64748b; font-size: 0.875rem;">Manage your teacher account, personal details, and profile photo.</p>
                 </div>
-
-                <button
-                    type="button"
-                    class="btn btn-secondary"
-                    id="refreshProfile"
-                >
-                    ↻ Refresh
-                </button>
-
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" class="btn-edit-primary" id="toggleEditBtn">
+                        ✏️ Edit Information
+                    </button>
+                    <button type="button" class="btn-edit-cancel" id="refreshProfile">
+                        ↻ Refresh
+                    </button>
+                </div>
             </div>
 
-            <div
-                id="profileMessage"
-                class="message"
-                hidden
-            ></div>
+            <div id="profileMessage" class="message" hidden style="margin-bottom: 1.5rem;"></div>
 
-            <section class="dashboard-panel profile-panel">
-
-                <div class="panel-header">
-
-                    <div>
-
-                        <h2>
-                            Teacher Information
-                        </h2>
-
-                        <p>
-                            Your registered school information.
-                        </p>
-
-                    </div>
-
-                </div>
-
-                <div class="profile-content">
-
-                    <div class="profile-photo-section">
-
-                        <div
-                            class="profile-large-avatar"
-                            id="profileAvatar"
-                        >
+            <div class="profile-layout-grid">
+                <!-- Left: Profile Photo & Card -->
+                <div class="profile-photo-card">
+                    <div class="avatar-wrapper">
+                        <div class="profile-avatar-circle" id="profileAvatar">
                             T
                         </div>
-
-                        <h3 id="profileTeacherName">
-                            Loading...
-                        </h3>
-
-                        <span id="profileTeacherId">
-                            Teacher ID
-                        </span>
-
                     </div>
 
-                    <div class="profile-details">
+                    <label for="photoFileInput" class="btn-photo-upload-label" id="uploadPhotoLabel">
+                        📷 Upload Profile Photo
+                    </label>
+                    <input type="file" id="photoFileInput" accept="image/png, image/jpeg, image/jpg, image/webp" style="display: none;">
+                    <span class="photo-hint">Supports PNG, JPG, or WebP (max 4MB)</span>
 
-                        <div class="profile-detail-card">
+                    <h3 class="profile-card-name" id="profileTeacherName">Teacher</h3>
+                    <span class="profile-card-badge" id="profileTeacherId">Teacher ID</span>
+                    <span style="font-size: 0.8125rem; color: #10b981; font-weight: 600; margin-top: 0.5rem;" id="photoStatusText"></span>
+                </div>
 
-                            <span>
-                                First Name
-                            </span>
-
-                            <strong id="firstName">
-                                Loading...
-                            </strong>
-
+                <!-- Right: Information & Edit Form -->
+                <div class="profile-info-card">
+                    <!-- 1. VIEW MODE -->
+                    <div id="profileViewMode">
+                        <div class="info-card-header">
+                            <div>
+                                <h2>Teacher Information</h2>
+                                <p>Your registered school and contact information.</p>
+                            </div>
                         </div>
 
-                        <div class="profile-detail-card">
+                        <div class="profile-details-grid">
+                            <div class="detail-item">
+                                <span>First Name</span>
+                                <strong id="firstName">Loading...</strong>
+                            </div>
+                            <div class="detail-item">
+                                <span>Last Name</span>
+                                <strong id="lastName">Loading...</strong>
+                            </div>
+                            <div class="detail-item">
+                                <span>Teacher ID</span>
+                                <strong id="teacherId">Loading...</strong>
+                            </div>
+                            <div class="detail-item">
+                                <span>Gender</span>
+                                <strong id="gender">Loading...</strong>
+                            </div>
+                            <div class="detail-item">
+                                <span>Phone Number</span>
+                                <strong id="phone">Loading...</strong>
+                            </div>
+                            <div class="detail-item">
+                                <span>Email Address</span>
+                                <strong id="email">Loading...</strong>
+                            </div>
+                            <div class="detail-item">
+                                <span>Qualification</span>
+                                <strong id="qualification">Loading...</strong>
+                            </div>
+                            <div class="detail-item">
+                                <span>Account Status</span>
+                                <strong id="status" style="color: #16a34a;">Active</strong>
+                            </div>
+                            <div class="detail-item" style="grid-column: span 2;">
+                                <span>Residential Address</span>
+                                <strong id="address">Loading...</strong>
+                            </div>
+                            <div class="detail-item">
+                                <span>Joined Date</span>
+                                <strong id="createdAt">Loading...</strong>
+                            </div>
+                        </div>
+                    </div>
 
-                            <span>
-                                Last Name
-                            </span>
-
-                            <strong id="lastName">
-                                Loading...
-                            </strong>
-
+                    <!-- 2. EDIT MODE (HIDDEN INITIALLY) -->
+                    <div id="profileEditMode" style="display: none;">
+                        <div class="info-card-header">
+                            <div>
+                                <h2>Edit Teacher Information</h2>
+                                <p>Update your personal and contact details.</p>
+                            </div>
                         </div>
 
-                        <div class="profile-detail-card">
+                        <form id="editProfileForm">
+                            <div class="edit-form-grid">
+                                <div class="edit-field">
+                                    <label for="editFirstName">First Name <span>*</span></label>
+                                    <input type="text" id="editFirstName" required placeholder="First Name">
+                                </div>
+                                <div class="edit-field">
+                                    <label for="editLastName">Last Name <span>*</span></label>
+                                    <input type="text" id="editLastName" required placeholder="Last Name">
+                                </div>
+                                <div class="edit-field">
+                                    <label for="editGender">Gender</label>
+                                    <select id="editGender">
+                                        <option value="">Select Gender</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="edit-field">
+                                    <label for="editPhone">Phone Number</label>
+                                    <input type="tel" id="editPhone" placeholder="e.g. +251 91 123 4567">
+                                </div>
+                                <div class="edit-field">
+                                    <label for="editEmail">Email Address</label>
+                                    <input type="email" id="editEmail" placeholder="teacher@sulultaschool.edu.et">
+                                </div>
+                                <div class="edit-field">
+                                    <label for="editQualification">Qualification</label>
+                                    <input type="text" id="editQualification" placeholder="e.g. B.Ed in Mathematics, M.Sc">
+                                </div>
+                                <div class="edit-field" style="grid-column: span 2;">
+                                    <label for="editAddress">Address</label>
+                                    <textarea id="editAddress" rows="2" placeholder="Residential Address / City"></textarea>
+                                </div>
+                            </div>
 
-                            <span>
-                                Teacher ID
-                            </span>
-
-                            <strong id="teacherId">
-                                Loading...
-                            </strong>
-
-                        </div>
-
-                        <div class="profile-detail-card">
-
-                            <span>
-                                Gender
-                            </span>
-
-                            <strong id="gender">
-                                Loading...
-                            </strong>
-
-                        </div>
-
-                        <div class="profile-detail-card">
-
-                            <span>
-                                Phone
-                            </span>
-
-                            <strong id="phone">
-                                Loading...
-                            </strong>
-
-                        </div>
-
-                        <div class="profile-detail-card">
-
-                            <span>
-                                Email
-                            </span>
-
-                            <strong id="email">
-                                Loading...
-                            </strong>
-
-                        </div>
-
-                        <div class="profile-detail-card">
-
-                            <span>
-                                Qualification
-                            </span>
-
-                            <strong id="qualification">
-                                Loading...
-                            </strong>
-
-                        </div>
-
-                        <div class="profile-detail-card">
-
-                            <span>
-                                Status
-                            </span>
-
-                            <strong id="status">
-                                Loading...
-                            </strong>
-
-                        </div>
-
-                        <div class="profile-detail-card profile-detail-full">
-
-                            <span>
-                                Address
-                            </span>
-
-                            <strong id="address">
-                                Loading...
-                            </strong>
-
-                        </div>
-
-                        <div class="profile-detail-card">
-
-                            <span>
-                                Joined
-                            </span>
-
-                            <strong id="createdAt">
-                                Loading...
-                            </strong>
-
-                        </div>
-
+                            <div class="edit-actions-bar">
+                                <button type="button" class="btn-edit-cancel" id="cancelEditBtn">Cancel</button>
+                                <button type="submit" class="btn-edit-primary" id="saveProfileBtn">
+                                    💾 Save Changes
+                                </button>
+                            </div>
+                        </form>
                     </div>
 
                 </div>
-
-            </section>
-
+            </div>
         </section>
 
         <footer class="admin-footer">
-
-            <span>
-                © 2026 Sululta School
-            </span>
-
-            <span>
-                Teacher Portal
-            </span>
-
+            <span>© 2026 Sululta School</span>
+            <span>Teacher Portal</span>
         </footer>
-
     </main>
-
 </div>
 
-<script
-    type="module"
-    src="/src/teacher-profile.js"
-></script>
-
+<script type="module" src="/src/teacher-profile.js"></script>
 </body>
-
 </html>

@@ -21,6 +21,9 @@ let allSubjects = [];
 let subjectRows = [];
 let resolvedStudent = null;
 let lookupTimer = null;
+let editingResultId = null;
+let cachedRecordedResults = [];
+let cachedStudentsMap = new Map();
 
 /* ──────────────────────────────────────────────────────────────
    INIT ON DOM READY
@@ -37,8 +40,10 @@ async function initTeacherResults() {
     setupAddSubject();
     setupSaveResults();
     setupExcelTeacherUpload();
+    setupRecordedResultsControls();
 
     await loadSubjects();
+    await loadRecordedResults();
 }
 
 /* ──────────────────────────────────────────────────────────────
@@ -57,7 +62,7 @@ async function checkTeacherAuth() {
     // Fetch profile
     const { data: profile, error: profileError } = await supabase
         .from("profiles")
-        .select("id, role, status, first_name, last_name")
+        .select("id, role, status, first_name, last_name, avatar_url")
         .eq("id", user.id)
         .maybeSingle();
 
@@ -89,11 +94,19 @@ async function checkTeacherAuth() {
         ? `${teacherRecord.first_name} ${teacherRecord.last_name || ""}`.trim()
         : (profile.first_name ? `${profile.first_name} ${profile.last_name || ""}`.trim() : "Teacher");
 
+    const photo = teacherRecord?.photo_url || profile.avatar_url || localStorage.getItem(`sululta_teacher_photo_${teacherRecord?.id}`);
+
     const headerNameEl = document.getElementById("teacherHeaderName");
     const avatarEl = document.getElementById("teacherAvatar");
 
     if (headerNameEl) headerNameEl.textContent = displayName;
-    if (avatarEl) avatarEl.textContent = displayName[0] ? displayName[0].toUpperCase() : "T";
+    if (avatarEl) {
+        if (photo) {
+            avatarEl.innerHTML = `<img src="${photo}" alt="${displayName}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+        } else {
+            avatarEl.textContent = displayName[0] ? displayName[0].toUpperCase() : "T";
+        }
+    }
 
     return true;
 }
@@ -189,7 +202,7 @@ function setupStudentLookup() {
         lookupTimer = setTimeout(async () => {
             const { data, error } = await supabase
                 .from("students")
-                .select("student_id, first_name, last_name, class")
+                .select("student_id, first_name, last_name, class, section")
                 .ilike("student_id", val)
                 .maybeSingle();
 
@@ -200,25 +213,24 @@ function setupStudentLookup() {
 
                 if (previewEl) {
                     previewEl.className = "student-preview-pill ok";
-                    previewEl.textContent = `✓ ${fullName}${data.class ? " — " + data.class : ""}`;
+                    const sec = data.section ? ` - Sec ${data.section}` : "";
+                    previewEl.textContent = `✓ ${fullName} (${data.class || "Student"}${sec})`;
                     previewEl.style.display = "inline-block";
                 }
             } else {
-                resolvedStudent = null;
                 if (previewEl) {
                     previewEl.className = "student-preview-pill err";
-                    previewEl.textContent = "⚠ Student ID not found";
+                    previewEl.textContent = `✕ No student found for "${val}"`;
                     previewEl.style.display = "inline-block";
                 }
             }
-
             updateSummaryAndActions();
-        }, 350);
+        }, 300);
     });
 }
 
 /* ──────────────────────────────────────────────────────────────
-   ADD & RENDER SUBJECTS
+   SUBJECT ROW MANAGEMENT
 ────────────────────────────────────────────────────────────── */
 function setupAddSubject() {
     const addBtn = document.getElementById("addSubjectBtn");
@@ -402,7 +414,7 @@ function updateSummaryAndActions() {
 }
 
 /* ──────────────────────────────────────────────────────────────
-   SAVE RESULTS
+   SAVE OR UPDATE RESULTS
 ────────────────────────────────────────────────────────────── */
 function setupSaveResults() {
     const saveBtn = document.getElementById("saveResultsBtn");
@@ -425,39 +437,62 @@ function setupSaveResults() {
         const examType = `${semester} — ${academicYear}`;
 
         saveBtn.disabled = true;
-        saveBtn.textContent = "Saving...";
-
-        const inserts = rowsWithMarks.map(r => ({
-            student_id:   resolvedStudent.student_id,
-            subject_code: r.code,
-            exam_type:    examType,
-            mark:         r.total,
-            grade:        null,
-            remark:       getPerformanceRemark(r.total),
-            recorded_by:  currentUser?.id || null
-        }));
+        saveBtn.textContent = editingResultId ? "Updating..." : "Saving...";
 
         try {
-            // Remove previous entries for this student & semester to allow seamless update
-            await supabase
-                .from("results")
-                .delete()
-                .eq("student_id", resolvedStudent.student_id)
-                .eq("exam_type", examType);
+            if (editingResultId) {
+                // Re-edit single record
+                const r = rowsWithMarks[0];
+                const { error: updateErr } = await supabase
+                    .from("results")
+                    .update({
+                        student_id:   resolvedStudent.student_id,
+                        subject_code: r.code,
+                        exam_type:    examType,
+                        mark:         r.total,
+                        remark:       getPerformanceRemark(r.total),
+                        updated_at:   new Date().toISOString()
+                    })
+                    .eq("id", editingResultId);
 
-            const { error: insertError } = await supabase
-                .from("results")
-                .insert(inserts);
+                if (updateErr) throw updateErr;
 
-            if (insertError) {
-                throw insertError;
-            }
+                showToast(`✓ Result for ${resolvedStudent.student_id} (${r.code}) updated successfully!`, "success");
+                cancelReEdit();
 
-            const studentFullName = `${resolvedStudent.first_name || ""} ${resolvedStudent.last_name || ""}`.trim();
-            showToast(`Results saved successfully for ${studentFullName}! ${inserts.length} subject(s) recorded.`, "success");
+            } else {
+                // Normal bulk save or new student results
+                const inserts = rowsWithMarks.map(r => ({
+                    student_id:   resolvedStudent.student_id,
+                    subject_code: r.code,
+                    exam_type:    examType,
+                    mark:         r.total,
+                    grade:        null,
+                    remark:       getPerformanceRemark(r.total),
+                    recorded_by:  currentUser?.id || null
+                }));
 
-            // Reset form for next entry or offer quick return
-            setTimeout(() => {
+                // Delete previous entries for this student & semester to prevent duplicates
+                try {
+                    await supabase
+                        .from("results")
+                        .delete()
+                        .eq("student_id", resolvedStudent.student_id)
+                        .eq("exam_type", examType);
+                } catch (delErr) {
+                    console.warn("Notice on delete previous:", delErr);
+                }
+
+                const { error: insertError } = await supabase
+                    .from("results")
+                    .insert(inserts);
+
+                if (insertError) throw insertError;
+
+                const studentFullName = `${resolvedStudent.first_name || ""} ${resolvedStudent.last_name || ""}`.trim();
+                showToast(`✓ Results saved successfully for ${studentFullName}! ${inserts.length} subject(s) recorded.`, "success");
+
+                // Reset form
                 subjectRows = [];
                 renderSubjectTable();
                 refreshSubjectDropdown();
@@ -467,18 +502,269 @@ function setupSaveResults() {
                 if (previewEl) previewEl.style.display = "none";
                 resolvedStudent = null;
                 updateSummaryAndActions();
-                saveBtn.disabled = true;
-                saveBtn.textContent = "Save Results";
-            }, 1800);
+            }
+
+            // Reload recorded results table
+            await loadRecordedResults();
 
         } catch (err) {
             console.error("Error saving results:", err);
             showToast(`Error saving results: ${err.message || err}`, "error");
+        } finally {
             saveBtn.disabled = false;
-            saveBtn.textContent = "Save Results";
+            saveBtn.textContent = editingResultId ? "💾 Update Student Result" : "Save Results";
         }
     });
 }
+
+/* ──────────────────────────────────────────────────────────────
+   RECORDED STUDENT RESULTS & RE-EDIT ENGINE
+────────────────────────────────────────────────────────────── */
+async function loadRecordedResults() {
+    const tbody = document.getElementById("recordedResultsTbody");
+    if (!tbody) return;
+
+    try {
+        const [resultsRes, studentsRes] = await Promise.all([
+            supabase
+                .from("results")
+                .select("id, student_id, subject_code, exam_type, mark, remark, created_at, recorded_by")
+                .order("created_at", { ascending: false }),
+            supabase
+                .from("students")
+                .select("id, student_id, first_name, last_name, class, section")
+        ]);
+
+        cachedRecordedResults = resultsRes.data || [];
+        const students = studentsRes.data || [];
+
+        cachedStudentsMap.clear();
+        students.forEach(s => {
+            if (s.student_id) cachedStudentsMap.set(String(s.student_id).trim().toUpperCase(), s);
+        });
+
+        // Populate exam filter options
+        const examFilter = document.getElementById("recordedExamFilter");
+        if (examFilter) {
+            const currentVal = examFilter.value;
+            const uniqueExams = [...new Set(cachedRecordedResults.map(r => r.exam_type).filter(Boolean))].sort();
+            examFilter.innerHTML = '<option value="">All Exams / Semesters</option>' +
+                uniqueExams.map(ex => `<option value="${escapeHtml(ex)}" ${currentVal === ex ? "selected" : ""}>${escapeHtml(ex)}</option>`).join("");
+        }
+
+        renderRecordedResultsTable();
+
+    } catch (err) {
+        console.error("Error loading recorded results:", err);
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; color: #ef4444; padding: 2rem;">Failed to load results.</td></tr>';
+    }
+}
+
+function renderRecordedResultsTable() {
+    const tbody = document.getElementById("recordedResultsTbody");
+    if (!tbody) return;
+
+    const search = document.getElementById("recordedSearchInput")?.value.trim().toLowerCase() || "";
+    const examFilter = document.getElementById("recordedExamFilter")?.value || "";
+
+    const filtered = cachedRecordedResults.filter(r => {
+        const sid = String(r.student_id || "").toLowerCase();
+        const sub = String(r.subject_code || "").toLowerCase();
+        const exam = String(r.exam_type || "").toLowerCase();
+        const st = cachedStudentsMap.get(String(r.student_id || "").trim().toUpperCase());
+        const sName = st ? `${st.first_name || ""} ${st.last_name || ""}`.toLowerCase() : "";
+
+        const matchSearch = !search || sid.includes(search) || sub.includes(search) || exam.includes(search) || sName.includes(search);
+        const matchExam = !examFilter || r.exam_type === examFilter;
+        return matchSearch && matchExam;
+    });
+
+    if (!filtered.length) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="10" style="text-align: center; color: #94a3b8; padding: 2.5rem 1rem;">
+                    No recorded student results found matching your criteria.
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = filtered.map((r, i) => {
+        const mark = parseFloat(r.mark) || 0;
+        const pass = mark >= 50;
+        const sid = String(r.student_id || "").trim().toUpperCase();
+        const st = cachedStudentsMap.get(sid);
+        const sName = st ? `${st.first_name || ""} ${st.last_name || ""}`.trim() : "—";
+        const classStr = st?.class ? `${st.class} ${st.section ? `(${st.section})` : ""}` : "—";
+
+        return `
+            <tr>
+                <td><strong style="color: #64748b;">${i + 1}</strong></td>
+                <td><strong>${escapeHtml(r.student_id || "N/A")}</strong></td>
+                <td>${escapeHtml(sName)}</td>
+                <td><span style="font-size: 0.8125rem; background: #f1f5f9; padding: 2px 8px; border-radius: 4px; font-weight: 600;">${escapeHtml(classStr)}</span></td>
+                <td><strong style="color: #4f46e5;">${escapeHtml(r.subject_code || "N/A")}</strong></td>
+                <td><small style="color: #64748b; font-weight: 500;">${escapeHtml(r.exam_type || "N/A")}</small></td>
+                <td><strong style="font-size: 0.9375rem; color: #0f172a;">${mark}</strong></td>
+                <td>
+                    <span class="status-pill ${pass ? "pass" : "fail"}">
+                        ${pass ? "Pass" : "Fail"}
+                    </span>
+                </td>
+                <td><small style="color: #475569; font-weight: 500;">${escapeHtml(r.remark || (pass ? "Pass" : "Fail"))}</small></td>
+                <td style="text-align: center;">
+                    <div style="display: flex; gap: 6px; justify-content: center; align-items: center;">
+                        <button type="button" class="btn-back" style="padding: 4px 10px; font-size: 11px; background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe; cursor: pointer; font-weight: 700; border-radius: 6px;" onclick="window.reEditResult('${r.id}')" title="Re-edit this result">
+                            ✏️ Re-Edit
+                        </button>
+                        <button type="button" class="btn-remove-row" style="font-size: 13px; padding: 4px 6px;" onclick="window.deleteStudentResult('${r.id}')" title="Delete result">
+                            🗑️
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join("");
+}
+
+function setupRecordedResultsControls() {
+    document.getElementById("recordedSearchInput")?.addEventListener("input", renderRecordedResultsTable);
+    document.getElementById("recordedExamFilter")?.addEventListener("change", renderRecordedResultsTable);
+    document.getElementById("refreshRecordedBtn")?.addEventListener("click", loadRecordedResults);
+    document.getElementById("cancelReEditBtn")?.addEventListener("click", cancelReEdit);
+}
+
+/* ──────────────────────────────────────────────────────────────
+   RE-EDIT RESULT ACTION
+────────────────────────────────────────────────────────────── */
+window.reEditResult = function(resultId) {
+    const result = cachedRecordedResults.find(r => String(r.id) === String(resultId));
+    if (!result) return;
+
+    editingResultId = result.id;
+
+    // 1. Fill Student ID
+    const studentIdInput = document.getElementById("studentId");
+    const studentNameInput = document.getElementById("studentName");
+    const previewEl = document.getElementById("studentPreview");
+
+    if (studentIdInput) studentIdInput.value = result.student_id;
+
+    // 2. Resolve Student
+    const sid = String(result.student_id || "").trim().toUpperCase();
+    const st = cachedStudentsMap.get(sid);
+    const fullName = st ? `${st.first_name || ""} ${st.last_name || ""}`.trim() : "Student";
+    if (studentNameInput) studentNameInput.value = fullName;
+
+    resolvedStudent = {
+        student_id: result.student_id,
+        first_name: st?.first_name || "",
+        last_name: st?.last_name || "",
+        class: st?.class || "",
+        section: st?.section || ""
+    };
+
+    if (previewEl) {
+        previewEl.className = "student-preview-pill ok";
+        const sec = st?.section ? ` - Sec ${st.section}` : "";
+        previewEl.textContent = `✓ ${fullName} (${st?.class || "Student"}${sec})`;
+        previewEl.style.display = "inline-block";
+    }
+
+    // 3. Match Semester & Academic Year
+    const examStr = String(result.exam_type || "");
+    const semSelect = document.getElementById("semester");
+    if (semSelect) {
+        if (examStr.includes("Semester 2")) semSelect.value = "Semester 2";
+        else semSelect.value = "Semester 1";
+    }
+
+    const yearSelect = document.getElementById("academicYear");
+    if (yearSelect) {
+        const yearMatch = examStr.match(/\d{4}\/\d{4}/);
+        if (yearMatch && yearMatch[0]) {
+            yearSelect.value = yearMatch[0];
+        }
+    }
+
+    // 4. Populate Subject & Assessment breakdown
+    const subjectMatch = allSubjects.find(s => s.subject_code === result.subject_code);
+    const subName = subjectMatch ? subjectMatch.subject_name : (result.subject_code || "Subject");
+    const markVal = parseFloat(result.mark) || 0;
+
+    // Distribute into assessment categories with exact sum matching markVal
+    const a = Math.min(10, Math.round(markVal * 0.10 * 10) / 10);
+    const q = Math.min(10, Math.round(markVal * 0.10 * 10) / 10);
+    const t = Math.min(20, Math.round(markVal * 0.20 * 10) / 10);
+    const m = Math.min(25, Math.round(markVal * 0.25 * 10) / 10);
+    const f = Math.round((markVal - a - q - t - m) * 10) / 10;
+
+    subjectRows = [{
+        code: result.subject_code,
+        name: subName,
+        marks: { assignment: a, quiz: q, test: t, midterm: m, final: Math.max(0, f) },
+        total: markVal
+    }];
+
+    renderSubjectTable();
+    refreshSubjectDropdown();
+
+    // 5. Active Editing Banner
+    const banner = document.getElementById("editingBanner");
+    const bannerText = document.getElementById("editingBannerText");
+    if (banner && bannerText) {
+        bannerText.textContent = `Now Re-Editing result for ${result.student_id} (${subName} — ${markVal}/100)`;
+        banner.style.display = "flex";
+    }
+
+    // 6. Update Save Button
+    const saveBtn = document.getElementById("saveResultsBtn");
+    if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.textContent = `💾 Update Result for ${result.student_id}`;
+    }
+
+    // 7. Scroll to editor
+    studentIdInput?.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    showToast(`Loaded result for ${result.student_id}. Make your adjustments in the table and click 'Update Result'.`, "success");
+};
+
+function cancelReEdit() {
+    editingResultId = null;
+
+    const banner = document.getElementById("editingBanner");
+    if (banner) banner.style.display = "none";
+
+    const saveBtn = document.getElementById("saveResultsBtn");
+    if (saveBtn) saveBtn.textContent = "Save Results";
+
+    // Clear form
+    subjectRows = [];
+    renderSubjectTable();
+    refreshSubjectDropdown();
+    document.getElementById("studentId").value = "";
+    document.getElementById("studentName").value = "";
+    const previewEl = document.getElementById("studentPreview");
+    if (previewEl) previewEl.style.display = "none";
+    resolvedStudent = null;
+    updateSummaryAndActions();
+}
+
+window.deleteStudentResult = async function(resultId) {
+    if (!confirm("Are you sure you want to delete this student result? This action cannot be undone.")) return;
+
+    try {
+        const { error } = await supabase.from("results").delete().eq("id", resultId);
+        if (error) throw error;
+        showToast("Student result deleted successfully.", "success");
+        await loadRecordedResults();
+    } catch (err) {
+        console.error("Delete error:", err);
+        showToast("Error deleting result: " + err.message, "error");
+    }
+};
 
 /* ──────────────────────────────────────────────────────────────
    HELPERS
@@ -499,7 +785,6 @@ function escapeHtml(str) {
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
 }
-
 
 /* ──────────────────────────────────────────────────────────────
    TEACHER EXCEL BULK UPLOAD & SEND TO ADMIN
@@ -522,14 +807,7 @@ function setupExcelTeacherUpload() {
         }
     }, 200);
 
-    downloadTemplateBtn?.addEventListener("click", () => {
-        downloadTeacherExcelTemplate();
-    });
-
-    fileInput?.addEventListener("change", (e) => {
-        handleTeacherExcelSelect(e);
-    });
-
+    downloadTemplateBtn?.addEventListener("click", downloadTeacherExcelTemplate);
     clearBtn?.addEventListener("click", () => {
         parsedExcelRows = [];
         if (fileInput) fileInput.value = "";
@@ -537,58 +815,57 @@ function setupExcelTeacherUpload() {
         if (preview) preview.style.display = "none";
     });
 
-    sendBtn?.addEventListener("click", async () => {
-        await submitExcelReportToAdmin();
-    });
+    fileInput?.addEventListener("change", handleTeacherExcelFileSelect);
+    sendBtn?.addEventListener("click", handleSendExcelReportToAdmin);
 }
 
-function handleTeacherExcelSelect(event) {
-    const file = event.target.files?.[0];
+function handleTeacherExcelFileSelect(e) {
+    const file = e.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = function(evt) {
         try {
             let json = [];
             if (typeof XLSX !== "undefined") {
-                const data = new Uint8Array(e.target.result);
+                const data = new Uint8Array(evt.target.result);
                 const workbook = XLSX.read(data, { type: "array" });
-                const firstSheet = workbook.SheetNames[0];
-                json = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
+                const firstSheetName = workbook.SheetNames[0];
+                json = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheetName]);
             }
 
-            if (!json || !json.length) {
-                alert("The selected Excel file is empty or does not have standard columns.");
+            if (!json.length) {
+                alert("The selected Excel file is empty or formatted incorrectly.");
                 return;
             }
 
+            // Normalize fields
             parsedExcelRows = [];
             json.forEach(row => {
-                const sid = row["Student ID"] || row["student_id"] || row["StudentID"] || row["ID"];
-                const name = row["Student Name"] || row["student_name"] || row["Name"] || "Student";
-                const mark = parseFloat(row["Mark"] || row["mark"] || row["Score"] || row["Total"] || 0);
+                const sid = row["Student ID"] || row["student_id"] || row["ID"];
+                const sname = row["Student Name"] || row["student_name"] || row["Name"] || "Student";
+                const mark = parseFloat(row["Mark"] || row["mark"] || row["Score"] || 0);
                 const remark = row["Remark"] || row["remark"] || (mark >= 50 ? "Pass" : "Fail");
 
                 if (sid) {
                     parsedExcelRows.push({
                         student_id: String(sid).trim().toUpperCase(),
-                        student_name: String(name).trim(),
+                        student_name: sname,
                         mark: mark,
-                        status: mark >= 50 ? "PASS" : "FAIL",
                         remark: remark
                     });
                 }
             });
 
             if (!parsedExcelRows.length) {
-                alert("Could not find any student records. Ensure column names are 'Student ID' and 'Mark'.");
+                alert("Could not find required columns ('Student ID', 'Mark') in the uploaded file.");
                 return;
             }
 
             renderTeacherExcelPreview();
 
         } catch (err) {
-            console.error("Error reading Excel file:", err);
+            console.error("Excel parse error:", err);
             alert("Error parsing Excel file: " + err.message);
         }
     };
@@ -599,45 +876,51 @@ function handleTeacherExcelSelect(event) {
 function renderTeacherExcelPreview() {
     const container = document.getElementById("excelPreviewContainer");
     const tbody = document.getElementById("excelPreviewTbody");
-    const pills = document.getElementById("excelStatsPills");
     const title = document.getElementById("excelPreviewTitle");
+    const statsPills = document.getElementById("excelStatsPills");
+
     if (!container || !tbody) return;
 
     const total = parsedExcelRows.length;
     const passed = parsedExcelRows.filter(r => r.mark >= 50).length;
     const failed = total - passed;
-    const passPct = ((passed / total) * 100).toFixed(1) + "%";
-    const failPct = ((failed / total) * 100).toFixed(1) + "%";
+    const passPct = total > 0 ? ((passed / total) * 100).toFixed(1) : 0;
+    const failPct = total > 0 ? ((failed / total) * 100).toFixed(1) : 0;
 
-    if (title) title.textContent = `Parsed ${total} Student Results`;
-    if (pills) {
-        pills.innerHTML = `
-            <span style="background:#ecfdf5;color:#065f46;font-weight:700;padding:3px 10px;border-radius:20px;font-size:0.75rem;">${passed} Passed (${passPct})</span>
-            <span style="background:#fef2f2;color:#991b1b;font-weight:700;padding:3px 10px;border-radius:20px;font-size:0.75rem;">${failed} Failed (${failPct})</span>
+    if (title) title.textContent = `Parsed Results Preview (${total} Students)`;
+
+    if (statsPills) {
+        statsPills.innerHTML = `
+            <span style="background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700;">
+                Pass: ${passed} (${passPct}%)
+            </span>
+            <span style="background: #fee2e2; color: #b91c1c; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700;">
+                Fail: ${failed} (${failPct}%)
+            </span>
         `;
     }
 
     tbody.innerHTML = parsedExcelRows.map((r, i) => `
         <tr>
-            <td>${i + 1}</td>
+            <td><strong>${i + 1}</strong></td>
             <td><strong>${escapeHtml(r.student_id)}</strong></td>
             <td>${escapeHtml(r.student_name)}</td>
             <td><strong>${r.mark}</strong></td>
             <td>
-                <span class="status-pill ${r.status === 'PASS' ? 'pass' : 'fail'}" style="font-size:0.75rem;padding:2px 8px;">
-                    ${r.status}
+                <span class="status-pill ${r.mark >= 50 ? "pass" : "fail"}">
+                    ${r.mark >= 50 ? "Pass" : "Fail"}
                 </span>
             </td>
-            <td>${escapeHtml(r.remark)}</td>
+            <td><small style="color: #64748b;">${escapeHtml(r.remark)}</small></td>
         </tr>
     `).join("");
 
     container.style.display = "block";
 }
 
-async function submitExcelReportToAdmin() {
+async function handleSendExcelReportToAdmin() {
     if (!parsedExcelRows.length) {
-        alert("Please upload and preview an Excel file first.");
+        alert("Please choose a valid Excel file first.");
         return;
     }
 
@@ -656,46 +939,47 @@ async function submitExcelReportToAdmin() {
         sendBtn.textContent = "Sending to Admin...";
     }
 
-    const teacherName = currentTeacher
-        ? `${currentTeacher.first_name} ${currentTeacher.last_name || ""}`.trim()
-        : "Teacher";
-
-    const total = parsedExcelRows.length;
-    const passed = parsedExcelRows.filter(r => r.mark >= 50).length;
-    const failed = total - passed;
-    const passPct = ((passed / total) * 100).toFixed(1) + "%";
-    const failPct = ((failed / total) * 100).toFixed(1) + "%";
-
-    const inserts = parsedExcelRows.map(r => ({
-        student_id:   r.student_id,
-        subject_code: subject,
-        exam_type:    examType,
-        mark:         r.mark,
-        grade:        null,
-        remark:       r.remark || (r.mark >= 50 ? "Pass" : "Fail"),
-        recorded_by:  currentUser?.id || null
-    }));
-
     try {
-        // 1. Insert/update to database results table
-        const { error: insertError } = await supabase.from("results").insert(inserts);
-        if (insertError) {
-            console.warn("Database notice during batch insert (local report will still be sent):", insertError);
-        }
-
-        // 2. Log submission in shared teacher report storage for admin
         const STORAGE_TEACHER_REPORTS = "sululta_teacher_excel_reports";
         let existingReports = [];
         try {
-            existingReports = JSON.parse(localStorage.getItem(STORAGE_TEACHER_REPORTS) || "[]");
+            const raw = localStorage.getItem(STORAGE_TEACHER_REPORTS);
+            if (raw) existingReports = JSON.parse(raw);
         } catch (e) {}
+
+        const total = parsedExcelRows.length;
+        const passed = parsedExcelRows.filter(r => r.mark >= 50).length;
+        const failed = total - passed;
+        const passPct = total > 0 ? ((passed / total) * 100).toFixed(1) + "%" : "0%";
+        const failPct = total > 0 ? ((failed / total) * 100).toFixed(1) + "%" : "0%";
+
+        const teacherName = currentTeacher?.first_name 
+            ? `${currentTeacher.first_name} ${currentTeacher.last_name || ""}`.trim()
+            : "Assigned Teacher";
+
+        // Insert / sync to database results table
+        const dbInserts = parsedExcelRows.map(r => ({
+            student_id: r.student_id,
+            subject_code: subject,
+            exam_type: examType,
+            mark: r.mark,
+            remark: r.remark,
+            recorded_by: currentUser?.id || null,
+            created_at: new Date().toISOString()
+        }));
+
+        try {
+            await supabase.from("results").insert(dbInserts);
+        } catch (dbErr) {
+            console.warn("Notice inserting results into DB:", dbErr);
+        }
 
         const newReport = {
             id: "rep_" + Date.now(),
             teacher_name: teacherName,
             subject_name: subject,
             subject_code: subject,
-            class_name: className || "Assigned Class",
+            class_name: className || "Secondary Grade",
             exam_type: examType,
             submitted_at: new Date().toISOString(),
             total_students: total,
@@ -719,6 +1003,8 @@ async function submitExcelReportToAdmin() {
         if (fileInput) fileInput.value = "";
         const preview = document.getElementById("excelPreviewContainer");
         if (preview) preview.style.display = "none";
+
+        await loadRecordedResults();
 
     } catch (err) {
         console.error("Submit error:", err);

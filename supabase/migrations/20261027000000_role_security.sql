@@ -423,6 +423,16 @@ USING (
 DROP POLICY IF EXISTS teachers_admin_write ON public.teachers;
 CREATE POLICY teachers_admin_write ON public.teachers FOR ALL TO authenticated
 USING (public.is_school_admin()) WITH CHECK (public.is_school_admin());
+DROP POLICY IF EXISTS teachers_self_update ON public.teachers;
+CREATE POLICY teachers_self_update ON public.teachers FOR UPDATE TO authenticated
+USING (
+    public.is_school_admin()
+    OR (user_id = auth.uid() AND public.current_app_role() = 'teacher')
+)
+WITH CHECK (
+    public.is_school_admin()
+    OR (user_id = auth.uid() AND public.current_app_role() = 'teacher')
+);
 
 DROP POLICY IF EXISTS parents_admin_only ON public.parents;
 CREATE POLICY parents_admin_only ON public.parents FOR ALL TO authenticated
@@ -593,6 +603,15 @@ WITH CHECK (
 DROP POLICY IF EXISTS results_admin_delete ON public.results;
 CREATE POLICY results_admin_delete ON public.results FOR DELETE TO authenticated
 USING (public.is_school_admin());
+DROP POLICY IF EXISTS results_teacher_delete ON public.results;
+CREATE POLICY results_teacher_delete ON public.results FOR DELETE TO authenticated
+USING (
+    public.is_school_admin()
+    OR (
+        recorded_by = auth.uid()
+        AND public.teacher_can_access_result(student_id, subject_code)
+    )
+);
 
 DROP POLICY IF EXISTS timetable_read ON public.timetable;
 CREATE POLICY timetable_read ON public.timetable FOR SELECT TO authenticated
