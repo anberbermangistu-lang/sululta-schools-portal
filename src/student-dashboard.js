@@ -400,27 +400,16 @@ function setupTabNavigation() {
    LOAD STUDENT PROFILE
 ────────────────────────────────────────────────────────────── */
 async function loadStudentProfile() {
-    // Use getSession() with retry logic instead of direct getUser() call
-    let session = await getSession();
+    // Since this page is protected by the route guard in supabase.js,
+    // we can trust that the user is authenticated when this runs.
+    // Just get the session without aggressive retries/redirects.
     
-    // If no session found, check for stored tokens and retry after delay
-    if (!session) {
-        const hasStoredToken = Object.keys(localStorage).some(
-            k => k.startsWith("sb-") && k.endsWith("-auth-token")
-        );
-        
-        if (hasStoredToken) {
-            // Wait 500ms for session restoration, then retry
-            await new Promise(resolve => setTimeout(resolve, 500));
-            session = await getSession();
-        }
-    }
+    const session = await getSession();
     
-    // If still no session, redirect to login
     if (!session?.user) {
-        console.log("[student-dashboard] No valid session found, redirecting to login");
-        window.location.replace("/login.html");
-        return false;
+        // This shouldn't happen if route guard worked, but log it
+        console.error("[student-dashboard] No session available despite route guard");
+        throw new Error("Authentication session not available. Please try logging in again.");
     }
 
     const { data: currentProfile, error: profileError } = await supabase
@@ -430,15 +419,14 @@ async function loadStudentProfile() {
         .maybeSingle();
 
     if (profileError || !currentProfile) {
-        await supabase.auth.signOut();
-        window.location.replace("/login.html");
-        return false;
+        console.error("[student-dashboard] Profile lookup failed:", profileError);
+        throw new Error("Unable to load your student profile. Please contact the administrator.");
     }
 
     const role = String(currentProfile.role || "").trim().toLowerCase();
     if (role !== "student") {
-        window.location.replace("/login.html");
-        return false;
+        console.error("[student-dashboard] Wrong role:", role);
+        throw new Error("This account does not have student access.");
     }
 
     if (!currentProfile.student_id) {
@@ -1280,6 +1268,14 @@ logoutButton?.addEventListener("click", async () => {
    INITIALIZE
 ────────────────────────────────────────────────────────────── */
 async function initialize() {
+    // Wait for the route guard in supabase.js to complete its auth check
+    // It hides the page initially and reveals it after validation
+    let attempts = 0;
+    while (document.documentElement.style.visibility === "hidden" && attempts < 100) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+        attempts++;
+    }
+    
     initThemeToggle();
     setupTabNavigation();
     try {

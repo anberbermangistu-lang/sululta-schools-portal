@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Authentication Diagnostic</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        .section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        h1 { color: #1e293b; }
+        h2 { color: #475569; font-size: 18px; margin-top: 0; }
+        .status { 
+            padding: 12px; 
+            border-radius: 6px; 
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 13px;
+        }
+        .success { background: #dcfce7; color: #166534; }
+        .error { background: #fee2e2; color: #991b1b; }
+        .info { background: #e0f2fe; color: #075985; }
+        .warning { background: #fef3c7; color: #92400e; }
+        button {
+            background: #0284c7;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+        }
+        button:hover { background: #0369a1; }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: 500;
+            color: #475569;
+        }
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Student Authentication Diagnostic Tool</h1>
+    
+    <div class="section">
+        <h2>1. Test Student Login</h2>
+        <form id="testLoginForm">
+            <label>Email:</label>
+            <input type="email" id="testEmail" placeholder="student@example.com" required>
+            
+            <label>Password:</label>
+            <input type="password" id="testPassword" placeholder="Enter password" required>
+            
+            <button type="submit">Test Login</button>
+        </form>
+        <div id="loginResult"></div>
+    </div>
+
+    <div class="section">
+        <h2>2. Check Current Session</h2>
+        <button onclick="checkSession()">Check Session Status</button>
+        <div id="sessionResult"></div>
+    </div>
+
+    <div class="section">
+        <h2>3. Database Connection Test</h2>
+        <button onclick="testDatabase()">Test Database</button>
+        <div id="dbResult"></div>
+    </div>
+
+    <div class="section">
+        <h2>4. Check All Students in Database</h2>
+        <button onclick="listStudents()">List All Students</button>
+        <div id="studentsResult"></div>
+    </div>
+
+    <div class="section">
+        <h2>5. Debug Console</h2>
+        <div id="console" style="max-height: 300px; overflow-y: auto;"></div>
+    </div>
+
+    <script type="module">
+        import { supabase, getSession, isSupabaseConfigured } from './src/supabase.js';
+
+        const consoleDiv = document.getElementById('console');
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.textContent = `[${timestamp}] ${message}`;
+            consoleDiv.appendChild(div);
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            console.log(message);
+        }
+
+        function showResult(elementId, content, type = 'info') {
+            const el = document.getElementById(elementId);
+            el.innerHTML = `<div class="status ${type}">${content}</div>`;
+        }
+
+        // Initial check
+        if (!isSupabaseConfigured) {
+            log('❌ Supabase is NOT configured!', 'error');
+        } else {
+            log('✓ Supabase configured', 'success');
+        }
+
+        // Test login
+        document.getElementById('testLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+
+            log(`Attempting login for: ${email}`, 'info');
+            showResult('loginResult', '⏳ Logging in...', 'info');
+
+            try {
+                // Step 1: Sign in
+                const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+                    email,
+                    password
+                });
+
+                if (authError) throw authError;
+                if (!authData?.user) throw new Error('No user returned');
+
+                log('✓ Authentication successful', 'success');
+                log(`User ID: ${authData.user.id}`, 'info');
+
+                // Step 2: Check profile
+                const { data: profile, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', authData.user.id)
+                    .maybeSingle();
+
+                if (profileError) {
+                    log(`⚠ Profile error: ${profileError.message}`, 'warning');
+                }
+
+                if (!profile) {
+                    log('❌ No profile found in database', 'error');
+                    showResult('loginResult', 
+                        '<strong>❌ Login Failed</strong><br>User authenticated but no profile found in database.<br><br>' +
+                        'This user needs to be created in the profiles table.', 
+                        'error');
+                    return;
+                }
+
+                log(`✓ Profile found - Role: ${profile.role}, Status: ${profile.status}`, 'success');
+
+                // Step 3: Check if student
+                if (profile.role !== 'student') {
+                    log(`❌ Wrong role: ${profile.role} (expected: student)`, 'error');
+                    showResult('loginResult', 
+                        `<strong>❌ Wrong Role</strong><br>This account has role: <strong>${profile.role}</strong><br>Expected: <strong>student</strong>`, 
+                        'error');
+                    return;
+                }
+
+                // Step 4: Check student_id link
+                if (!profile.student_id) {
+                    log('❌ No student_id in profile', 'error');
+                    showResult('loginResult', 
+                        '<strong>❌ Missing Link</strong><br>Profile exists but student_id is null.<br><br>' +
+                        'The profile needs to be linked to a students table record.', 
+                        'error');
+                    return;
+                }
+
+                log(`✓ Student ID linked: ${profile.student_id}`, 'success');
+
+                // Step 5: Check students table
+                const { data: student, error: studentError } = await supabase
+                    .from('students')
+                    .select('*')
+                    .eq('id', profile.student_id)
+                    .maybeSingle();
+
+                if (studentError) {
+                    log(`⚠ Student lookup error: ${studentError.message}`, 'warning');
+                }
+
+                if (!student) {
+                    log('❌ Student record not found in students table', 'error');
+                    showResult('loginResult', 
+                        `<strong>❌ Missing Student Record</strong><br>student_id ${profile.student_id} not found in students table.`, 
+                        'error');
+                    return;
+                }
+
+                log(`✓ Student record found: ${student.first_name} ${student.last_name}`, 'success');
+                log(`   Class: ${student.class || 'N/A'}, Section: ${student.section || 'N/A'}`, 'info');
+                log(`   Status: ${student.status}`, 'info');
+
+                showResult('loginResult', 
+                    `<strong>✅ LOGIN SUCCESSFUL!</strong><br><br>` +
+                    `<strong>User:</strong> ${student.first_name} ${student.last_name}<br>` +
+                    `<strong>Email:</strong> ${email}<br>` +
+                    `<strong>Role:</strong> ${profile.role}<br>` +
+                    `<strong>Class:</strong> ${student.class || 'Not assigned'} ${student.section || ''}<br>` +
+                    `<strong>Status:</strong> ${student.status}<br><br>` +
+                    `<a href="/student/dashboard.html" style="color: #0284c7; text-decoration: none; font-weight: 600;">→ Go to Student Dashboard</a>`, 
+                    'success');
+
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+                showResult('loginResult', 
+                    `<strong>❌ Error</strong><br>${error.message}`, 
+                    'error');
+            }
+        });
+
+        // Check session
+        window.checkSession = async () => {
+            log('Checking session...', 'info');
+            showResult('sessionResult', '⏳ Checking...', 'info');
+
+            try {
+                const session = await getSession();
+                
+                if (!session || !session.user) {
+                    log('❌ No active session', 'warning');
+                    showResult('sessionResult', 
+                        '<strong>⚠ No Active Session</strong><br>No user is currently logged in.', 
+                        'warning');
+                    return;
+                }
+
+                log(`✓ Active session found for user: ${session.user.email}`, 'success');
+                
+                showResult('sessionResult', 
+                    `<strong>✅ Active Session Found</strong><br><br>` +
+                    `<strong>Email:</strong> ${session.user.email}<br>` +
+                    `<strong>User ID:</strong> ${session.user.id}<br>` +
+                    `<strong>Expires:</strong> ${new Date(session.expires_at * 1000).toLocaleString()}`, 
+                    'success');
+
+            } catch (error) {
+                log(`❌ Session error: ${error.message}`, 'error');
+                showResult('sessionResult', `<strong>❌ Error</strong><br>${error.message}`, 'error');
+            }
+        };
+
+        // Test database
+        window.testDatabase = async () => {
+            log('Testing database connection...', 'info');
+            showResult('dbResult', '⏳ Testing...', 'info');
+
+            try {
+                const { count, error } = await supabase
+                    .from('students')
+                    .select('*', { count: 'exact', head: true });
+
+                if (error) throw error;
+
+                log(`✓ Database connection successful`, 'success');
+                log(`   Found ${count} students in database`, 'info');
+
+                showResult('dbResult', 
+                    `<strong>✅ Database Connected</strong><br><br>` +
+                    `<strong>Students table:</strong> ${count} record${count === 1 ? '' : 's'} found`, 
+                    'success');
+
+            } catch (error) {
+                log(`❌ Database error: ${error.message}`, 'error');
+                showResult('dbResult', `<strong>❌ Error</strong><br>${error.message}`, 'error');
+            }
+        };
+
+        // List students
+        window.listStudents = async () => {
+            log('Fetching all students...', 'info');
+            showResult('studentsResult', '⏳ Loading...', 'info');
+
+            try {
+                const { data: students, error } = await supabase
+                    .from('students')
+                    .select('id, student_id, first_name, last_name, class, section, email, status')
+                    .order('id', { ascending: true })
+                    .limit(50);
+
+                if (error) throw error;
+
+                log(`✓ Found ${students.length} students`, 'success');
+
+                if (students.length === 0) {
+                    showResult('studentsResult', 
+                        '<strong>⚠ No Students Found</strong><br><br>' +
+                        'The students table is empty. You need to add student records first.', 
+                        'warning');
+                    return;
+                }
+
+                let html = `<strong>✅ Found ${students.length} Student${students.length === 1 ? '' : 's'}</strong><br><br>`;
+                html += '<pre style="text-align: left;">';
+                
+                students.forEach(s => {
+                    html += `ID: ${s.id} | ${s.first_name} ${s.last_name}\n`;
+                    html += `   Student ID: ${s.student_id || 'N/A'}\n`;
+                    html += `   Class: ${s.class || 'N/A'} ${s.section || ''}\n`;
+                    html += `   Email: ${s.email || 'N/A'}\n`;
+                    html += `   Status: ${s.status}\n\n`;
+                });
+                
+                html += '</pre>';
+
+                showResult('studentsResult', html, 'success');
+
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+                showResult('studentsResult', `<strong>❌ Error</strong><br>${error.message}`, 'error');
+            }
+        };
+
+        log('Diagnostic tool ready', 'success');
+    </script>
+</body>
+</html>
