@@ -1,11 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teachers - Sululta School Portal</title>
     <link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
-    <link rel="stylesheet" href="../src/sidebar.css">
+    <link rel="stylesheet" href="../src/sidebar.css">`n    <link rel="stylesheet" href="../src/responsive.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; }
@@ -51,18 +51,18 @@
             <button class="toggle-btn" id="toggleSidebar"><span></span><span></span><span></span></button>
         </div>
         <nav class="sidebar-nav">
-            <a href="../admin/dashboard.html" class="nav-item ${activeName === 'Dashboard' ? 'active' : ''}"><span class="nav-icon">📊</span><span class="nav-text">Dashboard</span></a>
-            <a href="../students/dashboard.html" class="nav-item ${activeName === 'Students' ? 'active' : ''}"><span class="nav-icon">👨‍🎓</span><span class="nav-text">Students</span></a>
-            <a href="../teachers/dashboard.html" class="nav-item ${activeName === 'Teachers' ? 'active' : ''}"><span class="nav-icon">👨‍🏫</span><span class="nav-text">Teachers</span></a>
-            <a href="../classes/dashboard.html" class="nav-item ${activeName === 'Classes' ? 'active' : ''}"><span class="nav-icon">🏫</span><span class="nav-text">Classes</span></a>
-            <a href="../subjects/dashboard.html" class="nav-item ${activeName === 'Subjects' ? 'active' : ''}"><span class="nav-icon">📚</span><span class="nav-text">Subjects</span></a>
-            <a href="../attendance/dashboard.html" class="nav-item ${activeName === 'Attendance' ? 'active' : ''}"><span class="nav-icon">📋</span><span class="nav-text">Attendance</span></a>
-            <a href="../results/dashboard.html" class="nav-item ${activeName === 'Results' ? 'active' : ''}"><span class="nav-icon">🎯</span><span class="nav-text">Results</span></a>
-            <a href="../timetable/dashboard.html" class="nav-item ${activeName === 'Timetable' ? 'active' : ''}"><span class="nav-icon">📅</span><span class="nav-text">Timetable</span></a>
-            <a href="../library/dashboard.html" class="nav-item ${activeName === 'Library' ? 'active' : ''}"><span class="nav-icon">📖</span><span class="nav-text">Library</span></a>
+            <a href="../admin/dashboard.html" class="nav-item ${activeName === 'Dashboard' ? 'active' : ''}"><span class="nav-icon">??</span><span class="nav-text">Dashboard</span></a>
+            <a href="../students/dashboard.html" class="nav-item ${activeName === 'Students' ? 'active' : ''}"><span class="nav-icon">?????</span><span class="nav-text">Students</span></a>
+            <a href="../teachers/dashboard.html" class="nav-item ${activeName === 'Teachers' ? 'active' : ''}"><span class="nav-icon">?????</span><span class="nav-text">Teachers</span></a>
+            <a href="../classes/dashboard.html" class="nav-item ${activeName === 'Classes' ? 'active' : ''}"><span class="nav-icon">??</span><span class="nav-text">Classes</span></a>
+            <a href="../subjects/dashboard.html" class="nav-item ${activeName === 'Subjects' ? 'active' : ''}"><span class="nav-icon">??</span><span class="nav-text">Subjects</span></a>
+            <a href="../attendance/dashboard.html" class="nav-item ${activeName === 'Attendance' ? 'active' : ''}"><span class="nav-icon">??</span><span class="nav-text">Attendance</span></a>
+            <a href="../results/dashboard.html" class="nav-item ${activeName === 'Results' ? 'active' : ''}"><span class="nav-icon">??</span><span class="nav-text">Results</span></a>
+            <a href="../timetable/dashboard.html" class="nav-item ${activeName === 'Timetable' ? 'active' : ''}"><span class="nav-icon">??</span><span class="nav-text">Timetable</span></a>
+            <a href="../library/dashboard.html" class="nav-item ${activeName === 'Library' ? 'active' : ''}"><span class="nav-icon">??</span><span class="nav-text">Library</span></a>
         </nav>
         <div class="sidebar-footer">
-            <a href="#" class="nav-item" id="logoutBtn"><span class="nav-icon">🚪</span><span class="nav-text">Logout</span></a>
+            <a href="#" class="nav-item" id="logoutBtn"><span class="nav-icon">??</span><span class="nav-text">Logout</span></a>
         </div>
     </aside>
 
@@ -74,7 +74,7 @@
         <div class="content-area">
             <div class="page-header">
                 <div></div>
-                <a href="add.html" class="btn btn-primary">➕ Add Teacher</a>
+                <a href="add.html" class="btn btn-primary">? Add Teacher</a>
             </div>
             <div class="stats-grid">
                 <div class="stat-card total"><div class="stat-label">Total Teachers</div><div class="stat-value" id="totalTeachers">0</div></div>
@@ -131,9 +131,9 @@
                             <td>${t.phone || 'N/A'}</td>
                             <td><span class="status-badge ${t.status}">${t.status}</span></td>
                             <td>
-                                <button class="action-btn" onclick="viewTeacher('${t.id}')">👁️</button>
-                                <button class="action-btn" onclick="editTeacher('${t.id}')">✏️</button>
-                                <button class="action-btn" onclick="deleteTeacher('${t.id}')">🗑️</button>
+                                <button class="action-btn" onclick="viewTeacher('${t.id}')">???</button>
+                                <button class="action-btn" onclick="editTeacher('${t.id}')">??</button>
+                                <button class="action-btn" onclick="deleteTeacher('${t.id}')">???</button>
                             </td>
                         </tr>
                     `).join('')}</tbody>

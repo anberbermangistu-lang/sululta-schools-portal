@@ -1,0 +1,1094 @@
+/* ================================================================
+   SULULTA SCHOOL MANAGEMENT SYSTEM
+   MOBILE-FIRST RESPONSIVE DESIGN
+   Professional, Modern, Fully Responsive
+   ================================================================ */
+
+/* ════════════════════════════════════════════════════════════════
+   1. BASE MOBILE-FIRST RESET & FOUNDATION
+════════════════════════════════════════════════════════════════ */
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    max-width: 100vw;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   2. MOBILE SIDEBAR & NAVIGATION (HAMBURGER MENU)
+════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 1024px) {
+    /* Hide desktop sidebar by default on tablets and phones */
+    .sidebar,
+    .dash-sidebar,
+    .admin-sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 10000;
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        width: 280px !important;
+        box-shadow: 2px 0 20px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Show sidebar when open class is added */
+    .sidebar.open,
+    .sidebar.mobile-open,
+    .dash-sidebar.open,
+    .admin-sidebar.open {
+        transform: translateX(0);
+    }
+
+    /* Remove desktop margin from main content */
+    .main-content,
+    .dash-main,
+    .admin-main {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+
+    /* Mobile Overlay */
+    .dash-overlay,
+    .mobile-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(2px);
+        z-index: 9999;
+        display: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .dash-overlay.active,
+    .mobile-overlay.active,
+    .dash-overlay.show,
+    .mobile-overlay.show {
+        display: block;
+        opacity: 1;
+    }
+
+    /* Show hamburger menu button */
+    .dt-menu-btn,
+    .sidebar-toggle,
+    #menuBtn,
+    #sidebarToggle,
+    #spMobileToggle {
+        display: flex !important;
+        flex-shrink: 0;
+    }
+
+    /* Top Bar Adjustments for Mobile */
+    .dash-topbar,
+    .admin-header,
+    .top-bar {
+        padding: 0 16px !important;
+        height: 64px !important;
+        gap: 12px;
+    }
+
+    .dt-search,
+    .admin-header .search-box {
+        max-width: 100%;
+        flex: 1;
+    }
+
+    /* Hide profile info text on small screens */
+    .dt-profile-info,
+    .admin-profile-info {
+        display: none;
+    }
+
+    /* Adjust dashboard content padding */
+    .dash-content,
+    .dashboard-content,
+    .content-area,
+    .page-container {
+        padding: 16px !important;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   3. RESPONSIVE GRID LAYOUTS (CARDS & STATS)
+════════════════════════════════════════════════════════════════ */
+
+/* Desktop: 4 columns */
+.dash-stats,
+.stats-grid,
+.admin-stats,
+.overview-grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+/* Tablet: 2 columns */
+@media (max-width: 1024px) and (min-width: 601px) {
+    .dash-stats,
+    .stats-grid,
+    .admin-stats,
+    .overview-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Mobile: 1 column or 2 columns for smaller cards */
+@media (max-width: 600px) {
+    .dash-stats,
+    .stats-grid,
+    .admin-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .overview-grid,
+    .quick-actions,
+    .quick-action-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    /* Smaller card styling */
+    .ds-card,
+    .stat-card {
+        padding: 14px 16px;
+        min-height: 100px;
+    }
+
+    .dsc-icon,
+    .stat-icon {
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+    }
+
+    .dsc-icon svg,
+    .stat-icon svg {
+        width: 22px;
+        height: 22px;
+    }
+
+    .dsc-value,
+    .stat-content strong {
+        font-size: 24px;
+    }
+
+    .dsc-label,
+    .stat-content span {
+        font-size: 13px;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   4. RESPONSIVE TABLES (TRANSFORM TO CARDS ON MOBILE)
+════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 900px) {
+    /* Make table container scrollable on tablets */
+    .table-wrapper,
+    .table-responsive,
+    .data-table-container,
+    .classes-table-card,
+    .pf-table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 12px;
+    }
+
+    .data-table,
+    .classes-table,
+    .pf-table {
+        min-width: 700px;
+    }
+
+    /* Adjust table padding */
+    .data-table th,
+    .data-table td,
+    .classes-table th,
+    .classes-table td {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+
+    /* Table header controls */
+    .table-header {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 12px;
+        padding: 16px !important;
+    }
+
+    .search-filter-group {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .search-box input,
+    .student-toolbar input,
+    .teacher-toolbar input,
+    .parent-toolbar input {
+        width: 100% !important;
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 600px) {
+    /* Mobile: Transform tables into stacked cards */
+    .data-table,
+    .classes-table {
+        min-width: 100%;
+    }
+
+    /* Hide table headers on mobile */
+    .data-table thead,
+    .classes-table thead {
+        position: absolute;
+        clip: rect(0, 0, 0, 0);
+        height: 1px;
+        width: 1px;
+        margin: -1px;
+        padding: 0;
+        overflow: hidden;
+        border: 0;
+    }
+
+    /* Transform rows into cards */
+    .data-table tbody tr,
+    .classes-table tbody tr {
+        display: block;
+        margin-bottom: 16px;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 16px;
+        background: #ffffff;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .data-table tbody tr:last-child,
+    .classes-table tbody tr:last-child {
+        margin-bottom: 0;
+    }
+
+    .data-table td,
+    .classes-table td {
+        display: block;
+        padding: 8px 0;
+        border: none;
+        border-bottom: 1px solid #f1f5f9;
+        text-align: left !important;
+    }
+
+    .data-table td:last-child,
+    .classes-table td:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    /* Add labels before each data cell */
+    .data-table td::before,
+    .classes-table td::before {
+        content: attr(data-label);
+        display: block;
+        font-weight: 700;
+        font-size: 11px;
+        color: #64748b;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+        letter-spacing: 0.05em;
+    }
+
+    /* Action buttons in mobile cards */
+    .action-group,
+    .student-actions,
+    .teacher-actions,
+    .parent-actions,
+    .action-buttons {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 8px;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   5. RESPONSIVE FORMS & MODALS
+════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+    /* Single column forms on mobile */
+    .form-grid,
+    .student-toolbar,
+    .teacher-toolbar,
+    .parent-toolbar,
+    .classes-toolbar {
+        grid-template-columns: 1fr !important;
+        gap: 12px;
+    }
+
+    /* Form inputs */
+    .form-group input,
+    .form-group select,
+    .form-group textarea,
+    input,
+    select,
+    textarea {
+        font-size: 16px !important; /* Prevents iOS zoom */
+        height: 48px;
+        padding: 0 16px;
+    }
+
+    textarea {
+        height: auto !important;
+        min-height: 100px;
+        padding: 12px 16px;
+    }
+
+    /* Buttons */
+    .btn,
+    .btn-primary,
+    .btn-secondary,
+    button {
+        min-height: 48px;
+        padding: 0 20px;
+        font-size: 15px;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+        gap: 12px;
+    }
+
+    /* Modal dialogs */
+    .modal,
+    .dialog,
+    .form-card {
+        margin: 8px;
+        max-height: calc(100vh - 16px);
+        overflow-y: auto;
+    }
+
+    .modal-content,
+    .dialog-content {
+        padding: 20px 16px;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   6. RESPONSIVE DASHBOARD PANELS & CHARTS
+════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 1180px) {
+    /* Two-column grid for dashboard panels on tablets */
+    .dashboard-grid,
+    .admin-grid,
+    .pf-body-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px;
+    }
+
+    /* Donut chart adjustments */
+    .grade-section-body {
+        grid-template-columns: 1fr !important;
+        gap: 24px;
+    }
+
+    .donut-container-wrap {
+        order: -1; /* Show chart first on mobile */
+        margin-bottom: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Welcome banner */
+    .dashboard-welcome,
+    .welcome-banner {
+        flex-direction: column;
+        text-align: center;
+        padding: 24px 20px;
+    }
+
+    .welcome-content h2 {
+        font-size: 22px;
+    }
+
+    .welcome-content p {
+        font-size: 14px;
+    }
+
+    .welcome-icon {
+        margin: 0 auto;
+    }
+
+    /* Panel headers */
+    .panel-header,
+    .dp-header,
+    .pf-subcard-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 12px;
+    }
+
+    .dp-title,
+    .panel-header h2 {
+        font-size: 18px;
+    }
+
+    /* Grade breakdown rows */
+    .grade-row-item,
+    .pf-grade-row {
+        padding: 12px 14px;
+    }
+
+    .grade-row-top,
+    .pf-grade-top {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .grade-stats-group,
+    .pf-grade-badges {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    /* KPI cards */
+    .pf-kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .pf-kpi-card {
+        padding: 14px 16px;
+    }
+
+    .pf-kpi-value {
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Stack KPI cards on very small screens */
+    .pf-kpi-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Smaller donut chart */
+    .donut-chart-box {
+        width: 200px !important;
+        height: 200px !important;
+    }
+
+    .donut-center-content strong {
+        font-size: 28px;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   7. RESPONSIVE TIMETABLE & CALENDAR
+════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 900px) {
+    /* Timetable: horizontal scroll with clear container */
+    .timetable-wrapper,
+    .schedule-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .timetable,
+    .schedule-table {
+        min-width: 700px;
+    }
+}
+
+@media (max-width: 600px) {
+    /* Mobile: Daily view instead of weekly grid */
+    .timetable-mobile-view {
+        display: block;
+    }
+
+    .timetable-desktop-view {
+        display: none;
+    }
+
+    /* Day selector buttons */
+    .day-selector {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 4px 0;
+    }
+
+    .day-btn {
+        min-width: 60px;
+        padding: 10px 16px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        background: #ffffff;
+        font-size: 13px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .day-btn.active {
+        background: #2563eb;
+        color: #ffffff;
+        border-color: #2563eb;
+    }
+
+    /* Period cards for mobile */
+    .period-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 12px;
+    }
+
+    .period-time {
+        font-size: 12px;
+        color: #64748b;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .period-subject {
+        font-size: 16px;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 4px;
+    }
+
+    .period-teacher {
+        font-size: 13px;
+        color: #475569;
+    }
+
+    .period-room {
+        font-size: 12px;
+        color: #94a3b8;
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px solid #f1f5f9;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   8. SEARCH, FILTERS, PAGINATION
+════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+    /* Stack search and filters */
+    .filter-group {
+        flex-direction: column;
+        width: 100%;
+        gap: 10px;
+    }
+
+    .filter-group select,
+    .filter-group input {
+        width: 100%;
+    }
+
+    /* Pagination */
+    .pagination {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .pagination button,
+    .pagination a {
+        min-width: 40px;
+        height: 40px;
+        padding: 0 12px;
+    }
+
+    /* Hide some pagination items on very small screens */
+    @media (max-width: 480px) {
+        .pagination .page-item:not(.active):not(.prev):not(.next) {
+            display: none;
+        }
+
+        .pagination .page-item.active,
+        .pagination .page-item.prev,
+        .pagination .page-item.next {
+            display: flex;
+        }
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   9. TYPOGRAPHY & SPACING RESPONSIVE ADJUSTMENTS
+════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+    /* Responsive font sizes using clamp */
+    h1, .page-title {
+        font-size: clamp(20px, 5vw, 28px);
+    }
+
+    h2, .section-title {
+        font-size: clamp(18px, 4vw, 24px);
+    }
+
+    h3 {
+        font-size: clamp(16px, 3.5vw, 20px);
+    }
+
+    p, body {
+        font-size: clamp(14px, 3vw, 16px);
+    }
+
+    /* Reduce padding and margins */
+    .page-header {
+        margin-bottom: 16px;
+    }
+
+    .dashboard-panel,
+    .admin-panel,
+    .content-card,
+    .form-card {
+        padding: 16px;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   10. TOUCH-FRIENDLY TARGETS & ACCESSIBILITY
+════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+    /* Minimum touch target size: 44x44px (WCAG AAA) */
+    button,
+    a,
+    .btn,
+    .action-btn,
+    .nav-item,
+    select,
+    input[type="checkbox"],
+    input[type="radio"] {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    /* Increase spacing between touch targets */
+    .action-group button,
+    .action-buttons button {
+        margin: 4px;
+    }
+
+    /* Larger dropdown chevrons */
+    select {
+        padding-right: 40px;
+        background-size: 20px;
+    }
+
+    /* Focus visible for keyboard navigation */
+    *:focus-visible {
+        outline: 3px solid #2563eb;
+        outline-offset: 2px;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   11. LOADING STATES & EMPTY STATES
+════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+    .loading-spinner,
+    .skeleton-loader {
+        margin: 40px auto;
+    }
+
+    .empty-state {
+        padding: 32px 16px;
+        text-align: center;
+    }
+
+    .empty-state svg,
+    .empty-state img {
+        max-width: 120px;
+        margin-bottom: 16px;
+    }
+
+    .empty-state h3 {
+        font-size: 18px;
+        margin-bottom: 8px;
+    }
+
+    .empty-state p {
+        font-size: 14px;
+        color: #64748b;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   12. STUDENT PORTAL SPECIFIC RESPONSIVE FIXES
+════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 900px) {
+    .sp-sidebar,
+    .student-sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sp-sidebar.open,
+    .student-sidebar.open {
+        transform: translateX(0);
+    }
+
+    .student-main,
+    .sp-main {
+        margin-left: 0;
+    }
+
+    .sp-topbar {
+        padding: 0 16px;
+    }
+
+    .sp-nav {
+        padding: 12px;
+    }
+
+    .sp-nav-link {
+        padding: 12px 16px;
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 600px) {
+    /* Student result cards */
+    .result-card,
+    .subject-card {
+        padding: 14px;
+    }
+
+    .result-subject-name {
+        font-size: 15px;
+    }
+
+    .result-mark {
+        font-size: 28px;
+    }
+
+    /* Attendance calendar */
+    .attendance-calendar {
+        overflow-x: auto;
+    }
+
+    .attendance-day {
+        min-width: 40px;
+        min-height: 40px;
+        font-size: 12px;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   13. EXCEL UPLOAD & FILE MANAGEMENT RESPONSIVE
+════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+    .upload-zone {
+        padding: 24px 16px;
+        min-height: 150px;
+    }
+
+    .upload-icon {
+        width: 48px;
+        height: 48px;
+    }
+
+    .upload-text {
+        font-size: 14px;
+    }
+
+    .file-list-item {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 12px;
+    }
+
+    .file-info {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+
+    .file-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    /* Excel preview table */
+    .excel-preview {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .excel-preview table {
+        min-width: 500px;
+        font-size: 12px;
+    }
+
+    .excel-preview th,
+    .excel-preview td {
+        padding: 8px 10px;
+        white-space: nowrap;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   14. PRINT STYLES
+════════════════════════════════════════════════════════════════ */
+
+@media print {
+    .sidebar,
+    .dash-sidebar,
+    .admin-sidebar,
+    .sp-sidebar,
+    .dash-topbar,
+    .admin-header,
+    .sp-topbar,
+    .dt-menu-btn,
+    .sidebar-toggle,
+    .dash-overlay,
+    .mobile-overlay,
+    .btn,
+    button,
+    .action-group,
+    .form-actions,
+    .admin-footer {
+        display: none !important;
+    }
+
+    .main-content,
+    .dash-main,
+    .admin-main,
+    .sp-main {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+    }
+
+    .data-table,
+    .classes-table {
+        page-break-inside: avoid;
+    }
+
+    @page {
+        margin: 1cm;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   15. DARK MODE RESPONSIVE ADJUSTMENTS
+════════════════════════════════════════════════════════════════ */
+
+@media (prefers-color-scheme: dark) {
+    .dark-theme .dash-overlay,
+    .dark-theme .mobile-overlay {
+        background: rgba(0, 0, 0, 0.8);
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   16. LANDSCAPE PHONE ORIENTATION
+════════════════════════════════════════════════════════════════ */
+
+@media (max-height: 500px) and (orientation: landscape) {
+    .sidebar,
+    .dash-sidebar,
+    .admin-sidebar,
+    .sp-sidebar {
+        overflow-y: auto;
+    }
+
+    .dash-topbar,
+    .admin-header,
+    .sp-topbar {
+        height: 56px !important;
+    }
+
+    .dashboard-welcome,
+    .welcome-banner {
+        padding: 16px;
+    }
+
+    .stat-card,
+    .ds-card {
+        min-height: 80px;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   17. UTILITIES & HELPER CLASSES
+════════════════════════════════════════════════════════════════ */
+
+/* Show/hide utilities */
+.mobile-only {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .mobile-only {
+        display: block;
+    }
+
+    .desktop-only {
+        display: none !important;
+    }
+}
+
+/* Responsive spacing utilities */
+@media (max-width: 768px) {
+    .p-mobile-sm {
+        padding: 8px !important;
+    }
+
+    .m-mobile-sm {
+        margin: 8px !important;
+    }
+
+    .gap-mobile-sm {
+        gap: 8px !important;
+    }
+}
+
+/* Prevent horizontal scroll */
+.no-scroll-x {
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
+/* Safe area padding for notched devices */
+@supports (padding: max(0px)) {
+    .safe-top {
+        padding-top: max(16px, env(safe-area-inset-top));
+    }
+
+    .safe-bottom {
+        padding-bottom: max(16px, env(safe-area-inset-bottom));
+    }
+
+    .safe-left {
+        padding-left: max(16px, env(safe-area-inset-left));
+    }
+
+    .safe-right {
+        padding-right: max(16px, env(safe-area-inset-right));
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   18. FIX COMMON MOBILE LAYOUT ISSUES
+════════════════════════════════════════════════════════════════ */
+
+/* Prevent text overflow */
+@media (max-width: 768px) {
+    * {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    /* Prevent images from breaking layout */
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    /* Prevent long URLs from breaking layout */
+    a[href^="http"] {
+        word-break: break-all;
+    }
+
+    /* Prevent code blocks from overflowing */
+    pre,
+    code {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   19. PERFORMANCE OPTIMIZATIONS
+════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+    /* Reduce animations on mobile for better performance */
+    .reduce-motion *,
+    * {
+        animation-duration: 0.2s !important;
+        transition-duration: 0.2s !important;
+    }
+
+    /* Lazy load images */
+    img[loading="lazy"] {
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    img[loading="lazy"].loaded {
+        opacity: 1;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   20. FINAL MOBILE POLISH & EDGE CASES
+════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 480px) {
+    /* Extra small phones */
+    .dash-content,
+    .content-area,
+    .page-container {
+        padding: 12px !important;
+    }
+
+    .btn,
+    button {
+        font-size: 14px;
+        padding: 0 16px;
+    }
+
+    .card-title,
+    .panel-title,
+    h2 {
+        font-size: 16px;
+    }
+
+    /* Stack everything on extra small screens */
+    .flex-row-mobile {
+        flex-direction: column !important;
+    }
+
+    /* Full width buttons */
+    .btn-block-mobile {
+        width: 100% !important;
+        display: block !important;
+    }
+}
+
+/* End of Mobile-First Responsive CSS */

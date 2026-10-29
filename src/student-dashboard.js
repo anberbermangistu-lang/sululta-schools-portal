@@ -1,5 +1,5 @@
 import { initThemeToggle } from "./theme.js";
-import { supabase } from "./supabase.js";
+import { supabase, getSession } from "./supabase.js";
 
 const message = document.getElementById("studentMessage");
 const profileMessage = document.getElementById("profileMessage");
@@ -400,8 +400,25 @@ function setupTabNavigation() {
    LOAD STUDENT PROFILE
 ────────────────────────────────────────────────────────────── */
 async function loadStudentProfile() {
-    const { data: authData, error: authError } = await supabase.auth.getUser();
-    if (authError || !authData?.user) {
+    // Use getSession() with retry logic instead of direct getUser() call
+    let session = await getSession();
+    
+    // If no session found, check for stored tokens and retry after delay
+    if (!session) {
+        const hasStoredToken = Object.keys(localStorage).some(
+            k => k.startsWith("sb-") && k.endsWith("-auth-token")
+        );
+        
+        if (hasStoredToken) {
+            // Wait 500ms for session restoration, then retry
+            await new Promise(resolve => setTimeout(resolve, 500));
+            session = await getSession();
+        }
+    }
+    
+    // If still no session, redirect to login
+    if (!session?.user) {
+        console.log("[student-dashboard] No valid session found, redirecting to login");
         window.location.replace("/login.html");
         return false;
     }
@@ -409,7 +426,7 @@ async function loadStudentProfile() {
     const { data: currentProfile, error: profileError } = await supabase
         .from("profiles")
         .select("id, role, student_id, first_name, last_name, email, phone, avatar_url, status")
-        .eq("id", authData.user.id)
+        .eq("id", session.user.id)
         .maybeSingle();
 
     if (profileError || !currentProfile) {
