@@ -412,42 +412,76 @@ async function loadStudentProfile() {
         throw new Error("Authentication session not available. Please try logging in again.");
     }
 
+    console.log("[student-dashboard] Loading profile for user:", session.user.id);
+
     const { data: currentProfile, error: profileError } = await supabase
         .from("profiles")
         .select("id, role, student_id, first_name, last_name, email, phone, avatar_url, status")
         .eq("id", session.user.id)
         .maybeSingle();
 
-    if (profileError || !currentProfile) {
-        console.error("[student-dashboard] Profile lookup failed:", profileError);
-        throw new Error("Unable to load your student profile. Please contact the administrator.");
+    if (profileError) {
+        console.error("[student-dashboard] Profile query error:", profileError);
+        throw new Error(`Database error loading profile: ${profileError.message}`);
     }
+
+    if (!currentProfile) {
+        console.error("[student-dashboard] No profile record found for user:", session.user.id);
+        throw new Error("Your account profile was not found in the system. Please contact the administrator to set up your student profile.");
+    }
+
+    console.log("[student-dashboard] Profile loaded:", { role: currentProfile.role, student_id: currentProfile.student_id });
 
     const role = String(currentProfile.role || "").trim().toLowerCase();
     if (role !== "student") {
         console.error("[student-dashboard] Wrong role:", role);
-        throw new Error("This account does not have student access.");
+        throw new Error(`This account has role '${role}' but student access is required.`);
     }
 
     if (!currentProfile.student_id) {
-        throw new Error("This student account is not linked to a school record.");
+        console.error("[student-dashboard] Profile exists but student_id is null");
+        throw new Error("Your profile is not linked to a student record. Please contact the administrator to link your account.");
     }
+
+    console.log("[student-dashboard] Looking up student record with student_id:", currentProfile.student_id);
 
     // Try finding by numeric id or by string student_id
     let schoolRecord = null;
     const isNum = !isNaN(Number(currentProfile.student_id));
     if (isNum) {
-        const { data } = await supabase
+        const { data, error } = await supabase
             .from("students")
             .select("id, student_id, first_name, last_name, gender, date_of_birth, class, section, class_id, phone, email, address, photo_url, status")
             .eq("id", Number(currentProfile.student_id))
             .maybeSingle();
+        
+        if (error) {
+            console.error("[student-dashboard] Error querying students by id:", error);
+        }
         schoolRecord = data;
     }
     if (!schoolRecord) {
-        const { data } = await supabase
+        const { data, error } = await supabase
             .from("students")
             .select("id, student_id, first_name, last_name, gender, date_of_birth, class, section, class_id, phone, email, address, photo_url, status")
+            .eq("student_id", String(currentProfile.student_id))
+            .maybeSingle();
+        
+        if (error) {
+            console.error("[student-dashboard] Error querying students by student_id:", error);
+        }
+        schoolRecord = data;
+    }
+
+    if (!schoolRecord) {
+        console.error("[student-dashboard] No student record found with student_id:", currentProfile.student_id);
+        throw new Error(`Student record not found (ID: ${currentProfile.student_id}). Please contact the administrator to verify your student information.`);
+    }
+
+    console.log("[student-dashboard] Student record loaded:", schoolRecord.first_name, schoolRecord.last_name);
+
+    profile = currentProfile;
+    student = schoolRecord;
             .eq("student_id", String(currentProfile.student_id))
             .maybeSingle();
         schoolRecord = data;
