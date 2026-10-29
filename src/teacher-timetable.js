@@ -1,81 +1,69 @@
-import { supabase } from "./supabase.js";
+import { supabase, getSession, getUserProfile, getRoleDashboard } from "./supabase.js";
 
 let allTimetable = [];
 let assignedClasses = [];
 let currentTeacherRecord = null;
 
 async function initializeTeacherTimetable() {
-    const {
-        data: { user },
-        error: authError
-    } = await supabase.auth.getUser();
+    const session = await getSession();
+    const user = session?.user;
 
-    if (authError || !user) {
+    if (!user) {
         window.location.href = "/login.html";
         return;
     }
 
-    const {
-        data: profile,
-        error: profileError
-    } = await supabase
-        .from("profiles")
-        .select(`
-            id,
-            first_name,
-            last_name,
-            email,
-            username,
-            role,
-            status,
-            photo_url
-        `)
-        .eq("id", user.id)
-        .maybeSingle();
+    const profile = await getUserProfile(user.id);
+    const role = String(profile?.role || "").trim().toLowerCase();
 
-    if (profileError || !profile) {
-        await supabase.auth.signOut();
-        window.location.href = "/login.html";
+    if (role && role !== "teacher") {
+        const dest = getRoleDashboard(role);
+        if (dest) window.location.href = dest;
         return;
     }
 
-    const role = String(profile.role || "").trim().toLowerCase();
-    const status = String(profile.status || "").trim().toLowerCase();
-
-    if (role !== "teacher") {
-        if (role === "admin") {
-            window.location.href = "/admin/dashboard.html";
-        } else {
-            window.location.href = "/login.html";
-        }
-        return;
+    let teacher = null;
+    try {
+        const { data } = await supabase
+            .from("teachers")
+            .select(`
+                id,
+                teacher_id,
+                first_name,
+                last_name,
+                photo_url,
+                status
+            `)
+            .eq("user_id", user.id)
+            .maybeSingle();
+        teacher = data;
+    } catch (e) {
+        console.warn("Teacher record fetch notice:", e);
     }
 
-    if (status !== "active") {
-        await supabase.auth.signOut();
-        window.location.href = "/login.html";
-        return;
+    if (!teacher && user.email) {
+        try {
+            const { data } = await supabase
+                .from("teachers")
+                .select(`
+                    id,
+                    teacher_id,
+                    first_name,
+                    last_name,
+                    photo_url,
+                    status
+                `)
+                .ilike("email", user.email.trim())
+                .maybeSingle();
+            if (data) {
+                teacher = data;
+                await supabase.from("teachers").update({ user_id: user.id }).eq("id", teacher.id);
+            }
+        } catch (_) {}
     }
 
-    const {
-        data: teacher,
-        error: teacherError
-    } = await supabase
-        .from("teachers")
-        .select(`
-            id,
-            teacher_id,
-            first_name,
-            last_name,
-            photo_url,
-            status
-        `)
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-    if (teacherError || !teacher) {
-        console.error("Teacher error:", teacherError);
-        showMessage("Teacher record could not be found.");
+    if (!teacher) {
+        showMessage("Teacher record could not be found for this account.");
         return;
     }
 

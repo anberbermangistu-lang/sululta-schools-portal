@@ -1,5 +1,5 @@
 import { initThemeToggle } from "./theme.js";
-import { supabase } from "./supabase.js";
+import { supabase, getSession, getUserProfile } from "./supabase.js";
 
 let currentTeacher = null;
 let assignedClasses = [];
@@ -16,54 +16,110 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function loadTeacherDashboard() {
     try {
         showMessage("");
-        const {
-            data: { user },
-            error: authError
-        } = await supabase.auth.getUser();
 
-        if (authError) throw authError;
+        // Check active session using appropriate Supabase auth method
+        const session = await getSession();
+        const user = session?.user;
 
         if (!user) {
+            // Only redirect when there is genuinely no active session
             window.location.replace("/login.html");
             return;
         }
 
-        const { data: teacher, error: teacherError } = await supabase
-            .from("teachers")
-            .select(`
-                id,
-                teacher_id,
-                first_name,
-                last_name,
-                gender,
-                phone,
-                email,
-                qualification,
-                photo_url,
-                user_id,
-                status
-            `)
-            .eq("user_id", user.id)
-            .maybeSingle();
+        // 1. Fetch teacher record by user_id
+        let teacher = null;
+        try {
+            const { data, error: teacherError } = await supabase
+                .from("teachers")
+                .select(`
+                    id,
+                    teacher_id,
+                    first_name,
+                    last_name,
+                    gender,
+                    phone,
+                    email,
+                    qualification,
+                    photo_url,
+                    user_id,
+                    status
+                `)
+                .eq("user_id", user.id)
+                .maybeSingle();
 
-        if (teacherError) throw teacherError;
+            if (!teacherError && data) {
+                teacher = data;
+            }
+        } catch (e) {
+            console.warn("Teacher query by user_id notice:", e);
+        }
+
+        // 2. Fallback: match by email if user_id was not populated yet
+        if (!teacher && user.email) {
+            try {
+                const { data: teacherByEmail, error: emailErr } = await supabase
+                    .from("teachers")
+                    .select(`
+                        id,
+                        teacher_id,
+                        first_name,
+                        last_name,
+                        gender,
+                        phone,
+                        email,
+                        qualification,
+                        photo_url,
+                        user_id,
+                        status
+                    `)
+                    .ilike("email", user.email.trim())
+                    .maybeSingle();
+
+                if (!emailErr && teacherByEmail) {
+                    teacher = teacherByEmail;
+                    // Auto-link user_id for future fast lookups
+                    try {
+                        await supabase
+                            .from("teachers")
+                            .update({ user_id: user.id })
+                            .eq("id", teacher.id);
+                    } catch (_) {}
+                }
+            } catch (e) {
+                console.warn("Teacher query by email notice:", e);
+            }
+        }
 
         if (!teacher) {
-            showMessage("Your account is not connected to a teacher record.");
+            // Account is valid and authenticated; display helpful notice without logging out
+            const profile = await getUserProfile(user.id);
+            const fullName = profile ? `${profile.first_name || ""} ${profile.last_name || ""}`.trim() : "Teacher";
+            setText("teacherWelcome", `Hello, ${profile?.first_name || "Teacher"}`);
+            setText("teacherHeaderName", fullName);
+            setText("teacherName", fullName);
+            setText("teacherEmail", user.email || "Not provided");
+            showMessage("Your teacher account is active, but is not yet connected to a school teacher record. Please contact the administrator.");
             return;
         }
 
         currentTeacher = teacher;
-
         updateTeacherInformation();
-        await loadAssignedClasses();
-        await loadAssignedStudents();
-        await loadAttendanceStatistics();
-        await loadResultsStatistics();
+
+        // Safely load all dashboard data panels without letting errors trigger a redirect or logout
+        await Promise.allSettled([
+            loadAssignedClasses(),
+            loadAssignedStudents(),
+            loadAttendanceStatistics(),
+            loadResultsStatistics()
+        ]);
+
         loadTeacherTimetableSchedule();
+
     } catch (error) {
         console.error("Teacher dashboard error:", error);
-        showMessage(error.message || "Failed to load teacher dashboard.");
+        // Display notification on dashboard; DO NOT redirect or clear session
+        showMessage(error.message || "Unable to refresh all dashboard information.");
     }
 }
 
@@ -83,10 +139,11 @@ function updateTeacherInformation() {
 
     const avatar = document.getElementById("teacherAvatar");
     if (avatar) {
-        if (currentTeacher.photo_url) {
+        const photo = currentTeacher.photo_url || localStorage.getItem(`sululta_teacher_photo_${currentTeacher.id}`);
+        if (photo) {
             avatar.innerHTML = "";
             const image = document.createElement("img");
-            image.src = currentTeacher.photo_url;
+            image.src = photo;
             image.alt = fullName;
             image.style.width = "100%";
             image.style.height = "100%";
@@ -102,86 +159,83 @@ function updateTeacherInformation() {
 async function loadAssignedClasses() {
     if (!currentTeacher) return;
 
-    const [classesRes, timetableRes] = await Promise.all([
-        supabase
-            .from("classes")
-            .select(`
-                id,
-                class_name,
-                section,
-                room_number,
-                class_teacher,
-                academic_year,
-                status
-            `)
-            .eq("status", "active")
-            .order("class_name", { ascending: true }),
-        supabase
-            .from("timetable")
-            .select("*")
-            .order("day", { ascending: true })
-            .order("start_time", { ascending: true })
-    ]);
-
-    if (classesRes.error) throw classesRes.error;
-
-    const allClasses = classesRes.data || [];
-    const allTimetableData = timetableRes.data || [];
-
-    let timetableTeachers = {};
-    let teacherAssignments = [];
     try {
-        timetableTeachers = JSON.parse(localStorage.getItem("sululta_timetable_teachers") || "{}");
-        teacherAssignments = JSON.parse(localStorage.getItem("sululta_teacher_subject_assignments") || "[]");
-    } catch (e) {}
+        const [classesRes, timetableRes] = await Promise.all([
+            supabase
+                .from("classes")
+                .select(`
+                    id,
+                    class_name,
+                    section,
+                    room_number,
+                    class_teacher,
+                    academic_year,
+                    status
+                `)
+                .eq("status", "active")
+                .order("class_name", { ascending: true }),
+            supabase
+                .from("timetable")
+                .select("*")
+                .order("day", { ascending: true })
+                .order("start_time", { ascending: true })
+        ]);
 
-    // Filter timetable records for ONLY this teacher
-    teacherTimetable = allTimetableData.filter(entry => {
-        // 1. Matched by teacher_id
-        if (entry.teacher_id != null) {
-            if (Number(entry.teacher_id) === Number(currentTeacher.id)) return true;
-            if (currentTeacher.teacher_id && String(entry.teacher_id) === String(currentTeacher.teacher_id)) return true;
-        }
+        const allClasses = classesRes.data || [];
+        const allTimetableData = timetableRes.data || [];
 
-        // 2. Matched by cached timetable mapping
-        const cached = timetableTeachers[entry.id];
-        if (cached?.teacher_id != null) {
-            if (Number(cached.teacher_id) === Number(currentTeacher.id)) return true;
-            if (currentTeacher.teacher_id && String(cached.teacher_id) === String(currentTeacher.teacher_id)) return true;
-        }
+        let timetableTeachers = {};
+        let teacherAssignments = [];
+        try {
+            timetableTeachers = JSON.parse(localStorage.getItem("sululta_timetable_teachers") || "{}");
+            teacherAssignments = JSON.parse(localStorage.getItem("sululta_teacher_subject_assignments") || "[]");
+        } catch (e) {}
 
-        // 3. Matched by teacher name
-        const entryTeacherName = (entry.teacher_name || cached?.teacher_name || "").toLowerCase();
-        if (entryTeacherName) {
-            if (currentTeacher.last_name && entryTeacherName.includes(currentTeacher.last_name.toLowerCase())) return true;
-            if (currentTeacher.first_name && entryTeacherName.includes(currentTeacher.first_name.toLowerCase())) return true;
-        }
+        // Filter timetable records for this teacher
+        teacherTimetable = allTimetableData.filter(entry => {
+            if (entry.teacher_id != null) {
+                if (Number(entry.teacher_id) === Number(currentTeacher.id)) return true;
+                if (currentTeacher.teacher_id && String(entry.teacher_id) === String(currentTeacher.teacher_id)) return true;
+            }
 
-        // 4. Matched by teaching assignments
-        const match = teacherAssignments.some(a =>
-            (Number(a.teacher_id) === Number(currentTeacher.id) || (currentTeacher.teacher_id && String(a.teacher_id) === String(currentTeacher.teacher_id))) &&
-            a.subject_code === entry.subject_code &&
-            (!a.class_name || (a.class_name === entry.class_name && (!a.section || a.section === entry.section)))
-        );
-        if (match) return true;
+            const cached = timetableTeachers[entry.id];
+            if (cached?.teacher_id != null) {
+                if (Number(cached.teacher_id) === Number(currentTeacher.id)) return true;
+                if (currentTeacher.teacher_id && String(cached.teacher_id) === String(currentTeacher.teacher_id)) return true;
+            }
 
-        return false;
-    });
+            const entryTeacherName = (entry.teacher_name || cached?.teacher_name || "").toLowerCase();
+            if (entryTeacherName) {
+                if (currentTeacher.last_name && entryTeacherName.includes(currentTeacher.last_name.toLowerCase())) return true;
+                if (currentTeacher.first_name && entryTeacherName.includes(currentTeacher.first_name.toLowerCase())) return true;
+            }
 
-    // Derive ONLY the classes for this teacher's timetable (or where they are class_teacher)
-    const myClassKeys = new Set(teacherTimetable.map(t => `${t.class_name}|${t.section}`.toLowerCase()));
+            const match = teacherAssignments.some(a =>
+                (Number(a.teacher_id) === Number(currentTeacher.id) || (currentTeacher.teacher_id && String(a.teacher_id) === String(currentTeacher.teacher_id))) &&
+                a.subject_code === entry.subject_code &&
+                (!a.class_name || (a.class_name === entry.class_name && (!a.section || a.section === entry.section)))
+            );
+            if (match) return true;
 
-    assignedClasses = allClasses.filter(c => {
-        const key = `${c.class_name}|${c.section}`.toLowerCase();
-        const isClassTeacher = c.class_teacher && (
-            String(c.class_teacher) === String(currentTeacher.id) ||
-            (currentTeacher.teacher_id && String(c.class_teacher) === String(currentTeacher.teacher_id)) ||
-            (currentTeacher.last_name && String(c.class_teacher).toLowerCase().includes(currentTeacher.last_name.toLowerCase()))
-        );
-        return myClassKeys.has(key) || isClassTeacher;
-    });
+            return false;
+        });
 
-    setText("myClasses", assignedClasses.length);
+        const myClassKeys = new Set(teacherTimetable.map(t => `${t.class_name}|${t.section}`.toLowerCase()));
+
+        assignedClasses = allClasses.filter(c => {
+            const key = `${c.class_name}|${c.section}`.toLowerCase();
+            const isClassTeacher = c.class_teacher && (
+                String(c.class_teacher) === String(currentTeacher.id) ||
+                (currentTeacher.teacher_id && String(c.class_teacher) === String(currentTeacher.teacher_id)) ||
+                (currentTeacher.last_name && String(c.class_teacher).toLowerCase().includes(currentTeacher.last_name.toLowerCase()))
+            );
+            return myClassKeys.has(key) || isClassTeacher;
+        });
+
+        setText("myClasses", assignedClasses.length);
+    } catch (err) {
+        console.warn("Could not load assigned classes:", err);
+    }
 }
 
 function loadTeacherTimetableSchedule() {
@@ -229,104 +283,103 @@ function loadTeacherTimetableSchedule() {
 }
 
 async function loadAssignedStudents() {
-    if (!currentTeacher) return;
-
-    if (assignedClasses.length === 0) {
+    if (!currentTeacher || assignedClasses.length === 0) {
         assignedStudents = [];
         setText("myStudents", "0");
         return;
     }
 
-    const classIds = assignedClasses.map(schoolClass => schoolClass.id);
+    try {
+        const classIds = assignedClasses.map(schoolClass => schoolClass.id);
+        const { data, error } = await supabase
+            .from("students")
+            .select(`
+                id,
+                student_id,
+                first_name,
+                last_name,
+                gender,
+                date_of_birth,
+                class,
+                section,
+                phone,
+                email,
+                photo_url,
+                status,
+                class_id
+            `)
+            .eq("status", "active")
+            .in("class_id", classIds)
+            .order("first_name", { ascending: true });
 
-    const { data, error } = await supabase
-        .from("students")
-        .select(`
-            id,
-            student_id,
-            first_name,
-            last_name,
-            gender,
-            date_of_birth,
-            class,
-            section,
-            phone,
-            email,
-            photo_url,
-            status,
-            class_id
-        `)
-        .eq("status", "active")
-        .in("class_id", classIds)
-        .order("first_name", { ascending: true });
-
-    if (error) throw error;
-
-    assignedStudents = data || [];
-    setText("myStudents", assignedStudents.length);
+        if (!error && data) {
+            assignedStudents = data;
+            setText("myStudents", assignedStudents.length);
+        }
+    } catch (e) {
+        console.warn("Could not load assigned students:", e);
+    }
 }
 
 async function loadAttendanceStatistics() {
-    if (assignedStudents.length === 0) {
+    if (!currentTeacher || assignedStudents.length === 0) {
         setText("attendanceRate", "0%");
         return;
     }
 
-    const studentIds = assignedStudents.map(student => student.id);
+    try {
+        const studentIds = assignedStudents.map(student => student.id);
+        const { data, error } = await supabase
+            .from("attendance")
+            .select(`
+                id,
+                student_id,
+                attendance_date,
+                status
+            `)
+            .in("student_id", studentIds);
 
-    const { data, error } = await supabase
-        .from("attendance")
-        .select(`
-            id,
-            student_id,
-            attendance_date,
-            status
-        `)
-        .in("student_id", studentIds);
-
-    if (error) throw error;
-
-    const attendanceRecords = data || [];
-
-    if (attendanceRecords.length === 0) {
-        setText("attendanceRate", "0%");
-        return;
+        if (!error && data && data.length) {
+            const presentRecords = data.filter(
+                record => String(record.status || "").toLowerCase().trim() === "present"
+            );
+            const percentage = (presentRecords.length / data.length) * 100;
+            setText("attendanceRate", `${percentage.toFixed(1)}%`);
+        } else {
+            setText("attendanceRate", "0%");
+        }
+    } catch (e) {
+        console.warn("Could not load attendance stats:", e);
     }
-
-    const presentRecords = attendanceRecords.filter(
-        record => String(record.status || "").toLowerCase().trim() === "present"
-    );
-
-    const percentage = (presentRecords.length / attendanceRecords.length) * 100;
-    setText("attendanceRate", `${percentage.toFixed(1)}%`);
 }
 
 async function loadResultsStatistics() {
-    if (assignedStudents.length === 0) {
+    if (!currentTeacher || assignedStudents.length === 0) {
         setText("resultsCount", "0");
         return;
     }
 
-    const studentCodes = assignedStudents
-        .map(student => student.student_id)
-        .filter(Boolean);
+    try {
+        const studentCodes = assignedStudents
+            .map(student => student.student_id)
+            .filter(Boolean);
 
-    if (studentCodes.length === 0) {
-        setText("resultsCount", "0");
-        return;
+        if (studentCodes.length === 0) {
+            setText("resultsCount", "0");
+            return;
+        }
+
+        const { data, error } = await supabase
+            .from("results")
+            .select("id, student_id")
+            .in("student_id", studentCodes);
+
+        if (!error && data) {
+            setText("resultsCount", data.length);
+        }
+    } catch (e) {
+        console.warn("Could not load results stats:", e);
     }
-
-    const { data, error } = await supabase
-        .from("results")
-        .select(`
-            id,
-            student_id
-        `)
-        .in("student_id", studentCodes);
-
-    if (error) throw error;
-
-    setText("resultsCount", (data || []).length);
 }
 
 function setupSidebar() {
@@ -345,12 +398,10 @@ function setupLogout() {
 
     logoutButton.addEventListener("click", async () => {
         logoutButton.disabled = true;
-        const { error } = await supabase.auth.signOut();
-        if (error) {
+        try {
+            await supabase.auth.signOut();
+        } catch (error) {
             console.error("Logout error:", error);
-            logoutButton.disabled = false;
-            showMessage(error.message || "Failed to sign out.");
-            return;
         }
         window.location.replace("/login.html");
     });

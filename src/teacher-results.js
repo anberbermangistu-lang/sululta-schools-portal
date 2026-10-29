@@ -1,4 +1,4 @@
-import { supabase } from "./supabase.js";
+import { supabase, getSession, getUserProfile, getRoleDashboard } from "./supabase.js";
 
 /* ──────────────────────────────────────────────────────────────
    CONSTANTS & WEIGHTS
@@ -50,49 +50,59 @@ async function initTeacherResults() {
    AUTHENTICATION & PROFILE
 ────────────────────────────────────────────────────────────── */
 async function checkTeacherAuth() {
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const session = await getSession();
+    const user = session?.user;
 
-    if (authError || !user) {
+    if (!user) {
         window.location.href = "/login.html";
         return false;
     }
 
     currentUser = user;
 
-    // Fetch profile
-    const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("id, role, status, first_name, last_name, avatar_url")
-        .eq("id", user.id)
-        .maybeSingle();
+    // Fetch profile safely
+    const profile = await getUserProfile(user.id);
+    const role = String(profile?.role || "").trim().toLowerCase();
 
-    if (profileError || !profile) {
-        await supabase.auth.signOut();
-        window.location.href = "/login.html";
+    if (role && role !== "teacher" && role !== "admin") {
+        const dest = getRoleDashboard(role);
+        if (dest) window.location.href = dest;
         return false;
     }
 
-    const role = String(profile.role || "").trim().toLowerCase();
-    const status = String(profile.status || "").trim().toLowerCase();
-
-    if ((role !== "teacher" && role !== "admin") || status !== "active") {
-        await supabase.auth.signOut();
-        window.location.href = "/login.html";
-        return false;
+    // Try fetching teacher details by user_id
+    let teacherRecord = null;
+    try {
+        const { data } = await supabase
+            .from("teachers")
+            .select("id, teacher_id, first_name, last_name, photo_url")
+            .eq("user_id", user.id)
+            .maybeSingle();
+        teacherRecord = data;
+    } catch (e) {
+        console.warn("Teacher record lookup notice:", e);
     }
 
-    // Try fetching teacher details
-    const { data: teacherRecord } = await supabase
-        .from("teachers")
-        .select("id, teacher_id, first_name, last_name, photo_url")
-        .eq("user_id", user.id)
-        .maybeSingle();
+    // Fallback: match by email
+    if (!teacherRecord && user.email) {
+        try {
+            const { data } = await supabase
+                .from("teachers")
+                .select("id, teacher_id, first_name, last_name, photo_url")
+                .ilike("email", user.email.trim())
+                .maybeSingle();
+            if (data) {
+                teacherRecord = data;
+                await supabase.from("teachers").update({ user_id: user.id }).eq("id", teacherRecord.id);
+            }
+        } catch (_) {}
+    }
 
     currentTeacher = teacherRecord;
 
     const displayName = teacherRecord?.first_name
         ? `${teacherRecord.first_name} ${teacherRecord.last_name || ""}`.trim()
-        : (profile.first_name ? `${profile.first_name} ${profile.last_name || ""}`.trim() : "Teacher");
+        : (profile?.first_name ? `${profile.first_name} ${profile.last_name || ""}`.trim() : "Teacher");
 
     const photo = teacherRecord?.photo_url || profile.avatar_url || localStorage.getItem(`sululta_teacher_photo_${teacherRecord?.id}`);
 

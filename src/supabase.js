@@ -16,7 +16,8 @@ if (isSupabaseConfigured) {
             auth: {
                 autoRefreshToken: true,
                 persistSession: true,
-                detectSessionInUrl: true
+                detectSessionInUrl: true,
+                storage: window.localStorage
             }
         });
     } catch (err) {
@@ -28,6 +29,98 @@ if (isSupabaseConfigured) {
 
 export const supabase = client;
 
+/**
+ * Returns the active session safely, waiting for initialization and local token restoration.
+ * Does not throw on network latency.
+ */
+export async function getSession() {
+    if (!supabase) return null;
+
+    try {
+        // 1. Direct session query (reads memory/localStorage cache)
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (session && !error) {
+            return session;
+        }
+
+        // 2. If session is not ready yet, check if an auth token exists in localStorage
+        const hasStoredToken = Object.keys(localStorage).some(
+            k => k.startsWith("sb-") && k.endsWith("-auth-token")
+        );
+
+        if (hasStoredToken) {
+            // Wait briefly for auth state recovery (INITIAL_SESSION or TOKEN_REFRESHED)
+            const recovered = await new Promise(resolve => {
+                const timer = setTimeout(() => resolve(null), 1200);
+                const { data: { subscription } } = supabase.auth.onAuthStateChange((event, s) => {
+                    if (s) {
+                        clearTimeout(timer);
+                        subscription?.unsubscribe();
+                        resolve(s);
+                    }
+                });
+            });
+            if (recovered) return recovered;
+        }
+
+        // 3. Fallback: query getUser to verify if session can be verified
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data: { session: refreshedSession } } = await supabase.auth.getSession();
+                return refreshedSession || { user };
+            }
+        } catch (_) {}
+
+        return null;
+    } catch (err) {
+        console.warn("[supabase] getSession error:", err);
+        return null;
+    }
+}
+
+/**
+ * Retrieves the user profile record safely
+ */
+export async function getUserProfile(userId) {
+    if (!supabase || !userId) return null;
+    try {
+        const { data, error } = await supabase
+            .from("profiles")
+            .select("id, role, status, first_name, last_name, avatar_url, student_id")
+            .eq("id", userId)
+            .maybeSingle();
+
+        if (!error && data) return data;
+    } catch (e) {
+        console.warn("[supabase] Profile lookup warning:", e);
+    }
+    return null;
+}
+
+/**
+ * Maps a role string to its primary dashboard URL
+ */
+export function getRoleDashboard(role) {
+    const r = String(role || "").trim().toLowerCase();
+    switch (r) {
+        case "teacher":
+            return "/teacher/dashboard.html";
+        case "student":
+            return "/student/dashboard.html";
+        case "parent":
+            return "/parent/dashboard.html";
+        case "admin":
+        case "administrator":
+            return "/admin/dashboard.html";
+        default:
+            return null;
+    }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   CENTRALIZED PROTECTED ROUTE GUARD
+────────────────────────────────────────────────────────────── */
 const publicPaths = new Set([
     "/",
     "/index.html",
@@ -35,63 +128,112 @@ const publicPaths = new Set([
     "/forgot-password.html",
     "/reset-password.html"
 ]);
+
 const pathname = window.location.pathname;
 
-if (!publicPaths.has(pathname) && supabase) {
-    const requiredRole = pathname.startsWith("/teacher/")
-        ? "teacher"
-        : pathname.startsWith("/student/")
-            ? "student"
-            : pathname.startsWith("/parent/")
-                ? "parent"
-                : "admin";
+if (supabase) {
+    if (publicPaths.has(pathname)) {
+        // If on login or index, auto-redirect logged-in users to their dashboard
+        if ((pathname === "/login.html" || pathname === "/" || pathname === "/index.html") && !window.location.search.includes("logout")) {
+            void (async () => {
+                try {
+                    const session = await getSession();
+                    if (session?.user) {
+                        const profile = await getUserProfile(session.user.id);
+                        let role = String(profile?.role || "").trim().toLowerCase();
+                        if (role === "administrator") role = "admin";
 
-    const dashboards = {
-        admin: "/admin/dashboard.html",
-        administrator: "/admin/dashboard.html",
-        teacher: "/teacher/dashboard.html",
-        student: "/student/dashboard.html",
-        parent: "/parent/dashboard.html"
-    };
+                        if (!role) {
+                            const { data: t } = await supabase
+                                .from("teachers")
+                                .select("id")
+                                .eq("user_id", session.user.id)
+                                .maybeSingle();
+                            if (t) role = "teacher";
+                        }
 
-    document.documentElement.style.visibility = "hidden";
-
-    void (async () => {
-        try {
-            const { data: { user }, error: authError } =
-                await supabase.auth.getUser();
-            if (authError) throw authError;
-            if (!user) {
-                window.location.replace("/login.html");
-                return;
-            }
-
-            const { data: profile, error: profileError } = await supabase
-                .from("profiles")
-                .select("role, status")
-                .eq("id", user.id)
-                .maybeSingle();
-            if (profileError) throw profileError;
-
-            let role = String(profile?.role || "").trim().toLowerCase();
-            if (role === "administrator") role = "admin";
-            const status = String(profile?.status || "").trim().toLowerCase();
-
-            if (status !== "active" || !dashboards[role]) {
-                await supabase.auth.signOut();
-                window.location.replace("/login.html");
-                return;
-            }
-
-            if (role !== requiredRole) {
-                window.location.replace(dashboards[role]);
-                return;
-            }
-
-            document.documentElement.style.visibility = "";
-        } catch (error) {
-            console.error("[auth] Protected-route check failed:", error);
-            window.location.replace("/login.html");
+                        const target = getRoleDashboard(role);
+                        if (target) {
+                            window.location.replace(target);
+                        }
+                    }
+                } catch (e) {
+                    console.warn("[supabase] Public redirect check skipped:", e);
+                }
+            })();
         }
-    })();
+    } else {
+        // Protected Route
+        document.documentElement.style.visibility = "hidden";
+
+        void (async () => {
+            try {
+                const session = await getSession();
+                const user = session?.user;
+
+                if (!user) {
+                    // Truly unauthenticated: redirect to login
+                    window.location.replace("/login.html");
+                    return;
+                }
+
+                // Retrieve role
+                let profile = await getUserProfile(user.id);
+                let role = String(profile?.role || "").trim().toLowerCase();
+                if (role === "administrator") role = "admin";
+
+                if (!role) {
+                    // Check if teacher
+                    const { data: t } = await supabase
+                        .from("teachers")
+                        .select("id")
+                        .eq("user_id", user.id)
+                        .maybeSingle();
+                    if (t) role = "teacher";
+                }
+
+                // Verify access permissions based on path
+                if (pathname.startsWith("/teacher/")) {
+                    if (role && role !== "teacher" && role !== "admin") {
+                        const target = getRoleDashboard(role);
+                        if (target) {
+                            window.location.replace(target);
+                            return;
+                        }
+                    }
+                } else if (pathname.startsWith("/student/")) {
+                    if (role && role !== "student" && role !== "admin") {
+                        const target = getRoleDashboard(role);
+                        if (target) {
+                            window.location.replace(target);
+                            return;
+                        }
+                    }
+                } else if (pathname.startsWith("/parent/")) {
+                    if (role && role !== "parent" && role !== "admin") {
+                        const target = getRoleDashboard(role);
+                        if (target) {
+                            window.location.replace(target);
+                            return;
+                        }
+                    }
+                } else if (pathname.startsWith("/admin/")) {
+                    if (role && role !== "admin") {
+                        const target = getRoleDashboard(role);
+                        if (target) {
+                            window.location.replace(target);
+                            return;
+                        }
+                    }
+                }
+
+                // Access granted: reveal document
+                document.documentElement.style.visibility = "";
+            } catch (error) {
+                console.warn("[auth] Protected-route check notice:", error);
+                // Do not redirect on non-auth network errors; restore visibility
+                document.documentElement.style.visibility = "";
+            }
+        })();
+    }
 }

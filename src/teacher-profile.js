@@ -1,4 +1,4 @@
-import { supabase } from "./supabase.js";
+import { supabase, getSession, getUserProfile, getRoleDashboard } from "./supabase.js";
 
 let teacher = null;
 let currentUser = null;
@@ -7,47 +7,51 @@ let currentUser = null;
    AUTHENTICATION & PROFILE FETCH
 ────────────────────────────────────────────────────────────── */
 async function getTeacher() {
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const session = await getSession();
+    const user = session?.user;
 
-    if (authError || !user) {
+    if (!user) {
         window.location.href = "/login.html";
         return null;
     }
 
     currentUser = user;
 
-    const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("id, role, status, first_name, last_name, avatar_url")
-        .eq("id", user.id)
-        .maybeSingle();
+    const profile = await getUserProfile(user.id);
+    const role = String(profile?.role || "").trim().toLowerCase();
 
-    if (profileError || !profile) {
-        await supabase.auth.signOut();
-        window.location.href = "/login.html";
+    if (role && role !== "teacher" && role !== "admin") {
+        const dest = getRoleDashboard(role);
+        if (dest) window.location.href = dest;
         return null;
     }
 
-    const role = String(profile.role || "").trim().toLowerCase();
-    const status = String(profile.status || "").trim().toLowerCase();
-
-    if (role !== "teacher" || status !== "active") {
-        await supabase.auth.signOut();
-        window.location.href = "/login.html";
-        return null;
+    // Fetch teacher record by user_id
+    let teacherRecord = null;
+    try {
+        const { data } = await supabase
+            .from("teachers")
+            .select("id, teacher_id, first_name, last_name, gender, phone, email, address, qualification, photo_url, user_id, status, created_at, updated_at")
+            .eq("user_id", user.id)
+            .maybeSingle();
+        teacherRecord = data;
+    } catch (e) {
+        console.warn("Teacher fetch warning:", e);
     }
 
-    // Fetch teacher record
-    const { data: teacherRecord, error: teacherError } = await supabase
-        .from("teachers")
-        .select("id, teacher_id, first_name, last_name, gender, phone, email, address, qualification, photo_url, user_id, status, created_at, updated_at")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-    if (teacherError) {
-        console.error("Teacher fetch error:", teacherError);
-        showMessage(teacherError.message, "error");
-        return null;
+    // Fallback: match by email
+    if (!teacherRecord && user.email) {
+        try {
+            const { data } = await supabase
+                .from("teachers")
+                .select("id, teacher_id, first_name, last_name, gender, phone, email, address, qualification, photo_url, user_id, status, created_at, updated_at")
+                .ilike("email", user.email.trim())
+                .maybeSingle();
+            if (data) {
+                teacherRecord = data;
+                await supabase.from("teachers").update({ user_id: user.id }).eq("id", teacherRecord.id);
+            }
+        } catch (_) {}
     }
 
     if (!teacherRecord) {

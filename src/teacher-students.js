@@ -1,4 +1,4 @@
-import { supabase } from "./supabase.js";
+import { supabase, getSession, getUserProfile, getRoleDashboard } from "./supabase.js";
 
 let teacher = null;
 let classes = [];
@@ -7,55 +7,70 @@ let filteredStudents = [];
 let selectedSectionClassId = "";
 
 async function getTeacher() {
-    const {
-        data: { user },
-        error: authError
-    } = await supabase.auth.getUser();
+    const session = await getSession();
+    const user = session?.user;
 
-    if (authError || !user) {
+    if (!user) {
         window.location.href = "/login.html";
         return null;
     }
 
-    const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("id, role, status")
-        .eq("id", user.id)
-        .maybeSingle();
+    const profile = await getUserProfile(user.id);
+    const role = String(profile?.role || "").trim().toLowerCase();
 
-    if (profileError || !profile) {
-        await supabase.auth.signOut();
-        window.location.href = "/login.html";
+    if (role && role !== "teacher" && role !== "admin") {
+        const dest = getRoleDashboard(role);
+        if (dest) window.location.href = dest;
         return null;
     }
 
-    const role = String(profile.role || "").trim().toLowerCase();
-    const status = String(profile.status || "").trim().toLowerCase();
-
-    if (role !== "teacher" || status !== "active") {
-        await supabase.auth.signOut();
-        window.location.href = "/login.html";
-        return null;
+    let teacherRecord = null;
+    try {
+        const { data } = await supabase
+            .from("teachers")
+            .select(`
+                id,
+                teacher_id,
+                first_name,
+                last_name,
+                email,
+                phone,
+                photo_url,
+                user_id,
+                status
+            `)
+            .eq("user_id", user.id)
+            .maybeSingle();
+        teacherRecord = data;
+    } catch (e) {
+        console.warn("Teacher record fetch notice:", e);
     }
 
-    const { data: teacherRecord, error: teacherError } = await supabase
-        .from("teachers")
-        .select(`
-            id,
-            teacher_id,
-            first_name,
-            last_name,
-            email,
-            phone,
-            photo_url,
-            user_id,
-            status
-        `)
-        .eq("user_id", user.id)
-        .maybeSingle();
+    if (!teacherRecord && user.email) {
+        try {
+            const { data } = await supabase
+                .from("teachers")
+                .select(`
+                    id,
+                    teacher_id,
+                    first_name,
+                    last_name,
+                    email,
+                    phone,
+                    photo_url,
+                    user_id,
+                    status
+                `)
+                .ilike("email", user.email.trim())
+                .maybeSingle();
+            if (data) {
+                teacherRecord = data;
+                await supabase.from("teachers").update({ user_id: user.id }).eq("id", teacherRecord.id);
+            }
+        } catch (_) {}
+    }
 
-    if (teacherError || !teacherRecord) {
-        console.error("Teacher error:", teacherError);
+    if (!teacherRecord) {
         showMessage("Your teacher account is not connected to a teacher record.");
         return null;
     }
