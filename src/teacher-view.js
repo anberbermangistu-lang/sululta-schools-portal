@@ -19,6 +19,7 @@ const detailGender = document.getElementById("detailGender");
 const detailPhone = document.getElementById("detailPhone");
 const detailEmail = document.getElementById("detailEmail");
 const detailQualification = document.getElementById("detailQualification");
+const detailSubject = document.getElementById("detailSubject");
 const detailStatus = document.getElementById("detailStatus");
 const detailCreatedAt = document.getElementById("detailCreatedAt");
 const detailUpdatedAt = document.getElementById("detailUpdatedAt");
@@ -70,6 +71,7 @@ async function loadTeacher() {
                 phone,
                 email,
                 qualification,
+                department,
                 status,
                 photo_url,
                 created_at,

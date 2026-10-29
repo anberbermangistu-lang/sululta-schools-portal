@@ -36,6 +36,7 @@ async function initialize() {
         return;
     }
 
+    await loadSubjects();
     await loadTeacher();
 }
 
@@ -84,6 +85,7 @@ async function loadTeacher() {
                     phone,
                     email,
                     qualification,
+                    department,
                     status,
                     photo_url
                 `)
@@ -160,6 +162,9 @@ function fillForm(teacher) {
         "qualification"
     ).value =
         teacher.qualification || "";
+
+    const subjectEl = document.getElementById("subject");
+    if (subjectEl) subjectEl.value = teacher.department || "";
 
     document.getElementById(
         "status"
@@ -349,6 +354,11 @@ async function saveTeacher(event) {
                 document.getElementById(
                     "qualification"
                 ).value.trim() || null,
+
+            department:
+                document.getElementById(
+                    "subject"
+                )?.value || null,
 
             status:
                 document.getElementById(
@@ -560,3 +570,31 @@ window.addEventListener(
 
     }
 );
+async function loadSubjects() {
+    const subjectSelect = document.getElementById("subject");
+    if (!subjectSelect) return;
+    try {
+        const { data: subjects, error } = await supabase
+            .from("subjects")
+            .select("id, subject_code, subject_name")
+            .order("subject_name");
+        if (!error && subjects && subjects.length > 0) {
+            subjectSelect.innerHTML = '<option value="">Select Subject</option>' +
+                subjects.map(s => {
+                    const label = s.subject_code ? `${s.subject_name} (${s.subject_code})` : s.subject_name;
+                    return `<option value="${s.subject_name}">${label}</option>`;
+                }).join('');
+            return;
+        }
+    } catch (e) {
+        console.warn("Could not load subjects:", e);
+    }
+    const defaultSubjects = [
+        'Mathematics', 'English', 'Amharic', 'Afan Oromo',
+        'Physics', 'Chemistry', 'Biology', 'General Science',
+        'Social Studies', 'History', 'Geography', 'Civics',
+        'Economics', 'Information Technology', 'Health & Physical Education'
+    ];
+    subjectSelect.innerHTML = '<option value="">Select Subject</option>' +
+        defaultSubjects.map(sub => `<option value="${sub}">${sub}</option>`).join('');
+}

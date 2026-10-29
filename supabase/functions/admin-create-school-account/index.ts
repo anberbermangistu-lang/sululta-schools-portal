@@ -146,6 +146,7 @@ Deno.serve(async request => {
                 phone: optionalText(submittedRecord.phone),
                 gender: optionalText(submittedRecord.gender),
                 qualification: optionalText(submittedRecord.qualification),
+                department: optionalText(submittedRecord.department || submittedRecord.subject),
                 address: optionalText(submittedRecord.address),
                 photo_url: optionalText(submittedRecord.photo_url),
                 email,
