@@ -6,7 +6,7 @@
     <title>Student Portal | Sululta Secondary School</title>
     <link rel="icon" type="image/svg+xml" href="/school-logo.svg">
     <link rel="stylesheet" href="/src/style.css">
-        <style>
+    <style>
         * { box-sizing: border-box; }
         body { margin: 0; background: #f1f5f9; color: #1e293b; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif; }
         
@@ -37,7 +37,7 @@
             align-items: center;
             gap: 12px;
             padding: 4px 6px 14px;
-            margin-bottom: 12px; /* MOVED UPWARD: reduced empty space */
+            margin-bottom: 12px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             flex-shrink: 0;
         }
@@ -86,7 +86,7 @@
             display: block;
             font-size: 11px;
             font-weight: 700;
-            color: #38bdf8; /* light-blue accent */
+            color: #38bdf8;
             letter-spacing: 0.1em;
             text-transform: uppercase;
             margin-top: 3px;
@@ -118,7 +118,7 @@
             text-decoration: none;
             padding: 11px 14px;
             border-radius: 10px;
-            font-size: 15.5px; /* Increased readable font size */
+            font-size: 15.5px;
             font-weight: 500;
             transition: all 0.15s ease;
             position: relative;
@@ -149,7 +149,6 @@
         .sp-nav-link:hover {
             background: rgba(255, 255, 255, 0.09);
             color: #ffffff;
-            transform: translateX(3px);
         }
 
         .sp-nav-link:hover .sp-nav-icon {
@@ -157,36 +156,26 @@
         }
 
         .sp-nav-link.active {
-            background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+            background: linear-gradient(90deg, #1d4ed8 0%, #2563eb 100%);
             color: #ffffff;
-            font-weight: 600;
-            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(29, 78, 216, 0.35);
         }
 
         .sp-nav-link.active .sp-nav-icon {
             color: #ffffff;
         }
 
-        .sp-nav-link.active::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 4px;
-            height: 22px;
-            background: #38bdf8;
-            border-radius: 0 4px 4px 0;
-        }
-
-        /* Student Profile Section at Bottom */
+        /* Profile at bottom of sidebar */
         .sp-profile-section {
-            margin-top: auto;
-            padding-top: 14px;
-            border-top: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 14px 12px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
             display: flex;
             align-items: center;
             gap: 12px;
+            margin-top: 12px;
             flex-shrink: 0;
         }
 
@@ -195,7 +184,7 @@
             height: 40px;
             min-width: 40px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            background: #1d4ed8;
             color: #ffffff;
             font-weight: 700;
             font-size: 16px;
@@ -204,6 +193,12 @@
             justify-content: center;
             border: 2px solid rgba(56, 189, 248, 0.4);
             overflow: hidden;
+        }
+
+        .sp-profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .sp-profile-info {
@@ -297,7 +292,8 @@
             text-transform: uppercase;
             letter-spacing: 0.04em;
         }
-        .avatar { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%; background: #dce8f8; color: #082b59; font-weight: 700; }
+        .avatar { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%; background: #dce8f8; color: #082b59; font-weight: 700; overflow: hidden; border: 2px solid #bae6fd; }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
         
         /* Tabs Behavior */
         .tab-content { display: none; }
@@ -308,8 +304,9 @@
         }
 
         .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
-        .card { min-width: 0; padding: 22px; border-radius: 12px; background: white; box-shadow: 0 2px 10px #19385e0d; margin-bottom: 18px; }
+        .card { min-width: 0; padding: 22px; border-radius: 12px; background: white; box-shadow: 0 2px 10px #19385e0d; margin-bottom: 18px; border: 1px solid #e2e8f0; }
         .card h2 { margin: 0 0 16px; font-size: 18px; color: #082b59; display: flex; align-items: center; gap: 8px; }
+        .card p.card-desc { color: #64748b; font-size: 13.5px; margin: -10px 0 16px; }
         .wide { grid-column: 1 / -1; }
         .facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
         .fact label { display: block; margin-bottom: 4px; color: #64748b; font-size: 13px; font-weight: 600; }
@@ -317,18 +314,401 @@
         .table-wrap { overflow-x: auto; margin-top: 8px; }
         table { width: 100%; border-collapse: collapse; text-align: left; }
         th, td { padding: 12px 10px; border-bottom: 1px solid #e8edf4; white-space: nowrap; }
-        th { color: #52657e; font-size: 13px; font-weight: 700; background: #fafbfc; text-transform: uppercase; letter-spacing: 0.03em; }
+        th { color: #52657e; font-size: 12.5px; font-weight: 700; background: #fafbfc; text-transform: uppercase; letter-spacing: 0.03em; }
         .empty, .message { color: #64748b; padding: 16px 0; font-size: 14px; }
         .message.error { color: #b42318; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; }
         .message.success { color: #137547; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; }
         form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
         form label { display: grid; gap: 6px; color: #52657e; font-size: 13px; font-weight: 600; }
-        input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 7px; font: inherit; color: #172b4d; outline: none; transition: border-color 0.15s; }
-        input:focus { border-color: #0a4b86; box-shadow: 0 0 0 3px rgba(10, 75, 134, 0.12); }
+        input, select { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 7px; font: inherit; color: #172b4d; outline: none; transition: border-color 0.15s; }
+        input:focus, select:focus { border-color: #0a4b86; box-shadow: 0 0 0 3px rgba(10, 75, 134, 0.12); }
         input[readonly] { background: #f8fafc; color: #64748b; cursor: default; }
         form button { justify-self: start; padding: 10px 18px; border: 0; border-radius: 7px; background: #0a4b86; color: white; font: inherit; font-weight: 600; cursor: pointer; transition: background 0.15s; }
         form button:hover { background: #083c6c; }
         form button:disabled { opacity: .6; cursor: wait; }
+
+        /* ════════════════ KPI SUMMARY CARDS ════════════════ */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .kpi-card {
+            background: white;
+            padding: 18px 20px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .kpi-value {
+            font-size: 26px;
+            font-weight: 800;
+            color: #082b59;
+            line-height: 1.2;
+            margin-bottom: 4px;
+        }
+
+        .kpi-sub {
+            font-size: 12px;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* ════════════════ FILTERS & TOOLBAR ════════════════ */
+        .filter-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding: 12px 14px;
+            background: #f8fafc;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            flex: 1;
+        }
+
+        .filter-input-wrap {
+            position: relative;
+            min-width: 220px;
+            flex: 1;
+        }
+
+        .filter-input-wrap input {
+            padding-left: 34px;
+            font-size: 13.5px;
+        }
+
+        .filter-input-wrap svg {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            color: #94a3b8;
+            pointer-events: none;
+        }
+
+        .filter-select {
+            min-width: 190px;
+            font-size: 13.5px;
+        }
+
+        .btn-reset {
+            padding: 9px 14px;
+            background: #e2e8f0;
+            color: #475569;
+            border: none;
+            border-radius: 7px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+
+        .btn-reset:hover {
+            background: #cbd5e1;
+            color: #0f172a;
+        }
+
+        /* ════════════════ BADGES & VISUAL METERS ════════════════ */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 9px;
+            border-radius: 9999px;
+            font-size: 11.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .badge-pass { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+        .badge-fail { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+        .badge-warn { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+        .badge-blue { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+        .badge-purple { background: #f3e8ff; color: #6b21a8; border: 1px solid #e9d5ff; }
+        .badge-amber { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+        .badge-emerald { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+        
+        .badge-exam {
+            background: #f1f5f9;
+            color: #334155;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            border: 1px solid #e2e8f0;
+        }
+
+        .badge-grade {
+            display: inline-block;
+            min-width: 26px;
+            text-align: center;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 800;
+            font-size: 12px;
+        }
+
+        .grade-a { background: #dcfce7; color: #15803d; }
+        .grade-b { background: #e0f2fe; color: #0369a1; }
+        .grade-c { background: #fef3c7; color: #b45309; }
+        .grade-d { background: #ffedd5; color: #c2410c; }
+        .grade-f { background: #fee2e2; color: #b91c1c; }
+
+        /* Progress Bar */
+        .progress-bar-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 140px;
+        }
+
+        .progress-bar-track {
+            flex: 1;
+            height: 7px;
+            background: #e2e8f0;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-bar-text {
+            font-size: 12px;
+            font-weight: 700;
+            min-width: 38px;
+            text-align: right;
+        }
+
+        /* ════════════════ ENROLLED SUBJECTS GRID ════════════════ */
+        .subject-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .subject-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .subject-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(10, 75, 134, 0.09);
+            border-color: #93c5fd;
+        }
+
+        .subject-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .subject-code-tag {
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-weight: 700;
+            font-size: 12px;
+            padding: 4px 9px;
+            border-radius: 6px;
+            border: 1px solid #bfdbfe;
+            letter-spacing: 0.04em;
+        }
+
+        .subject-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #082b59;
+            margin: 0 0 4px;
+        }
+
+        .subject-category {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 14px;
+            font-weight: 500;
+        }
+
+        .subject-meta-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding-top: 12px;
+            border-top: 1px solid #f1f5f9;
+            font-size: 12.5px;
+        }
+
+        .subject-meta-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .subject-meta-item span {
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .subject-meta-item strong {
+            color: #1e293b;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 2px;
+        }
+
+        /* ════════════════ PROFILE PHOTO UPLOADER ════════════════ */
+        .profile-photo-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 28px 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px #19385e0d;
+            border: 1px solid #e2e8f0;
+            height: fit-content;
+        }
+
+        .profile-photo-wrap {
+            position: relative;
+            width: 124px;
+            height: 124px;
+            border-radius: 50%;
+            border: 3.5px solid #38bdf8;
+            padding: 3px;
+            background: white;
+            box-shadow: 0 4px 16px rgba(10, 75, 134, 0.15);
+            margin-bottom: 14px;
+        }
+
+        .profile-photo-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #dbeafe;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
+            font-weight: 800;
+            color: #1d4ed8;
+            overflow: hidden;
+        }
+
+        .profile-photo-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            background: #0a4b86;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13.5px;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.15s;
+            margin-top: 10px;
+        }
+
+        .photo-btn-primary:hover {
+            background: #083c6c;
+            transform: translateY(-1px);
+        }
+
+        .photo-btn-outline {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            background: transparent;
+            color: #dc2626;
+            border: 1px solid #fca5a5;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: all 0.15s;
+        }
+
+        .photo-btn-outline:hover {
+            background: #fef2f2;
+            border-color: #dc2626;
+        }
+
+        .photo-status {
+            font-size: 13px;
+            font-weight: 600;
+            min-height: 20px;
+            margin-top: 8px;
+        }
+
+        .photo-hint {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 10px;
+            line-height: 1.45;
+            max-width: 260px;
+        }
 
         @media (max-width: 820px) {
             .layout { display: block; }
@@ -358,27 +738,48 @@
             .sp-backdrop.show { opacity: 1; pointer-events: auto; }
             main { padding: 18px 14px; }
             .facts { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+            .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
         }
         @media (max-width: 520px) {
-            .grid, .facts, form { grid-template-columns: 1fr !important; }
+            .grid, .facts, form, .kpi-grid { grid-template-columns: 1fr !important; }
             .wide { grid-column: auto; }
             .topbar { align-items: flex-start; }
             .identity span { max-width: 110px; overflow-wrap: anywhere; }
         }
 
-        /* Dark mode overrides */
+        /* ════════════════ DARK THEME OVERRIDES ════════════════ */
         html.dark-theme body { background: #0b1120; color: #f8fafc; }
-        html.dark-theme .card { background: #1e293b; border: 1px solid #334155; color: #f8fafc; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3); }
+        html.dark-theme .card { background: #1e293b; border-color: #334155; color: #f8fafc; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3); }
         html.dark-theme .topbar h1 { color: #f8fafc; }
         html.dark-theme .card h2 { color: #60a5fa; }
+        html.dark-theme .card-desc { color: #94a3b8; }
         html.dark-theme .fact label { color: #94a3b8; }
         html.dark-theme .fact strong { color: #f8fafc; }
         html.dark-theme th { background: #0f172a; color: #94a3b8; border-color: #334155; }
         html.dark-theme td { color: #cbd5e1; border-color: #334155; }
-        html.dark-theme input { background: #0f172a; border-color: #334155; color: #f8fafc; }
+        html.dark-theme input, html.dark-theme select { background: #0f172a; border-color: #334155; color: #f8fafc; }
         html.dark-theme input[readonly] { background: #1e293b; color: #94a3b8; }
         html.dark-theme .empty, html.dark-theme .message { color: #94a3b8; }
-        html.dark-theme .avatar { background: #1e293b; color: #60a5fa; border: 1px solid #334155; }
+        html.dark-theme .avatar { background: #1e293b; color: #60a5fa; border-color: #334155; }
+        html.dark-theme .kpi-card { background: #1e293b; border-color: #334155; }
+        html.dark-theme .kpi-value { color: #f8fafc; }
+        html.dark-theme .kpi-label, html.dark-theme .kpi-sub { color: #94a3b8; }
+        html.dark-theme .filter-toolbar { background: #0f172a; border-color: #334155; }
+        html.dark-theme .btn-reset { background: #334155; color: #cbd5e1; }
+        html.dark-theme .btn-reset:hover { background: #475569; color: white; }
+        html.dark-theme .badge-exam { background: #334155; color: #e2e8f0; border-color: #475569; }
+        html.dark-theme .progress-bar-track { background: #334155; }
+        html.dark-theme .subject-card { background: #1e293b; border-color: #334155; }
+        html.dark-theme .subject-card:hover { border-color: #60a5fa; box-shadow: 0 4px 14px rgba(0,0,0,0.3); }
+        html.dark-theme .subject-title { color: #f8fafc; }
+        html.dark-theme .subject-category { color: #94a3b8; }
+        html.dark-theme .subject-code-tag { background: rgba(59, 130, 246, 0.2); color: #93c5fd; border-color: rgba(59, 130, 246, 0.4); }
+        html.dark-theme .subject-meta-grid { border-color: #334155; }
+        html.dark-theme .subject-meta-item strong { color: #f8fafc; }
+        html.dark-theme .profile-photo-card { background: #1e293b; border-color: #334155; }
+        html.dark-theme .profile-photo-wrap { background: #1e293b; border-color: #38bdf8; }
+        html.dark-theme .profile-photo-img { background: #0f172a; color: #38bdf8; }
+        html.dark-theme .photo-hint { color: #94a3b8; }
     </style>
     <script>
         (function() {
@@ -402,7 +803,7 @@
                 </div>
             </div>
 
-            <!-- Navigation Menu (Moved upward, minimal gap) -->
+            <!-- Navigation Menu -->
             <nav class="sp-nav" aria-label="Student navigation">
                 <a href="#home" data-tab="home" class="sp-nav-link active">
                     <span class="sp-nav-icon">
@@ -441,11 +842,8 @@
                 <a href="#timetable" data-tab="timetable" class="sp-nav-link">
                     <span class="sp-nav-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="4" width="18" height="18" rx="2"/>
-                            <line x1="16" y1="2" x2="16" y2="6"/>
-                            <line x1="8" y1="2" x2="8" y2="6"/>
-                            <line x1="3" y1="10" x2="21" y2="10"/>
-                            <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/>
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
                         </svg>
                     </span>
                     <span class="sp-nav-text">Timetable</span>
@@ -532,11 +930,14 @@
                         <div>
                             <span style="display: inline-block; padding: 4px 10px; background: rgba(56, 189, 248, 0.2); color: #38bdf8; border-radius: 9999px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">Academic Year 2026</span>
                             <h2 style="color: white; font-size: 24px; margin: 0 0 6px;" id="homeGreeting">Welcome to Your Student Portal</h2>
-                            <p style="color: #cbd5e1; font-size: 14px; margin: 0;">Access your exam results, daily attendance, class timetable, and school announcements.</p>
+                            <p style="color: #cbd5e1; font-size: 14px; margin: 0;">Access your exam results across all assessment types, enrolled subjects, daily attendance, class timetable, and school announcements.</p>
                         </div>
                         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                             <a href="#results" data-tab-jump="results" class="btn" style="background: white; color: #091e42; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; gap: 6px;">
                                 <span>📊</span> View Results
+                            </a>
+                            <a href="#subjects" data-tab-jump="subjects" class="btn" style="background: rgba(255, 255, 255, 0.15); color: white; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255, 255, 255, 0.25);">
+                                <span>📚</span> Enrolled Subjects
                             </a>
                             <a href="#timetable" data-tab-jump="timetable" class="btn" style="background: rgba(255, 255, 255, 0.15); color: white; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255, 255, 255, 0.25);">
                                 <span>🗓</span> Timetable
@@ -559,22 +960,36 @@
                         <strong style="font-size: 20px; color: #16a34a;" id="homeAverage">—</strong>
                     </div>
                     <div class="card" style="margin-bottom: 0; padding: 18px;">
-                        <span style="color: #64748b; font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Attendance Logged</span>
-                        <strong style="font-size: 20px; color: #2563eb;" id="homeAttendance">—</strong>
+                        <span style="color: #64748b; font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Enrolled Subjects</span>
+                        <strong style="font-size: 20px; color: #2563eb;" id="homeSubjectsCount">—</strong>
                     </div>
                 </div>
 
                 <div class="grid">
                     <div class="card">
+                        <h2><span>📊</span> Examination & Assessment Results</h2>
+                        <p style="color: #64748b; font-size: 14px; margin-top: 0; margin-bottom: 14px;">Check your cumulative subject totals, midterm and final examination marks, and performance remarks.</p>
+                        <a href="#results" data-tab-jump="results" style="color: #2563eb; font-weight: 700; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                            View Detailed Results →
+                        </a>
+                    </div>
+                    <div class="card">
+                        <h2><span>📚</span> My Enrolled Curriculum Subjects</h2>
+                        <p style="color: #64748b; font-size: 14px; margin-top: 0; margin-bottom: 14px;">Explore all registered academic subjects, assigned classroom teachers, and weekly schedules.</p>
+                        <a href="#subjects" data-tab-jump="subjects" style="color: #2563eb; font-weight: 700; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                            View All Enrolled Subjects →
+                        </a>
+                    </div>
+                    <div class="card">
                         <h2><span>🗓</span> Class Schedule</h2>
-                        <p style="color: #64748b; font-size: 14px; margin-top: 0; margin-bottom: 14px;">View your weekly timetable schedule, subjects, and classroom teachers.</p>
+                        <p style="color: #64748b; font-size: 14px; margin-top: 0; margin-bottom: 14px;">View your weekly timetable schedule, subjects, periods, and classrooms.</p>
                         <a href="#timetable" data-tab-jump="timetable" style="color: #2563eb; font-weight: 700; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
                             Go to Weekly Timetable →
                         </a>
                     </div>
                     <div class="card">
                         <h2><span>📢</span> Announcements</h2>
-                        <p style="color: #64748b; font-size: 14px; margin-top: 0; margin-bottom: 14px;">Stay informed with the latest school news and notices.</p>
+                        <p style="color: #64748b; font-size: 14px; margin-top: 0; margin-bottom: 14px;">Stay informed with the latest school news, exam notices, and event schedules.</p>
                         <a href="#notices" data-tab-jump="notices" style="color: #2563eb; font-weight: 700; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
                             View Notices & News →
                         </a>
@@ -584,8 +999,45 @@
 
             <!-- ════════════════ 1. RESULTS TAB ════════════════ -->
             <div id="tab-results" class="tab-content">
+                <!-- KPI Performance Summary Grid -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label">
+                            <span>Overall Average</span>
+                            <span>📈</span>
+                        </div>
+                        <div class="kpi-value" id="kpiAverage">—</div>
+                        <div class="kpi-sub" id="kpiAverageSub">Cumulative average across all subjects</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">
+                            <span>Academic Standing</span>
+                            <span id="standingBadge" class="badge badge-blue">EVALUATING</span>
+                        </div>
+                        <div class="kpi-value" id="kpiStanding" style="font-size: 20px;">—</div>
+                        <div class="kpi-sub" id="kpiStandingSub">Overall pass/fail status</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">
+                            <span>Total Points</span>
+                            <span>🎯</span>
+                        </div>
+                        <div class="kpi-value" id="kpiTotalPoints">—</div>
+                        <div class="kpi-sub" id="kpiTotalPointsSub">Cumulative points earned</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">
+                            <span>Evaluated Subjects</span>
+                            <span>📚</span>
+                        </div>
+                        <div class="kpi-value" id="kpiEvaluatedCount">—</div>
+                        <div class="kpi-sub" id="kpiEvaluatedSub">Total subjects with recorded marks</div>
+                    </div>
+                </div>
+
+                <!-- Academic Record Card -->
                 <div class="card">
-                    <h2>Academic Performance Summary</h2>
+                    <h2>Academic Performance Profile</h2>
                     <div class="facts">
                         <div class="fact"><label>Student ID</label><strong id="studentId">—</strong></div>
                         <div class="fact"><label>Class</label><strong id="studentClass">—</strong></div>
@@ -596,22 +1048,71 @@
                     </div>
                 </div>
 
+                <!-- Subject Cumulative Totals Section -->
                 <div class="card">
-                    <h2>Subject Totals</h2>
+                    <h2><span>📘</span> Subject Cumulative Totals</h2>
+                    <p class="card-desc">Combined subject totals (out of 100) calculated from all recorded examinations, midterms, quizzes, and continuous assessments.</p>
                     <div class="table-wrap">
                         <table>
-                            <thead><tr><th>Subject</th><th>Total / 100</th><th>Status</th></tr></thead>
-                            <tbody id="subjectTotalsBody"><tr><td colspan="3" class="empty">Calculating subject totals...</td></tr></tbody>
+                            <thead>
+                                <tr>
+                                    <th style="width: 110px;">Code</th>
+                                    <th>Subject Name</th>
+                                    <th>Evaluations Included</th>
+                                    <th style="min-width: 170px;">Score / 100</th>
+                                    <th style="width: 80px;">Grade</th>
+                                    <th style="width: 100px;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subjectTotalsBody">
+                                <tr><td colspan="6" class="empty">Calculating subject totals...</td></tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>
 
+                <!-- Detailed All Exam Types & Assessments Breakdown -->
                 <div class="card">
-                    <h2>Detailed Assessment Marks</h2>
+                    <h2><span>📝</span> Detailed Assessment & Exam Marks</h2>
+                    <p class="card-desc">Individual marks across all assessment types (Final Exam, Midterm Exam, Continuous Assessments, Quizzes, and Assignments).</p>
+                    
+                    <!-- Filters & Search Toolbar -->
+                    <div class="filter-toolbar">
+                        <div class="filter-group">
+                            <div class="filter-input-wrap">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"/>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                                </svg>
+                                <input type="text" id="resultSearchInput" placeholder="Search subject name or code..." autocomplete="off">
+                            </div>
+                            <select id="resultExamFilter" class="filter-select">
+                                <option value="all">All Exam & Assessment Types</option>
+                            </select>
+                            <button type="button" id="clearResultFilters" class="btn-reset">Reset Filters</button>
+                        </div>
+                        <div style="font-size: 13px; color: #64748b; font-weight: 600;" id="resultsCountText">
+                            Showing records
+                        </div>
+                    </div>
+
                     <div class="table-wrap">
                         <table>
-                            <thead><tr><th>Subject</th><th>Assessment</th><th>Mark / 100</th><th>Grade</th><th>Remark</th></tr></thead>
-                            <tbody id="studentResultsBody"><tr><td colspan="5" class="empty">Loading your results...</td></tr></tbody>
+                            <thead>
+                                <tr>
+                                    <th style="width: 100px;">Code</th>
+                                    <th>Subject Name</th>
+                                    <th>Exam / Assessment Type</th>
+                                    <th>Mark / 100</th>
+                                    <th>Grade</th>
+                                    <th>Status</th>
+                                    <th>Remark</th>
+                                    <th>Recorded Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentResultsBody">
+                                <tr><td colspan="8" class="empty">Loading your assessment records...</td></tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -676,15 +1177,58 @@
 
             <!-- ════════════════ 4. SUBJECTS TAB ════════════════ -->
             <div id="tab-subjects" class="tab-content">
+                <!-- Header Card with Search -->
                 <div class="card">
-                    <h2>My Curriculum Subjects</h2>
-                    <p style="color: #64748b; font-size: 14px; margin-top: 0; margin-bottom: 16px;">
-                        Subjects registered for your academic grade level and class.
-                    </p>
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                        <div>
+                            <h2 style="margin: 0 0 4px;"><span>📚</span> My Enrolled Subjects</h2>
+                            <p class="card-desc" style="margin: 0;">All academic curriculum subjects registered for your class grade level, section, and semester.</p>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span id="enrolledBadge" class="badge badge-pass" style="font-size: 12.5px; padding: 6px 12px;">Loading subjects...</span>
+                        </div>
+                    </div>
+
+                    <!-- Search Filter for Subjects -->
+                    <div class="filter-toolbar" style="margin-top: 16px; margin-bottom: 0;">
+                        <div class="filter-input-wrap" style="max-width: 400px;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"/>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                            </svg>
+                            <input type="text" id="subjectSearchInput" placeholder="Search by subject name, code, or teacher..." autocomplete="off">
+                        </div>
+                        <div style="font-size: 13px; color: #64748b; font-weight: 600;" id="subjectSearchCount">
+                            Showing subjects
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subject Cards Grid View -->
+                <div class="subject-grid" id="enrolledCardsGrid">
+                    <div class="card empty" style="grid-column: 1 / -1;">Loading enrolled subjects catalog...</div>
+                </div>
+
+                <!-- Comprehensive Enrolled Curriculum Table -->
+                <div class="card">
+                    <h2>Curriculum Overview Table</h2>
                     <div class="table-wrap">
                         <table>
-                            <thead><tr><th style="width: 140px;">Code</th><th>Subject Name</th></tr></thead>
-                            <tbody id="studentSubjectsBody"><tr><td colspan="2" class="empty">Loading your subjects...</td></tr></tbody>
+                            <thead>
+                                <tr>
+                                    <th style="width: 40px;">#</th>
+                                    <th style="width: 120px;">Code</th>
+                                    <th>Subject Name</th>
+                                    <th>Department / Category</th>
+                                    <th>Periods / Week</th>
+                                    <th>Assigned Teacher</th>
+                                    <th>Classroom</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentSubjectsBody">
+                                <tr><td colspan="8" class="empty">Loading your subjects...</td></tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -701,6 +1245,31 @@
             <!-- ════════════════ 6. PROFILE TAB ════════════════ -->
             <div id="tab-profile" class="tab-content">
                 <div class="grid">
+                    <!-- Profile Photo Upload Card -->
+                    <section class="profile-photo-card">
+                        <div class="profile-photo-wrap">
+                            <div class="profile-photo-img" id="studentProfileAvatarDisplay">S</div>
+                        </div>
+                        <h3 id="profileStudentName" style="margin: 0 0 4px; font-size: 18px; color: #082b59;">Student Name</h3>
+                        <p id="profileStudentId" style="margin: 0 0 14px; font-size: 13px; color: #64748b; font-weight: 600;">ID: —</p>
+                        
+                        <input type="file" id="studentPhotoInput" accept="image/png, image/jpeg, image/webp" hidden>
+                        <button type="button" id="uploadPhotoButton" class="photo-btn-primary">
+                            <span>📷</span> Upload Profile Photo
+                        </button>
+                        <button type="button" id="removePhotoButton" class="photo-btn-outline" style="display: none;">
+                            <span>🗑️</span> Remove Photo
+                        </button>
+                        
+                        <div id="photoStatusText" class="photo-status" role="status"></div>
+                        <p class="photo-hint">
+                            Supported formats: JPG, PNG, or WebP.<br>
+                            Max file size: 4MB.<br>
+                            Your photo will appear instantly in the portal header, sidebar, and student records.
+                        </p>
+                    </section>
+
+                    <!-- Personal Information Form -->
                     <section class="card">
                         <h2>Personal Information</h2>
                         <form id="personalProfileForm">
@@ -718,12 +1287,13 @@
                         <p id="profileMessage" class="message" role="status" hidden></p>
                     </section>
 
-                    <section class="card">
+                    <!-- Change Password Form -->
+                    <section class="card wide">
                         <h2>Change Password</h2>
-                        <form id="passwordForm" style="grid-template-columns: 1fr;">
+                        <form id="passwordForm" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
                             <label>New Password<input id="newPassword" type="password" minlength="8" autocomplete="new-password" placeholder="At least 8 characters" required></label>
                             <label>Confirm Password<input id="confirmNewPassword" type="password" minlength="8" autocomplete="new-password" placeholder="Repeat new password" required></label>
-                            <button type="submit" id="changePasswordButton">Update Password</button>
+                            <button type="submit" id="changePasswordButton" style="grid-column: 1 / -1;">Update Password</button>
                         </form>
                     </section>
                 </div>

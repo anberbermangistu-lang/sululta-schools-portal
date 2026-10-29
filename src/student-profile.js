@@ -374,7 +374,8 @@ function getPhotoUrl(photo) {
 
     if (
         value.startsWith("http://") ||
-        value.startsWith("https://")
+        value.startsWith("https://") ||
+        value.startsWith("data:")
     ) {
         return value;
     }

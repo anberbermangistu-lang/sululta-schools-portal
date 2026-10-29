@@ -11,13 +11,20 @@ const attendanceBody = document.getElementById("studentAttendanceBody");
 const timetableBody = document.getElementById("studentTimetableBody");
 const subjectsBody = document.getElementById("studentSubjectsBody");
 const subjectTotalsBody = document.getElementById("subjectTotalsBody");
+const enrolledCardsGrid = document.getElementById("enrolledCardsGrid");
 const noticesContainer = document.getElementById("studentNotices");
 
 let student = null;
 let profile = null;
 
+// Academic state caches for reactive filtering
+let allRawResults = [];
+let allSubjectCatalog = [];
+let subjectMap = new Map();
+let allEnrolledSubjects = [];
+
 /* ──────────────────────────────────────────────────────────────
-   UI HELPERS
+   UI HELPERS & FORMATTING
 ────────────────────────────────────────────────────────────── */
 function showMessage(element, text, type = "error") {
     if (!element) return;
@@ -39,17 +46,9 @@ function setValue(id, value) {
 function formatDate(value) {
     if (!value) return "—";
     const date = new Date(value);
-    return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleDateString();
-}
-
-function addRow(body, values) {
-    const row = document.createElement("tr");
-    for (const value of values) {
-        const cell = document.createElement("td");
-        cell.textContent = value == null || value === "" ? "—" : String(value);
-        row.appendChild(cell);
-    }
-    body.appendChild(row);
+    return Number.isNaN(date.getTime())
+        ? String(value)
+        : date.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 }
 
 function showEmptyRow(body, columnCount, text) {
@@ -64,27 +63,263 @@ function showEmptyRow(body, columnCount, text) {
     body.appendChild(row);
 }
 
-function setAvatar(name, photoUrl) {
-    const avatar = document.getElementById("studentAvatar");
-    if (!avatar) return;
+function getGradeLetter(mark) {
+    const num = Number(mark);
+    if (isNaN(num)) return "—";
+    if (num >= 90) return "A";
+    if (num >= 80) return "B";
+    if (num >= 65) return "C";
+    if (num >= 50) return "D";
+    return "F";
+}
 
-    avatar.replaceChildren();
-    if (photoUrl) {
-        const image = document.createElement("img");
-        image.src = photoUrl;
-        image.alt = "";
-        image.width = 42;
-        image.height = 42;
-        image.style.borderRadius = "50%";
-        image.style.objectFit = "cover";
-        avatar.appendChild(image);
-        return;
+function getGradeClass(letter) {
+    switch (letter) {
+        case "A": return "grade-a";
+        case "B": return "grade-b";
+        case "C": return "grade-c";
+        case "D": return "grade-d";
+        case "F": return "grade-f";
+        default: return "";
     }
-    avatar.textContent = (name || "S").trim().charAt(0).toUpperCase() || "S";
+}
+
+function getStatusBadgeHtml(mark) {
+    const num = Number(mark);
+    if (isNaN(num)) return '<span class="badge badge-warn">PENDING</span>';
+    if (num >= 85) return '<span class="badge badge-emerald">DISTINCTION</span>';
+    if (num >= 50) return '<span class="badge badge-pass">PASS</span>';
+    return '<span class="badge badge-fail">FAIL</span>';
+}
+
+function getScoreBarColor(score) {
+    if (score >= 80) return "#10b981";
+    if (score >= 65) return "#3b82f6";
+    if (score >= 50) return "#f59e0b";
+    return "#ef4444";
+}
+
+function inferSubjectCategory(code, name) {
+    const str = `${code || ""} ${name || ""}`.toLowerCase();
+    if (str.includes("math") || str.includes("calc")) return "Mathematics & Logic";
+    if (str.includes("phy") || str.includes("chem") || str.includes("bio") || str.includes("scie")) return "Natural Sciences (STEM)";
+    if (str.includes("eng") || str.includes("amharic") || str.includes("orom") || str.includes("lang")) return "Languages & Literature";
+    if (str.includes("hist") || str.includes("geog") || str.includes("civic") || str.includes("social")) return "Social Studies & Humanities";
+    if (str.includes("ict") || str.includes("comp") || str.includes("tech")) return "Information Technology";
+    if (str.includes("sport") || str.includes("health") || str.includes("pe") || str.includes("hpe")) return "Health & Physical Education";
+    if (str.includes("art") || str.includes("music")) return "Arts & Culture";
+    return "Core Secondary Curriculum";
 }
 
 /* ──────────────────────────────────────────────────────────────
-   TAB NAVIGATION (Sidebar Function Switching)
+   AVATAR RENDERING & STUDENT PROFILE PHOTO
+────────────────────────────────────────────────────────────── */
+function updateAllAvatars(photoUrl, fullName) {
+    const initial = (fullName || "S").trim().charAt(0).toUpperCase() || "S";
+
+    // 1. Header Avatar
+    const headerAvatar = document.getElementById("studentAvatar");
+    if (headerAvatar) {
+        headerAvatar.replaceChildren();
+        if (photoUrl) {
+            const img = document.createElement("img");
+            img.src = photoUrl;
+            img.alt = fullName;
+            img.onerror = () => { headerAvatar.textContent = initial; };
+            headerAvatar.appendChild(img);
+        } else {
+            headerAvatar.textContent = initial;
+        }
+    }
+
+    // 2. Sidebar Avatar
+    const sidebarAvatar = document.getElementById("sidebarStudentAvatar");
+    if (sidebarAvatar) {
+        sidebarAvatar.replaceChildren();
+        if (photoUrl) {
+            const img = document.createElement("img");
+            img.src = photoUrl;
+            img.alt = fullName;
+            img.onerror = () => { sidebarAvatar.textContent = initial; };
+            sidebarAvatar.appendChild(img);
+        } else {
+            sidebarAvatar.textContent = initial;
+        }
+    }
+
+    // 3. Profile Tab Large Avatar
+    const profileAvatar = document.getElementById("studentProfileAvatarDisplay");
+    if (profileAvatar) {
+        profileAvatar.replaceChildren();
+        if (photoUrl) {
+            const img = document.createElement("img");
+            img.src = photoUrl;
+            img.alt = fullName;
+            img.onerror = () => { profileAvatar.textContent = initial; };
+            profileAvatar.appendChild(img);
+        } else {
+            profileAvatar.textContent = initial;
+        }
+    }
+
+    // 4. Toggle remove photo button visibility
+    const removeBtn = document.getElementById("removePhotoButton");
+    if (removeBtn) {
+        removeBtn.style.display = photoUrl ? "inline-flex" : "none";
+    }
+}
+
+function setupProfilePhotoUpload() {
+    const fileInput = document.getElementById("studentPhotoInput");
+    const uploadBtn = document.getElementById("uploadPhotoButton");
+    const removeBtn = document.getElementById("removePhotoButton");
+    const statusText = document.getElementById("photoStatusText");
+
+    if (uploadBtn && fileInput) {
+        uploadBtn.addEventListener("click", () => fileInput.click());
+    }
+
+    if (fileInput) {
+        fileInput.addEventListener("change", async (e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+
+            if (!file.type.startsWith("image/")) {
+                showMessage(profileMessage, "Please select an image file (PNG, JPG, or WebP).", "error");
+                fileInput.value = "";
+                return;
+            }
+
+            if (file.size > 4 * 1024 * 1024) {
+                showMessage(profileMessage, "Image file size must be less than 4MB.", "error");
+                fileInput.value = "";
+                return;
+            }
+
+            if (statusText) {
+                statusText.textContent = "⏳ Uploading photo...";
+                statusText.style.color = "#0284c7";
+            }
+
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                const dataUrl = event.target.result;
+                let finalPhotoUrl = dataUrl;
+                const fullName = `${student.first_name || ""} ${student.last_name || ""}`.trim() || "Student";
+
+                // Preview immediately
+                updateAllAvatars(dataUrl, fullName);
+
+                try {
+                    // Try Supabase Storage
+                    const fileExt = file.name.split(".").pop() || "jpg";
+                    const filePath = `students/${student.id}_${Date.now()}.${fileExt}`;
+                    const { error: storageError } = await supabase.storage
+                        .from("avatars")
+                        .upload(filePath, file, { upsert: true });
+
+                    if (!storageError) {
+                        const { data: publicUrlData } = supabase.storage
+                            .from("avatars")
+                            .getPublicUrl(filePath);
+                        if (publicUrlData?.publicUrl) {
+                            finalPhotoUrl = publicUrlData.publicUrl;
+                        }
+                    }
+                } catch (storageErr) {
+                    console.warn("Storage upload notice (falling back to Data URL):", storageErr);
+                }
+
+                try {
+                    // Update students table
+                    await supabase
+                        .from("students")
+                        .update({
+                            photo_url: finalPhotoUrl
+                        })
+                        .eq("id", student.id);
+
+                    // Update profiles table
+                    if (profile?.id) {
+                        await supabase
+                            .from("profiles")
+                            .update({
+                                avatar_url: finalPhotoUrl
+                            })
+                            .eq("id", profile.id);
+                    }
+
+                    student.photo_url = finalPhotoUrl;
+                    localStorage.setItem(`sululta_student_photo_${student.id}`, finalPhotoUrl);
+
+                    if (statusText) {
+                        statusText.textContent = "✓ Photo updated successfully!";
+                        statusText.style.color = "#16a34a";
+                        setTimeout(() => { if (statusText) statusText.textContent = ""; }, 4000);
+                    }
+
+                    showMessage(profileMessage, "Profile photo updated successfully!", "success");
+                } catch (dbErr) {
+                    console.error("Error saving photo to database:", dbErr);
+                    // Still cached locally
+                    localStorage.setItem(`sululta_student_photo_${student.id}`, finalPhotoUrl);
+                    if (statusText) {
+                        statusText.textContent = "✓ Photo saved locally!";
+                        statusText.style.color = "#16a34a";
+                    }
+                } finally {
+                    fileInput.value = "";
+                }
+            };
+
+            reader.readAsDataURL(file);
+        });
+    }
+
+    if (removeBtn) {
+        removeBtn.addEventListener("click", async () => {
+            const confirmRemove = window.confirm("Are you sure you want to remove your profile photo?");
+            if (!confirmRemove) return;
+
+            if (statusText) {
+                statusText.textContent = "Removing photo...";
+                statusText.style.color = "#64748b";
+            }
+
+            try {
+                await supabase
+                    .from("students")
+                    .update({ photo_url: null })
+                    .eq("id", student.id);
+
+                if (profile?.id) {
+                    await supabase
+                        .from("profiles")
+                        .update({ avatar_url: null })
+                        .eq("id", profile.id);
+                }
+
+                localStorage.removeItem(`sululta_student_photo_${student.id}`);
+                student.photo_url = null;
+
+                const fullName = `${student.first_name || ""} ${student.last_name || ""}`.trim() || "Student";
+                updateAllAvatars(null, fullName);
+
+                if (statusText) {
+                    statusText.textContent = "✓ Photo removed.";
+                    statusText.style.color = "#64748b";
+                    setTimeout(() => { if (statusText) statusText.textContent = ""; }, 3000);
+                }
+            } catch (err) {
+                console.error("Remove photo error:", err);
+                showMessage(profileMessage, "Failed to remove photo: " + err.message, "error");
+            }
+        });
+    }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   TAB NAVIGATION
 ────────────────────────────────────────────────────────────── */
 function setupTabNavigation() {
     const navLinks = document.querySelectorAll("nav a[data-tab], .sp-nav-link[data-tab]");
@@ -93,12 +328,12 @@ function setupTabNavigation() {
 
     const tabTitles = {
         home: "Student Portal Overview",
-        results: "My Examination Results",
+        results: "My Examination & Assessment Results",
         attendance: "My Attendance",
         timetable: "My Class Timetable",
-        subjects: "My Enrolled Subjects",
+        subjects: "My Enrolled Curriculum Subjects",
         notices: "School Notices & Announcements",
-        profile: "My Profile"
+        profile: "My Student Profile"
     };
 
     function switchTab(tabId) {
@@ -122,7 +357,6 @@ function setupTabNavigation() {
             topbarTitle.textContent = tabTitles[validTabId];
         }
 
-        // Keep hash in URL without jump
         if (window.location.hash.replace("#", "") !== validTabId) {
             history.replaceState(null, "", `#${validTabId}`);
         }
@@ -147,7 +381,7 @@ function setupTabNavigation() {
         if (hash) switchTab(hash);
     });
 
-    // Mobile sidebar drawer
+    // Mobile sidebar toggle
     const spToggle = document.getElementById("spMobileToggle");
     const spSidebar = document.getElementById("studentSidebar");
     const spBackdrop = document.getElementById("spBackdrop");
@@ -159,42 +393,33 @@ function setupTabNavigation() {
         };
         spToggle.addEventListener("click", toggleSidebar);
         spBackdrop?.addEventListener("click", toggleSidebar);
-
-        navLinks.forEach(link => {
-            link.addEventListener("click", () => {
-                if (window.innerWidth <= 820) {
-                    spSidebar.classList.remove("open");
-                    spBackdrop?.classList.remove("show");
-                }
-            });
-        });
     }
-
-    // Start on URL hash tab or default to home
-    const initialHash = window.location.hash.replace("#", "");
-    switchTab(initialHash || "home");
 }
 
 /* ──────────────────────────────────────────────────────────────
    LOAD STUDENT PROFILE
 ────────────────────────────────────────────────────────────── */
 async function loadStudentProfile() {
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError) throw authError;
-    if (!user) {
+    const { data: authData, error: authError } = await supabase.auth.getUser();
+    if (authError || !authData?.user) {
         window.location.replace("/login.html");
         return false;
     }
 
     const { data: currentProfile, error: profileError } = await supabase
         .from("profiles")
-        .select("id, first_name, last_name, email, role, phone, photo_url, status, student_id")
-        .eq("id", user.id)
+        .select("id, role, student_id, first_name, last_name, email, phone, avatar_url, status")
+        .eq("id", authData.user.id)
         .maybeSingle();
 
-    if (profileError) throw profileError;
-    if (!currentProfile || currentProfile.role !== "student") {
+    if (profileError || !currentProfile) {
         await supabase.auth.signOut();
+        window.location.replace("/login.html");
+        return false;
+    }
+
+    const role = String(currentProfile.role || "").trim().toLowerCase();
+    if (role !== "student") {
         window.location.replace("/login.html");
         return false;
     }
@@ -230,6 +455,12 @@ async function loadStudentProfile() {
     profile = currentProfile;
     student = schoolRecord;
 
+    // Check cached photo
+    const cachedPhoto = localStorage.getItem(`sululta_student_photo_${student.id}`);
+    if (cachedPhoto && !student.photo_url) {
+        student.photo_url = cachedPhoto;
+    }
+
     const fullName = `${student.first_name || ""} ${student.last_name || ""}`.trim() || "Student";
     const studentCode = student.student_id || String(student.id);
     const classSection = `${student.class || "Not assigned"}${student.section ? " - " + student.section : ""}`;
@@ -242,24 +473,10 @@ async function loadStudentProfile() {
     // Sidebar student profile at bottom
     setText("sidebarStudentName", fullName);
     setText("sidebarStudentGrade", student.class || "Grade 10");
-    const sbAvatar = document.getElementById("sidebarStudentAvatar");
-    if (sbAvatar) {
-        sbAvatar.replaceChildren();
-        const photo = student.photo_url || profile.photo_url;
-        if (photo) {
-            const img = document.createElement("img");
-            img.src = photo;
-            img.alt = "";
-            img.style.width = "100%";
-            img.style.height = "100%";
-            img.style.borderRadius = "50%";
-            img.style.objectFit = "cover";
-            sbAvatar.appendChild(img);
-        } else {
-            const initial = (student.first_name || profile.first_name || "S").trim().charAt(0).toUpperCase();
-            sbAvatar.textContent = initial || "S";
-        }
-    }
+
+    // Profile tab displays
+    setText("profileStudentName", fullName);
+    setText("profileStudentId", `Student ID: ${studentCode}`);
 
     // Home tab details
     setText("homeGreeting", `Welcome, ${student.first_name || "Student"}!`);
@@ -270,6 +487,7 @@ async function loadStudentProfile() {
     setText("attStudentId", studentCode);
     setText("attStudentClass", classSection);
 
+    // Profile form pre-fills
     setText("gender", student.gender ? student.gender.charAt(0).toUpperCase() + student.gender.slice(1) : "—");
     setText("dateOfBirth", formatDate(student.date_of_birth));
     setText("accountStatus", student.status ? student.status.toUpperCase() : "ACTIVE");
@@ -278,152 +496,382 @@ async function loadStudentProfile() {
     setValue("email", student.email || profile.email);
     setValue("phone", student.phone || profile.phone);
     setValue("address", student.address);
-    setAvatar(fullName, student.photo_url || profile.photo_url);
+
+    // Update all 3 avatars
+    updateAllAvatars(student.photo_url || profile.avatar_url, fullName);
+
+    setupProfilePhotoUpload();
 
     return true;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   RENDER DETAILED RESULTS & SUBJECT TOTALS
+────────────────────────────────────────────────────────────── */
+function renderResultsTable() {
+    const examFilter = document.getElementById("resultExamFilter")?.value || "all";
+    const searchFilter = (document.getElementById("resultSearchInput")?.value || "").trim().toLowerCase();
+    const countText = document.getElementById("resultsCountText");
+
+    let filtered = allRawResults.filter(item => {
+        // Exam type match
+        if (examFilter !== "all" && item.exam_type !== examFilter) {
+            return false;
+        }
+        // Search text match
+        if (searchFilter) {
+            const subjectName = (subjectMap.get(item.subject_code) || item.subject_name || "").toLowerCase();
+            const subjectCode = String(item.subject_code || "").toLowerCase();
+            const examType = String(item.exam_type || "").toLowerCase();
+            if (!subjectName.includes(searchFilter) && !subjectCode.includes(searchFilter) && !examType.includes(searchFilter)) {
+                return false;
+            }
+        }
+        return true;
+    });
+
+    if (countText) {
+        countText.textContent = `Showing ${filtered.length} of ${allRawResults.length} assessment record${allRawResults.length === 1 ? "" : "s"}`;
+    }
+
+    if (!resultsBody) return;
+
+    if (!filtered.length) {
+        showEmptyRow(resultsBody, 8, allRawResults.length === 0 ? "No examination results published yet." : "No assessment records match your filter criteria.");
+        return;
+    }
+
+    resultsBody.replaceChildren();
+
+    filtered.forEach(result => {
+        const row = document.createElement("tr");
+        const markVal = Number(result.mark);
+        const subjectName = subjectMap.get(result.subject_code) || result.subject_name || result.subject_code;
+        const letter = result.grade || getGradeLetter(markVal);
+        const gradeClass = getGradeClass(letter);
+
+        row.innerHTML = `
+            <td><span class="subject-code-tag">${result.subject_code || "—"}</span></td>
+            <td><strong>${subjectName}</strong></td>
+            <td><span class="badge-exam">${result.exam_type || "Assessment"}</span></td>
+            <td><strong>${isNaN(markVal) ? "—" : markVal.toFixed(1) + " / 100"}</strong></td>
+            <td><span class="badge-grade ${gradeClass}">${letter}</span></td>
+            <td>${getStatusBadgeHtml(markVal)}</td>
+            <td>${result.remark || (markVal >= 85 ? "Excellent" : (markVal >= 50 ? "Satisfactory" : "Needs improvement"))}</td>
+            <td style="color: #64748b; font-size: 12.5px;">${formatDate(result.created_at)}</td>
+        `;
+
+        resultsBody.appendChild(row);
+    });
+}
+
+function computeAndRenderSubjectTotals() {
+    // Group marks by subject code
+    const bySubject = new Map();
+
+    for (const r of allRawResults) {
+        const code = r.subject_code;
+        if (!code) continue;
+        if (!bySubject.has(code)) {
+            bySubject.set(code, {
+                code,
+                name: subjectMap.get(code) || r.subject_name || code,
+                marks: [],
+                examTypes: []
+            });
+        }
+        const record = bySubject.get(code);
+        const mark = Number(r.mark);
+        if (!isNaN(mark)) {
+            record.marks.push(mark);
+        }
+        if (r.exam_type && !record.examTypes.includes(r.exam_type)) {
+            record.examTypes.push(r.exam_type);
+        }
+    }
+
+    const totalsList = [];
+    for (const [code, item] of bySubject.entries()) {
+        const totalScore = item.marks.length
+            ? item.marks.reduce((sum, m) => sum + m, 0) / item.marks.length
+            : 0;
+        totalsList.push({
+            code,
+            name: item.name,
+            score: totalScore,
+            examCount: item.marks.length,
+            examTypes: item.examTypes
+        });
+    }
+
+    // Sort by subject name
+    totalsList.sort((a, b) => a.name.localeCompare(b.name));
+
+    // Render Subject Totals Table
+    if (subjectTotalsBody) {
+        if (!totalsList.length) {
+            showEmptyRow(subjectTotalsBody, 6, "No subject assessment totals calculated yet.");
+        } else {
+            subjectTotalsBody.replaceChildren();
+            for (const item of totalsList) {
+                const row = document.createElement("tr");
+                const pct = Math.min(100, Math.max(0, item.score));
+                const barColor = getScoreBarColor(pct);
+                const letter = getGradeLetter(item.score);
+                const gradeClass = getGradeClass(letter);
+
+                const evaluationsText = item.examTypes.length
+                    ? item.examTypes.map(t => `<span class="badge-exam" style="margin-right: 4px; font-size: 11px;">${t}</span>`).join("")
+                    : '<span style="color: #94a3b8;">Single assessment</span>';
+
+                row.innerHTML = `
+                    <td><span class="subject-code-tag">${item.code}</span></td>
+                    <td><strong>${item.name}</strong></td>
+                    <td>${evaluationsText}</td>
+                    <td>
+                        <div class="progress-bar-wrap">
+                            <div class="progress-bar-track">
+                                <div class="progress-bar-fill" style="width: ${pct}%; background: ${barColor};"></div>
+                            </div>
+                            <span class="progress-bar-text" style="color: ${barColor};">${item.score.toFixed(1)}</span>
+                        </div>
+                    </td>
+                    <td><span class="badge-grade ${gradeClass}">${letter}</span></td>
+                    <td>${getStatusBadgeHtml(item.score)}</td>
+                `;
+
+                subjectTotalsBody.appendChild(row);
+            }
+        }
+    }
+
+    // Compute Overall Cumulative KPI Metrics
+    const totalSubjectsCount = totalsList.length;
+    const overallAvg = totalSubjectsCount
+        ? totalsList.reduce((sum, item) => sum + item.score, 0) / totalSubjectsCount
+        : null;
+
+    const cumulativePoints = totalsList.reduce((sum, item) => sum + item.score, 0);
+    const maxPoints = totalSubjectsCount * 100;
+
+    // Update KPI Cards
+    setText("kpiAverage", overallAvg == null ? "—" : `${overallAvg.toFixed(1)}%`);
+    setText("kpiTotalPoints", overallAvg == null ? "—" : `${cumulativePoints.toFixed(1)} / ${maxPoints}`);
+    setText("kpiEvaluatedCount", `${totalSubjectsCount} Subject${totalSubjectsCount === 1 ? "" : "s"}`);
+    setText("kpiAverageSub", totalSubjectsCount ? `Across ${totalSubjectsCount} evaluated curriculum subjects` : "Awaiting assessment entries");
+    setText("kpiTotalPointsSub", totalSubjectsCount ? `Earned across all evaluations` : "No marks registered");
+    setText("kpiEvaluatedSub", `${allRawResults.length} total assessment submission${allRawResults.length === 1 ? "" : "s"}`);
+
+    // Standing Badge & Remark
+    const standingBadge = document.getElementById("standingBadge");
+    if (overallAvg == null) {
+        setText("kpiStanding", "PENDING");
+        if (standingBadge) {
+            standingBadge.textContent = "AWAITING";
+            standingBadge.className = "badge badge-warn";
+        }
+    } else if (overallAvg >= 85) {
+        setText("kpiStanding", "DISTINCTION");
+        if (standingBadge) {
+            standingBadge.textContent = "TOP HONORS";
+            standingBadge.className = "badge badge-emerald";
+        }
+    } else if (overallAvg >= 50) {
+        setText("kpiStanding", "PASS");
+        if (standingBadge) {
+            standingBadge.textContent = "PROMOTED";
+            standingBadge.className = "badge badge-pass";
+        }
+    } else {
+        setText("kpiStanding", "NEEDS REVIEW");
+        if (standingBadge) {
+            standingBadge.textContent = "ACADEMIC CONCERN";
+            standingBadge.className = "badge badge-fail";
+        }
+    }
+
+    // Top Profile Summary Facts
+    setText("averageMark", overallAvg == null ? "—" : `${overallAvg.toFixed(1)} / 100`);
+    setText("homeAverage", overallAvg == null ? "—" : `${overallAvg.toFixed(1)}%`);
+    setText("performanceStatus", overallAvg == null ? "Not calculated" : overallAvg >= 50 ? "Pass" : "Fail");
+    setText(
+        "performanceRemark",
+        overallAvg == null
+            ? "No marks recorded"
+            : overallAvg >= 85
+                ? "Excellent Distinction"
+                : overallAvg >= 75
+                    ? "Very Good Standing"
+                    : overallAvg >= 50
+                        ? "Satisfactory Promotion"
+                        : "Academic Support Required"
+    );
+}
+
+/* ──────────────────────────────────────────────────────────────
+   RENDER ENROLLED SUBJECTS (CARDS + TABLE + LIVE SEARCH)
+────────────────────────────────────────────────────────────── */
+function renderEnrolledSubjects() {
+    const searchFilter = (document.getElementById("subjectSearchInput")?.value || "").trim().toLowerCase();
+    const countText = document.getElementById("subjectSearchCount");
+    const enrolledBadge = document.getElementById("enrolledBadge");
+
+    const filtered = allEnrolledSubjects.filter(sub => {
+        if (!searchFilter) return true;
+        const name = (sub.name || "").toLowerCase();
+        const code = (sub.code || "").toLowerCase();
+        const teacher = (sub.teacher || "").toLowerCase();
+        const cat = (sub.category || "").toLowerCase();
+        return name.includes(searchFilter) || code.includes(searchFilter) || teacher.includes(searchFilter) || cat.includes(searchFilter);
+    });
+
+    if (countText) {
+        countText.textContent = `Showing ${filtered.length} of ${allEnrolledSubjects.length} enrolled subject${allEnrolledSubjects.length === 1 ? "" : "s"}`;
+    }
+
+    if (enrolledBadge) {
+        enrolledBadge.textContent = `✓ ${allEnrolledSubjects.length} Subjects Enrolled`;
+    }
+    setText("homeSubjectsCount", `${allEnrolledSubjects.length} Subjects`);
+
+    // 1. Render Cards Grid
+    if (enrolledCardsGrid) {
+        enrolledCardsGrid.replaceChildren();
+        if (!filtered.length) {
+            const emptyDiv = document.createElement("div");
+            emptyDiv.className = "card empty";
+            emptyDiv.style.gridColumn = "1 / -1";
+            emptyDiv.textContent = allEnrolledSubjects.length === 0 ? "No curriculum subjects found for your class." : "No enrolled subjects match your search.";
+            enrolledCardsGrid.appendChild(emptyDiv);
+        } else {
+            for (const sub of filtered) {
+                const card = document.createElement("div");
+                card.className = "subject-card";
+                card.innerHTML = `
+                    <div>
+                        <div class="subject-card-header">
+                            <span class="subject-code-tag">${sub.code}</span>
+                            <span class="badge badge-pass">✓ ENROLLED</span>
+                        </div>
+                        <h3 class="subject-title">${sub.name}</h3>
+                        <div class="subject-category">${sub.category}</div>
+                    </div>
+                    <div class="subject-meta-grid">
+                        <div class="subject-meta-item">
+                            <span>Teacher</span>
+                            <strong title="${sub.teacher}">👨‍🏫 ${sub.teacher}</strong>
+                        </div>
+                        <div class="subject-meta-item">
+                            <span>Weekly Load</span>
+                            <strong>${sub.periods} Period${sub.periods === 1 ? "" : "s"}</strong>
+                        </div>
+                        <div class="subject-meta-item">
+                            <span>Classroom</span>
+                            <strong>📍 ${sub.room}</strong>
+                        </div>
+                        <div class="subject-meta-item">
+                            <span>Academic Year</span>
+                            <strong>${sub.academicYear || "2026/2027"}</strong>
+                        </div>
+                    </div>
+                `;
+                enrolledCardsGrid.appendChild(card);
+            }
+        }
+    }
+
+    // 2. Render Overview Table
+    if (subjectsBody) {
+        if (!filtered.length) {
+            showEmptyRow(subjectsBody, 8, allEnrolledSubjects.length === 0 ? "No subjects registered for this class." : "No enrolled subjects match your search.");
+        } else {
+            subjectsBody.replaceChildren();
+            filtered.forEach((sub, idx) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td style="color: #64748b;">${idx + 1}</td>
+                    <td><span class="subject-code-tag">${sub.code}</span></td>
+                    <td><strong>${sub.name}</strong></td>
+                    <td style="color: #64748b; font-size: 13px;">${sub.category}</td>
+                    <td><strong>${sub.periods}</strong> period${sub.periods === 1 ? "" : "s"}/wk</td>
+                    <td>👨‍🏫 ${sub.teacher}</td>
+                    <td>📍 ${sub.room}</td>
+                    <td><span class="badge badge-pass">✓ Enrolled</span></td>
+                `;
+                subjectsBody.appendChild(row);
+            });
+        }
+    }
 }
 
 /* ──────────────────────────────────────────────────────────────
    LOAD ACADEMIC RECORDS (RESULTS, ATTENDANCE, TIMETABLE, SUBJECTS, NOTICES)
 ────────────────────────────────────────────────────────────── */
 async function loadAcademicRecords() {
-    // 1. Fetch Subjects list
-    let allSubjects = [];
+    // 1. Fetch Subjects Catalog
     try {
         const { data } = await supabase
             .from("subjects")
-            .select("subject_code, subject_name, grade_level")
+            .select("subject_code, subject_name, grade_level, credit, description")
             .order("subject_name");
-        allSubjects = data || [];
+        allSubjectCatalog = data || [];
     } catch (e) {
         console.warn("Could not load subjects catalog:", e);
     }
-    const subjectNames = new Map(allSubjects.map(s => [s.subject_code, s.subject_name]));
+    subjectMap = new Map(allSubjectCatalog.map(s => [s.subject_code, s.subject_name]));
 
-    // 2. Load Results
+    // 2. Load Results for this student
     const studentKeys = [
         String(student.student_id || ""),
         String(student.id || "")
     ].filter(Boolean);
 
-    let results = [];
     try {
         const { data, error } = await supabase
             .from("results")
-            .select("subject_code, exam_type, mark, grade, remark, created_at")
+            .select("id, subject_code, exam_type, mark, grade, remark, created_at")
             .in("student_id", studentKeys)
             .order("created_at", { ascending: false });
 
         if (!error && data) {
-            results = data;
+            allRawResults = data;
         }
     } catch (e) {
         console.error("Results load error:", e);
     }
 
-    // Process results & calculate subject totals
-    const marksBySubject = new Map();
-    for (const result of results) {
-        const mark = Number(result.mark);
-        if (Number.isFinite(mark) && result.subject_code) {
-            const currentTotal = marksBySubject.get(result.subject_code) || 0;
-            marksBySubject.set(result.subject_code, currentTotal + mark);
+    // Populate Exam Type filter options dynamically
+    const examFilterSelect = document.getElementById("resultExamFilter");
+    if (examFilterSelect) {
+        const distinctExamTypes = [...new Set(allRawResults.map(r => r.exam_type).filter(Boolean))].sort();
+        // Clear previous options except "All"
+        examFilterSelect.innerHTML = '<option value="all">All Exam & Assessment Types</option>';
+        for (const type of distinctExamTypes) {
+            const opt = document.createElement("option");
+            opt.value = type;
+            opt.textContent = type;
+            examFilterSelect.appendChild(opt);
         }
     }
 
-    const subjectTotals = [];
-    for (const [code, mark] of marksBySubject.entries()) {
-        subjectTotals.push({
-            code,
-            name: subjectNames.get(code) || code,
-            mark
-        });
-    }
+    // Render detailed results & subject totals
+    computeAndRenderSubjectTotals();
+    renderResultsTable();
 
-    // Render Subject Totals
-    showEmptyRow(subjectTotalsBody, 3, "No subject totals recorded yet.");
-    if (subjectTotalsBody && subjectTotals.length) {
-        subjectTotalsBody.replaceChildren();
-        for (const item of subjectTotals) {
-            const status = item.mark >= 50 ? "Pass" : "Needs Review";
-            addRow(subjectTotalsBody, [
-                item.name,
-                `${item.mark.toFixed(1)} / 100`,
-                status
-            ]);
-        }
-    }
+    // Wire up results filter listeners
+    const examFilter = document.getElementById("resultExamFilter");
+    const searchInput = document.getElementById("resultSearchInput");
+    const clearBtn = document.getElementById("clearResultFilters");
 
-    // Render Detailed Results
-    showEmptyRow(resultsBody, 5, "No examination results published yet.");
-    if (resultsBody && results.length) {
-        resultsBody.replaceChildren();
-        for (const result of results) {
-            const markVal = Number(result.mark);
-            addRow(resultsBody, [
-                subjectNames.get(result.subject_code) || result.subject_code,
-                result.exam_type || "Assessment",
-                result.mark == null ? "—" : `${markVal.toFixed(1)} / 100`,
-                result.grade || (markVal >= 50 ? "Pass" : "Fail"),
-                result.remark || (markVal >= 85 ? "Excellent" : (markVal >= 50 ? "Satisfactory" : "Needs improvement"))
-            ]);
-        }
-    }
+    examFilter?.addEventListener("change", renderResultsTable);
+    searchInput?.addEventListener("input", renderResultsTable);
+    clearBtn?.addEventListener("click", () => {
+        if (examFilter) examFilter.value = "all";
+        if (searchInput) searchInput.value = "";
+        renderResultsTable();
+    });
 
-    // Update Overall Academic Summary
-    const overallAverage = subjectTotals.length
-        ? subjectTotals.reduce((sum, item) => sum + item.mark, 0) / subjectTotals.length
-        : null;
-
-    setText("averageMark", overallAverage == null ? "—" : `${overallAverage.toFixed(1)} / 100`);
-    setText("homeAverage", overallAverage == null ? "—" : `${overallAverage.toFixed(1)}%`);
-    setText("performanceStatus", overallAverage == null ? "Not calculated" : overallAverage >= 50 ? "Pass" : "Fail");
-    setText(
-        "performanceRemark",
-        overallAverage == null
-            ? "No marks recorded"
-            : overallAverage >= 85
-                ? "Excellent"
-                : overallAverage >= 70
-                    ? "Very good"
-                    : overallAverage >= 50
-                        ? "Satisfactory"
-                        : "Needs improvement"
-    );
-
-    // 3. Load Attendance
-    let attendance = [];
-    try {
-        const { data, error } = await supabase
-            .from("attendance")
-            .select("attendance_date, status, remark")
-            .eq("student_id", student.id)
-            .order("attendance_date", { ascending: false });
-
-        if (!error && data) {
-            attendance = data;
-        }
-    } catch (e) {
-        console.warn("Attendance load error:", e);
-    }
-
-    showEmptyRow(attendanceBody, 3, "No attendance records found.");
-    if (attendanceBody && attendance.length) {
-        attendanceBody.replaceChildren();
-        for (const item of attendance) {
-            const statusDisplay = item.status
-                ? item.status.charAt(0).toUpperCase() + item.status.slice(1).toLowerCase()
-                : "Present";
-            addRow(attendanceBody, [
-                formatDate(item.attendance_date),
-                statusDisplay,
-                item.remark || "—"
-            ]);
-        }
-    }
-    setText("attendanceCount", `${attendance.length} record${attendance.length === 1 ? "" : "s"}`);
-
-    // 4. Load Timetable STRICTLY FOR STUDENT'S OWN SECTION ONLY
+    // 3. Load Timetable strictly for student's own class and section
     let targetClassName = (student.class || "").trim();
     let targetSection = (student.section || "").trim();
     let classTeacherName = "—";
@@ -458,23 +906,18 @@ async function loadAcademicRecords() {
             .order("start_time", { ascending: true });
 
         if (!ttError && ttData) {
-            // Filter strictly for OWN section:
-            // Match both class name / grade number AND section strictly!
             timetableRecords = ttData.filter(entry => {
                 const entryClass = String(entry.class_name || "").trim().toLowerCase();
                 const entrySection = String(entry.section || "").trim().toLowerCase();
                 const sClass = targetClassName.toLowerCase();
                 const sSection = targetSection.toLowerCase();
 
-                // Match class digits or name (e.g. "Grade 10" and "Grade 10", or "10" and "10")
                 const cleanEntryClass = entryClass.replace(/[^0-9]/g, "");
                 const cleanSClass = sClass.replace(/[^0-9]/g, "");
                 const classMatches = entryClass === sClass ||
                     (cleanEntryClass && cleanSClass && cleanEntryClass === cleanSClass);
 
-                // Match section strictly (e.g. "B" === "B")
                 const sectionMatches = sSection ? entrySection === sSection : true;
-
                 return classMatches && sectionMatches;
             });
         }
@@ -482,7 +925,7 @@ async function loadAcademicRecords() {
         console.error("Timetable query error:", err);
     }
 
-    // Resolve teacher names for timetable entries
+    // Resolve teacher names
     let teachersCatalog = [];
     try {
         const { data: tData } = await supabase
@@ -498,7 +941,28 @@ async function loadAcademicRecords() {
         teacherAssignments = JSON.parse(localStorage.getItem("sululta_teacher_subject_assignments") || "[]");
     } catch (e) {}
 
-    // Sort timetable entries by days of the week then time
+    function resolveTeacherName(entry) {
+        const cached = timetableTeachers[entry.id];
+        let teacherName = entry.teacher_name || cached?.teacher_name || "";
+        if (!teacherName && (entry.teacher_id || cached?.teacher_id)) {
+            const targetId = entry.teacher_id || cached?.teacher_id;
+            const matchT = teachersCatalog.find(t => String(t.id) === String(targetId) || String(t.teacher_id) === String(targetId));
+            if (matchT) teacherName = `${matchT.first_name} ${matchT.last_name}`;
+        }
+        if (!teacherName) {
+            const matchA = teacherAssignments.find(a =>
+                a.subject_code === entry.subject_code &&
+                (!a.class_name || (a.class_name === entry.class_name && (!a.section || a.section === entry.section)))
+            );
+            if (matchA) {
+                const matchT = teachersCatalog.find(t => String(t.id) === String(matchA.teacher_id));
+                if (matchT) teacherName = `${matchT.first_name} ${matchT.last_name}`;
+            }
+        }
+        return teacherName || "Assigned Teacher";
+    }
+
+    // Sort timetable
     const dayOrder = { "Monday": 1, "Tuesday": 2, "Wednesday": 3, "Thursday": 4, "Friday": 5, "Saturday": 6, "Sunday": 7 };
     timetableRecords.sort((a, b) => {
         const dA = dayOrder[a.day] || 99;
@@ -507,44 +971,29 @@ async function loadAcademicRecords() {
         return String(a.start_time || "").localeCompare(String(b.start_time || ""));
     });
 
+    // Render Timetable
     showEmptyRow(timetableBody, 6, `No timetable records found for your section (${targetClassName || "Class"} - ${targetSection || "Section"}).`);
-
     if (timetableBody && timetableRecords.length) {
         timetableBody.replaceChildren();
         timetableRecords.forEach((entry, idx) => {
-            const cached = timetableTeachers[entry.id];
-            let teacherName = entry.teacher_name || cached?.teacher_name || "";
-            if (!teacherName && (entry.teacher_id || cached?.teacher_id)) {
-                const targetId = entry.teacher_id || cached?.teacher_id;
-                const matchT = teachersCatalog.find(t => String(t.id) === String(targetId) || String(t.teacher_id) === String(targetId));
-                if (matchT) teacherName = `${matchT.first_name} ${matchT.last_name}`;
-            }
-            if (!teacherName) {
-                const matchA = teacherAssignments.find(a =>
-                    a.subject_code === entry.subject_code &&
-                    (!a.class_name || (a.class_name === entry.class_name && (!a.section || a.section === entry.section)))
-                );
-                if (matchA) {
-                    const matchT = teachersCatalog.find(t => String(t.id) === String(matchA.teacher_id));
-                    if (matchT) teacherName = `${matchT.first_name} ${matchT.last_name}`;
-                }
-            }
-
+            const teacherName = resolveTeacherName(entry);
             const timeDisplay = entry.start_time
                 ? `${entry.start_time.slice(0, 5)} – ${entry.end_time ? entry.end_time.slice(0, 5) : ""}`
                 : "—";
 
-            const subjectName = subjectNames.get(entry.subject_code) || entry.subject_name || entry.subject_code;
+            const subjectName = subjectMap.get(entry.subject_code) || entry.subject_name || entry.subject_code;
             const subjectDisplay = `${entry.subject_code ? entry.subject_code + " - " : ""}${subjectName}`;
 
-            addRow(timetableBody, [
-                String(idx + 1),
-                entry.day || "—",
-                timeDisplay,
-                subjectDisplay,
-                teacherName || "—",
-                entry.room_number || "—"
-            ]);
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td style="color: #64748b;">${idx + 1}</td>
+                <td><strong>${entry.day || "—"}</strong></td>
+                <td>${timeDisplay}</td>
+                <td><strong>${subjectDisplay}</strong></td>
+                <td>👨‍🏫 ${teacherName}</td>
+                <td>📍 ${entry.room_number || "—"}</td>
+            `;
+            timetableBody.appendChild(row);
         });
     }
 
@@ -555,40 +1004,112 @@ async function loadAcademicRecords() {
     setText("ttDaysCount", `${uniqueDays.size} day${uniqueDays.size === 1 ? "" : "s"} / week`);
     setText("ttAcademicYear", uniqueYears.length ? uniqueYears.join(", ") : "2026/2027");
 
-    // 5. Load My Subjects
-    let assignedSubjectCodes = [];
-    if (timetableRecords.length) {
-        assignedSubjectCodes = [...new Set(timetableRecords.map(t => t.subject_code).filter(Boolean))];
+    // 4. Compile Enrolled Subjects List
+    const subjectsMapCompiled = new Map();
+
+    // From timetable
+    for (const tt of timetableRecords) {
+        const code = tt.subject_code;
+        if (!code) continue;
+        if (!subjectsMapCompiled.has(code)) {
+            const sName = subjectMap.get(code) || tt.subject_name || code;
+            subjectsMapCompiled.set(code, {
+                code,
+                name: sName,
+                category: inferSubjectCategory(code, sName),
+                periods: 0,
+                teacher: resolveTeacherName(tt),
+                room: tt.room_number || "Main Block",
+                academicYear: tt.academic_year || "2026/2027"
+            });
+        }
+        const item = subjectsMapCompiled.get(code);
+        item.periods += 1;
+        if (tt.room_number) item.room = tt.room_number;
     }
 
-    for (const r of results) {
-        if (r.subject_code && !assignedSubjectCodes.includes(r.subject_code)) {
-            assignedSubjectCodes.push(r.subject_code);
+    // From student results (in case any subjects are tested that are not in current timetable)
+    for (const r of allRawResults) {
+        const code = r.subject_code;
+        if (code && !subjectsMapCompiled.has(code)) {
+            const sName = subjectMap.get(code) || r.subject_name || code;
+            subjectsMapCompiled.set(code, {
+                code,
+                name: sName,
+                category: inferSubjectCategory(code, sName),
+                periods: 4,
+                teacher: "Department Faculty",
+                room: "Main Hall",
+                academicYear: "2026/2027"
+            });
         }
     }
 
-    if (!assignedSubjectCodes.length) {
+    // If still empty, fall back to class grade curriculum subjects
+    if (!subjectsMapCompiled.size) {
         const gradeDigits = (student.class || "").replace(/[^0-9]/g, "");
+        let gradeCatalog = allSubjectCatalog;
         if (gradeDigits) {
-            const relevant = allSubjects.filter(s => s.grade_level && s.grade_level.includes(gradeDigits));
-            if (relevant.length) {
-                assignedSubjectCodes = relevant.map(s => s.subject_code);
-            }
+            const relevant = allSubjectCatalog.filter(s => s.grade_level && s.grade_level.includes(gradeDigits));
+            if (relevant.length) gradeCatalog = relevant;
         }
-        if (!assignedSubjectCodes.length) {
-            assignedSubjectCodes = allSubjects.map(s => s.subject_code);
-        }
-    }
-
-    showEmptyRow(subjectsBody, 2, "No subjects listed for this class.");
-    if (subjectsBody && assignedSubjectCodes.length) {
-        subjectsBody.replaceChildren();
-        for (const code of assignedSubjectCodes) {
-            addRow(subjectsBody, [code, subjectNames.get(code) || code]);
+        for (const cat of gradeCatalog) {
+            subjectsMapCompiled.set(cat.subject_code, {
+                code: cat.subject_code,
+                name: cat.subject_name,
+                category: inferSubjectCategory(cat.subject_code, cat.subject_name),
+                periods: Number(cat.credit) || 4,
+                teacher: "Faculty Member",
+                room: "Standard Room",
+                academicYear: "2026/2027"
+            });
         }
     }
 
-    // 6. Load School Notices
+    allEnrolledSubjects = Array.from(subjectsMapCompiled.values());
+    allEnrolledSubjects.sort((a, b) => a.name.localeCompare(b.name));
+
+    // Render Enrolled Subjects View
+    renderEnrolledSubjects();
+
+    // Wire up search filter for enrolled subjects
+    document.getElementById("subjectSearchInput")?.addEventListener("input", renderEnrolledSubjects);
+
+    // 5. Load Attendance Records
+    let attendance = [];
+    try {
+        const { data, error } = await supabase
+            .from("attendance")
+            .select("attendance_date, status, remark")
+            .eq("student_id", student.id)
+            .order("attendance_date", { ascending: false });
+
+        if (!error && data) {
+            attendance = data;
+        }
+    } catch (e) {
+        console.warn("Attendance load error:", e);
+    }
+
+    showEmptyRow(attendanceBody, 3, "No attendance records found.");
+    if (attendanceBody && attendance.length) {
+        attendanceBody.replaceChildren();
+        for (const item of attendance) {
+            const statusDisplay = item.status
+                ? item.status.charAt(0).toUpperCase() + item.status.slice(1).toLowerCase()
+                : "Present";
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td><strong>${formatDate(item.attendance_date)}</strong></td>
+                <td><span class="badge ${statusDisplay === 'Present' ? 'badge-pass' : 'badge-fail'}">${statusDisplay}</span></td>
+                <td>${item.remark || "—"}</td>
+            `;
+            attendanceBody.appendChild(row);
+        }
+    }
+    setText("attendanceCount", `${attendance.length} record${attendance.length === 1 ? "" : "s"}`);
+
+    // 6. Load Notices
     let notices = [];
     try {
         const { data, error } = await supabase
