@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="/src/dashboard.css">
     <!-- Chart.js for student distribution donut chart -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- SheetJS for Excel XLSX export and import -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script>
         (function() {
             const t = localStorage.getItem('sululta_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
@@ -301,6 +303,169 @@
                         <p class="dsc-label">Total Subjects</p>
                         <h2 class="dsc-value" id="statSubjects">—</h2>
                         <span class="dsc-badge badge-orange">Curriculum Subjects</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── ACADEMIC PERFORMANCE: PASS & FAIL OVERVIEW ── -->
+            <section class="dash-panel" style="margin-bottom: 24px;">
+                <div class="dp-header" style="flex-wrap: wrap; gap: 14px;">
+                    <div>
+                        <h2 class="dp-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M18 20V10M12 20V4M6 20v-6"/>
+                            </svg>
+                            Academic Performance & Pass/Fail Analysis
+                        </h2>
+                        <p class="dp-subtitle">Real-time pass and fail statistics across all students, subjects, and grade levels (Passing mark: 50%)</p>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <button type="button" class="btn-dash-action btn-dash-excel" id="exportAllExcelBtn" title="Export full report to Excel (.xlsx)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:16px;height:16px;">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            Export Report (.xlsx)
+                        </button>
+                        <button type="button" class="btn-dash-action btn-dash-upload" id="adminUploadExcelBtn" title="Upload an Excel report received from a teacher">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:16px;height:16px;">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                            Upload Teacher Excel
+                        </button>
+                        <input type="file" id="adminExcelFileInput" accept=".xlsx,.xls,.csv" style="display: none;">
+                        <button type="button" class="btn-dash-action btn-dash-template" id="downloadTemplateBtn" title="Download standard Excel template">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width:16px;height:16px;">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="12" y1="18" x2="12" y2="12"/>
+                                <line x1="9" y1="15" x2="15" y2="15"/>
+                            </svg>
+                            Excel Template
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Pass / Fail KPI Cards -->
+                <div class="pf-kpi-grid">
+                    <div class="pf-kpi-card pf-card-pass">
+                        <div class="pf-kpi-top">
+                            <span class="pf-kpi-label">Overall Pass Rate</span>
+                            <span class="pf-kpi-badge badge-pass">>= 50%</span>
+                        </div>
+                        <div class="pf-kpi-main">
+                            <h3 class="pf-kpi-value" id="overallPassPercent">0%</h3>
+                            <span class="pf-kpi-count" id="overallPassCount">0 passed</span>
+                        </div>
+                        <div class="pf-progress-wrap">
+                            <div class="pf-progress-bar bar-pass" id="overallPassProgressBar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="pf-kpi-card pf-card-fail">
+                        <div class="pf-kpi-top">
+                            <span class="pf-kpi-label">Overall Fail Rate</span>
+                            <span class="pf-kpi-badge badge-fail">&lt; 50%</span>
+                        </div>
+                        <div class="pf-kpi-main">
+                            <h3 class="pf-kpi-value" id="overallFailPercent">0%</h3>
+                            <span class="pf-kpi-count" id="overallFailCount">0 failed</span>
+                        </div>
+                        <div class="pf-progress-wrap">
+                            <div class="pf-progress-bar bar-fail" id="overallFailProgressBar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="pf-kpi-card pf-card-total">
+                        <div class="pf-kpi-top">
+                            <span class="pf-kpi-label">Total Results</span>
+                            <span class="pf-kpi-badge badge-neutral">Evaluated</span>
+                        </div>
+                        <div class="pf-kpi-main">
+                            <h3 class="pf-kpi-value" id="totalEvaluatedResults">0</h3>
+                            <span class="pf-kpi-count" id="schoolAvgMark">Avg: — / 100</span>
+                        </div>
+                        <div class="pf-meta-text">All student grades recorded</div>
+                    </div>
+
+                    <div class="pf-kpi-card pf-card-top">
+                        <div class="pf-kpi-top">
+                            <span class="pf-kpi-label">Distinction (>= 85%)</span>
+                            <span class="pf-kpi-badge badge-distinction">Top Tier</span>
+                        </div>
+                        <div class="pf-kpi-main">
+                            <h3 class="pf-kpi-value" id="distinctionPercent">0%</h3>
+                            <span class="pf-kpi-count" id="distinctionCount">0 students</span>
+                        </div>
+                        <div class="pf-meta-text">Outstanding academic achievements</div>
+                    </div>
+                </div>
+
+                <!-- Pass/Fail Analytics Body: Left: Grade/Subject Breakdown; Right: Donut Chart -->
+                <div class="pf-body-grid">
+                    <div class="pf-breakdown-card">
+                        <div class="pf-subcard-header">
+                            <h4>Pass & Fail by Secondary Grade</h4>
+                            <div class="pf-filter-wrap">
+                                <select id="pfExamFilter" class="pf-select-sm">
+                                    <option value="">All Exams / Semesters</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="pf-grade-list" id="pfGradeBreakdownList">
+                            <div style="padding: 20px; text-align: center; color: #94a3b8;">Loading pass/fail by grade...</div>
+                        </div>
+                    </div>
+
+                    <div class="pf-chart-card">
+                        <div class="pf-subcard-header">
+                            <h4>Pass vs. Fail Distribution</h4>
+                        </div>
+                        <div class="pf-chart-box">
+                            <canvas id="passFailChart"></canvas>
+                        </div>
+                        <div class="pf-legend-row">
+                            <div class="pf-legend-item"><span class="pf-dot dot-pass"></span> Pass: <strong id="legendPassText">0 (0%)</strong></div>
+                            <div class="pf-legend-item"><span class="pf-dot dot-fail"></span> Fail: <strong id="legendFailText">0 (0%)</strong></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── TEACHER EXCEL REPORTS & SUBMISSIONS ── -->
+                <div class="teacher-reports-section" style="margin-top: 24px;">
+                    <div class="pf-subcard-header" style="flex-wrap: wrap; gap: 10px;">
+                        <div>
+                            <h4>Teacher Excel Reports & Submissions</h4>
+                            <p style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">Reports sent by teachers via Excel or uploaded by administrator</p>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="reportSearchInput" class="pf-search-input" placeholder="Search teacher or subject...">
+                        </div>
+                    </div>
+
+                    <div class="pf-table-wrap">
+                        <table class="pf-table">
+                            <thead>
+                                <tr>
+                                    <th>Teacher Name</th>
+                                    <th>Subject</th>
+                                    <th>Class / Exam</th>
+                                    <th>Submission Date</th>
+                                    <th>Total Students</th>
+                                    <th>Pass Rate</th>
+                                    <th>Fail Rate</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="teacherReportsTbody">
+                                <tr>
+                                    <td colspan="8" style="text-align: center; color: #94a3b8; padding: 24px;">Loading teacher reports...</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </section>

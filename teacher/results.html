@@ -7,6 +7,7 @@
     <title>Add Result | Sululta Secondary School</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="stylesheet" href="/src/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         .page-container {
             max-width: 1040px;
@@ -586,6 +587,97 @@
             </div>
 
             <div id="messageToast" class="message-toast"></div>
+
+            <!-- ── 0. Bulk Upload & Send Results via Excel Card ── -->
+            <div class="result-card" id="excelUploadCard" style="border: 2px dashed #6366f1; background: #fbfbfe; margin-bottom: 2rem;">
+                <div class="result-card-header" style="flex-wrap: wrap; gap: 10px;">
+                    <div class="result-card-title" style="color: #4338ca;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="12" y1="18" x2="12" y2="12"></line>
+                            <line x1="9" y1="15" x2="15" y2="15"></line>
+                        </svg>
+                        Upload & Send Results to Admin via Excel
+                    </div>
+                    <button type="button" class="btn-back" id="teacherDownloadTemplateBtn" style="background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; font-size: 0.8125rem;">
+                        📥 Download Excel Template
+                    </button>
+                </div>
+                <p style="color: #64748b; font-size: 0.875rem; margin-top: -0.5rem; margin-bottom: 1.25rem;">
+                    Upload an Excel file (.xlsx, .xls or .csv) to automatically evaluate student pass/fail percentages and submit the entire class report directly to the school administrator.
+                </p>
+
+                <div class="form-grid" style="margin-bottom: 1.25rem;">
+                    <div class="form-group">
+                        <label for="excelSubjectSelect">Subject <span>*</span></label>
+                        <select id="excelSubjectSelect">
+                            <option value="">Select Subject</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="excelClassSelect">Class / Section <span>*</span></label>
+                        <select id="excelClassSelect">
+                            <option value="">Select Class</option>
+                            <option value="Grade 9-A">Grade 9-A</option>
+                            <option value="Grade 9-B">Grade 9-B</option>
+                            <option value="Grade 10-A">Grade 10-A</option>
+                            <option value="Grade 10-B">Grade 10-B</option>
+                            <option value="Grade 11-Natural">Grade 11-Natural</option>
+                            <option value="Grade 11-Social">Grade 11-Social</option>
+                            <option value="Grade 12-Natural">Grade 12-Natural</option>
+                            <option value="Grade 12-Social">Grade 12-Social</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="excelExamType">Exam / Semester <span>*</span></label>
+                        <select id="excelExamType">
+                            <option value="Semester 1 Final Exam" selected>Semester 1 Final Exam</option>
+                            <option value="Semester 1 Midterm">Semester 1 Midterm</option>
+                            <option value="Semester 2 Final Exam">Semester 2 Final Exam</option>
+                            <option value="Semester 2 Midterm">Semester 2 Midterm</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="excelFileInput">Choose Excel File (.xlsx, .csv) <span>*</span></label>
+                        <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" style="padding: 0.5rem 0.75rem; background: #ffffff;">
+                    </div>
+                </div>
+
+                <!-- Live Preview of Parsed Excel Results -->
+                <div id="excelPreviewContainer" style="display: none; margin-top: 1.25rem; border-top: 1px solid #e2e8f0; padding-top: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 8px;">
+                        <strong style="color: #1e293b; font-size: 0.9375rem;" id="excelPreviewTitle">Parsed Results Preview</strong>
+                        <div id="excelStatsPills" style="display: flex; gap: 8px;"></div>
+                    </div>
+
+                    <div style="max-height: 250px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; background: #ffffff;">
+                        <table class="assessment-table" id="excelPreviewTable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Student ID</th>
+                                    <th>Student Name</th>
+                                    <th>Mark / 100</th>
+                                    <th>Status</th>
+                                    <th>Remark</th>
+                                </tr>
+                            </thead>
+                            <tbody id="excelPreviewTbody"></tbody>
+                        </table>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 1.25rem;">
+                        <button type="button" id="clearExcelBtn" class="btn-back" style="cursor: pointer;">Clear</button>
+                        <button type="button" id="sendExcelToAdminBtn" class="btn-save-results" style="display: inline-flex; align-items: center; gap: 6px;">
+                            🚀 Send Report to Admin
+                        </button>
+                    </div>
+                </div>
+            </div>
 
             <!-- ── 1. Student Information Card ── -->
             <div class="result-card">
