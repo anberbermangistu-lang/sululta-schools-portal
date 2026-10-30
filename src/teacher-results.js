@@ -1,16 +1,12 @@
-import { supabase, getSession, getUserProfile, getRoleDashboard } from "./supabase.js";
+rimport { supabase, getSession, getUserProfile, getRoleDashboard } from "./supabase.js";
+import { ASSESSMENTS, ASSESSMENT_BY_KEY, getAssessmentDetails, normalizeAssessmentMark } from "./assessment-config.js";
+import { saveAssessmentRecords, updateAssessmentRecord } from "./results-persistence.js";
 
 /* ──────────────────────────────────────────────────────────────
    CONSTANTS & WEIGHTS
 ────────────────────────────────────────────────────────────── */
-const WEIGHTS = {
-    assignment: { max: 10, label: "Assignment" },
-    quiz:       { max: 10, label: "Quiz" },
-    test:       { max: 20, label: "Test" },
-    midterm:    { max: 25, label: "Midterm" },
-    final:      { max: 35, label: "Final Exam" }
-};
-const ASSESS_KEYS = Object.keys(WEIGHTS);
+const WEIGHTS = Object.fromEntries(ASSESSMENTS.map(({ key, label, max }) => [key, { max, label }]));
+const ASSESS_KEYS = ASSESSMENTS.map(({ key }) => key);
 
 /* ──────────────────────────────────────────────────────────────
    STATE
@@ -259,7 +255,7 @@ function setupAddSubject() {
             subjectRows.push({
                 code: found.subject_code,
                 name: found.subject_name,
-                marks: { assignment: "", quiz: "", test: "", midterm: "", final: "" },
+                marks: Object.fromEntries(ASSESS_KEYS.map(key => [key, ""])),
                 total: 0
             });
 
@@ -276,7 +272,7 @@ function renderSubjectTable() {
     if (!subjectRows.length) {
         tbody.innerHTML = `
             <tr id="emptySubjectRow">
-                <td colspan="8" style="text-align: center; color: #94a3b8; padding: 2.25rem 1rem; font-size: 0.875rem;">
+                <td colspan="9" style="text-align: center; color: #94a3b8; padding: 2.25rem 1rem; font-size: 0.875rem;">
                     No subjects added yet. Use the form below to add subjects.
                 </td>
             </tr>
@@ -382,10 +378,7 @@ function getPerformanceRemark(avg) {
 }
 
 function getAssessmentKey(examType) {
-    const value = String(examType || "").trim().toLowerCase();
-    return ASSESS_KEYS.find(key =>
-        value.startsWith(`${WEIGHTS[key].label.toLowerCase()} —`)
-    ) || null;
+    return getAssessmentDetails(examType).category || null;
 }
 
 /* ──────────────────────────────────────────────────────────────
@@ -471,6 +464,7 @@ function setupSaveResults() {
                         subject_code: r.code,
                         exam_type: editingExamType,
                         mark: Number(r.marks[editingAssessmentKey]),
+                        max_mark: WEIGHTS[editingAssessmentKey].max,
                         grade: null,
                         remark: getPerformanceRemark(
                             Number(r.marks[editingAssessmentKey]) /
@@ -483,35 +477,29 @@ function setupSaveResults() {
                         subject_code: r.code,
                         exam_type: examType,
                         mark: r.total,
+                        max_mark: 100,
                         remark: getPerformanceRemark(r.total),
                         updated_at: new Date().toISOString()
                     };
-                const { error: updateErr } = await supabase
-                    .from("results")
-                    .update(updateData)
-                    .eq("id", editingResultId);
-
-                if (updateErr) throw updateErr;
+                await updateAssessmentRecord(supabase, editingResultId, updateData);
 
                 showToast(`✓ Result for ${resolvedStudent.student_id} (${r.code}) updated successfully!`, "success");
                 cancelReEdit();
 
             } else {
-                const assessmentTypes = ASSESS_KEYS.map(key =>
-                    `${WEIGHTS[key].label} — ${semester} — ${academicYear}`
-                );
-                const inserts = rowsWithMarks.flatMap(row =>
+                const records = rowsWithMarks.flatMap(row =>
                     ASSESS_KEYS
                         .filter(key => row.marks[key] !== "" && row.marks[key] != null)
                         .map(key => {
-                            const percentage =
-                                Number(row.marks[key]) / WEIGHTS[key].max * 100;
+                            const mark = Number(row.marks[key]);
+                            const percentage = mark / WEIGHTS[key].max * 100;
 
                             return {
                                 student_id: resolvedStudent.student_id,
                                 subject_code: row.code,
                                 exam_type: `${WEIGHTS[key].label} — ${semester} — ${academicYear}`,
-                                mark: Number(row.marks[key]),
+                                mark,
+                                max_mark: WEIGHTS[key].max,
                                 grade: null,
                                 remark: getPerformanceRemark(percentage),
                                 recorded_by: currentUser?.id || null
@@ -519,22 +507,10 @@ function setupSaveResults() {
                         })
                 );
 
-                const { error: deleteError } = await supabase
-                    .from("results")
-                    .delete()
-                    .eq("student_id", resolvedStudent.student_id)
-                    .in("exam_type", [examType, ...assessmentTypes]);
-
-                if (deleteError) throw deleteError;
-
-                const { error: insertError } = await supabase
-                    .from("results")
-                    .insert(inserts);
-
-                if (insertError) throw insertError;
+                await saveAssessmentRecords(supabase, records);
 
                 const studentFullName = `${resolvedStudent.first_name || ""} ${resolvedStudent.last_name || ""}`.trim();
-                showToast(`✓ Results saved successfully for ${studentFullName}! ${inserts.length} assessment mark(s) recorded.`, "success");
+                showToast(`✓ Results saved successfully for ${studentFullName}! ${records.length} assessment mark(s) recorded.`, "success");
 
                 // Reset form
                 subjectRows = [];
@@ -572,7 +548,7 @@ async function loadRecordedResults() {
         const [resultsRes, studentsRes] = await Promise.all([
             supabase
                 .from("results")
-                .select("id, student_id, subject_code, exam_type, mark, remark, created_at, recorded_by")
+                .select("id, student_id, subject_code, exam_type, mark, max_mark, remark, created_at, recorded_by")
                 .order("created_at", { ascending: false }),
             supabase
                 .from("students")
@@ -635,9 +611,10 @@ function renderRecordedResultsTable() {
     }
 
     tbody.innerHTML = filtered.map((r, i) => {
-        const mark = parseFloat(r.mark) || 0;
-        const assessmentKey = getAssessmentKey(r.exam_type);
-        const maxMark = assessmentKey ? WEIGHTS[assessmentKey].max : 100;
+        const details = getAssessmentDetails(r.exam_type, r.max_mark);
+        const assessmentKey = details.category;
+        const maxMark = details.maxMark;
+        const mark = normalizeAssessmentMark(r.mark, details) ?? 0;
         const pass = mark / maxMark * 100 >= 50;
         const sid = String(r.student_id || "").trim().toUpperCase();
         const st = cachedStudentsMap.get(sid);
@@ -652,7 +629,7 @@ function renderRecordedResultsTable() {
                 <td><span style="font-size: 0.8125rem; background: #f1f5f9; padding: 2px 8px; border-radius: 4px; font-weight: 600;">${escapeHtml(classStr)}</span></td>
                 <td><strong style="color: #4f46e5;">${escapeHtml(r.subject_code || "N/A")}</strong></td>
                 <td><small style="color: #64748b; font-weight: 500;">${escapeHtml(r.exam_type || "N/A")}</small></td>
-                <td><strong style="font-size: 0.9375rem; color: #0f172a;">${mark} / ${maxMark}</strong></td>
+                <td><strong style="font-size: 0.9375rem; color: #0f172a;">${mark.toFixed(1)} / ${maxMark}</strong></td>
                 <td>
                     <span class="status-pill ${pass ? "pass" : "fail"}">
                         ${pass ? "Pass" : "Fail"}
@@ -740,28 +717,28 @@ window.reEditResult = function(resultId) {
     const markVal = parseFloat(result.mark) || 0;
     editingAssessmentKey = getAssessmentKey(result.exam_type);
     editingExamType = result.exam_type;
-    const markMaximum = editingAssessmentKey
-        ? WEIGHTS[editingAssessmentKey].max
-        : 100;
+    const resultDetails = getAssessmentDetails(result.exam_type, result.max_mark);
+    const normalizedMark = normalizeAssessmentMark(markVal, resultDetails) ?? markVal;
+    const markMaximum = resultDetails.maxMark;
 
     let marks;
     if (editingAssessmentKey) {
         marks = Object.fromEntries(ASSESS_KEYS.map(key => [key, ""]));
-        marks[editingAssessmentKey] = markVal;
+        marks[editingAssessmentKey] = normalizedMark;
     } else {
-        const a = Math.min(10, Math.round(markVal * 0.10 * 10) / 10);
-        const q = Math.min(10, Math.round(markVal * 0.10 * 10) / 10);
-        const t = Math.min(20, Math.round(markVal * 0.20 * 10) / 10);
-        const m = Math.min(25, Math.round(markVal * 0.25 * 10) / 10);
-        const f = Math.round((markVal - a - q - t - m) * 10) / 10;
-        marks = { assignment: a, quiz: q, test: t, midterm: m, final: Math.max(0, f) };
+        let remaining = normalizedMark;
+        marks = Object.fromEntries(ASSESS_KEYS.map(key => {
+            const value = Math.min(ASSESSMENT_BY_KEY[key].max, remaining);
+            remaining = Math.max(0, remaining - value);
+            return [key, Math.round(value * 10) / 10];
+        }));
     }
 
     subjectRows = [{
         code: result.subject_code,
         name: subName,
         marks,
-        total: editingAssessmentKey ? calculateRowTotal(marks) : markVal
+        total: editingAssessmentKey ? calculateRowTotal(marks) : normalizedMark
     }];
 
     renderSubjectTable();
@@ -941,7 +918,9 @@ function renderTeacherExcelPreview() {
     if (!container || !tbody) return;
 
     const total = parsedExcelRows.length;
-    const passed = parsedExcelRows.filter(r => r.mark >= 50).length;
+    const examType = document.getElementById("excelExamType")?.value || "Semester 1 Final Exam";
+    const maximum = getAssessmentDetails(examType).maxMark;
+    const passed = parsedExcelRows.filter(r => r.mark / maximum * 100 >= 50).length;
     const failed = total - passed;
     const passPct = total > 0 ? ((passed / total) * 100).toFixed(1) : 0;
     const failPct = total > 0 ? ((failed / total) * 100).toFixed(1) : 0;
@@ -964,10 +943,10 @@ function renderTeacherExcelPreview() {
             <td><strong>${i + 1}</strong></td>
             <td><strong>${escapeHtml(r.student_id)}</strong></td>
             <td>${escapeHtml(r.student_name)}</td>
-            <td><strong>${r.mark}</strong></td>
+            <td><strong>${r.mark} / ${maximum}</strong></td>
             <td>
-                <span class="status-pill ${r.mark >= 50 ? "pass" : "fail"}">
-                    ${r.mark >= 50 ? "Pass" : "Fail"}
+                <span class="status-pill ${r.mark / maximum * 100 >= 50 ? "pass" : "fail"}">
+                    ${r.mark / maximum * 100 >= 50 ? "Pass" : "Fail"}
                 </span>
             </td>
             <td><small style="color: #64748b;">${escapeHtml(r.remark)}</small></td>
@@ -986,9 +965,16 @@ async function handleSendExcelReportToAdmin() {
     const subject = document.getElementById("excelSubjectSelect")?.value;
     const className = document.getElementById("excelClassSelect")?.value;
     const examType = document.getElementById("excelExamType")?.value || "Semester 1 Final Exam";
+    const assessment = getAssessmentDetails(examType);
+    const maxMark = assessment.maxMark;
 
     if (!subject) {
         alert("Please select the Subject for this report.");
+        return;
+    }
+    const invalidRow = parsedExcelRows.find(row => row.mark < 0 || row.mark > maxMark);
+    if (invalidRow) {
+        alert(`Marks for ${examType} must be between 0 and ${maxMark}. Check student ${invalidRow.student_id}.`);
         return;
     }
 
@@ -1007,10 +993,12 @@ async function handleSendExcelReportToAdmin() {
         } catch (e) {}
 
         const total = parsedExcelRows.length;
-        const passed = parsedExcelRows.filter(r => r.mark >= 50).length;
+        const passed = parsedExcelRows.filter(r => r.mark / maxMark * 100 >= 50).length;
         const failed = total - passed;
         const passPct = total > 0 ? ((passed / total) * 100).toFixed(1) + "%" : "0%";
         const failPct = total > 0 ? ((failed / total) * 100).toFixed(1) + "%" : "0%";
+        const examType = document.getElementById("excelExamType")?.value || "Semester 1 Final Exam";
+        const maxMark = getAssessmentDetails(examType).maxMark;
 
         const teacherName = currentTeacher?.first_name 
             ? `${currentTeacher.first_name} ${currentTeacher.last_name || ""}`.trim()
@@ -1022,16 +1010,13 @@ async function handleSendExcelReportToAdmin() {
             subject_code: subject,
             exam_type: examType,
             mark: r.mark,
+            max_mark: maxMark,
             remark: r.remark,
             recorded_by: currentUser?.id || null,
             created_at: new Date().toISOString()
         }));
 
-        try {
-            await supabase.from("results").insert(dbInserts);
-        } catch (dbErr) {
-            console.warn("Notice inserting results into DB:", dbErr);
-        }
+        await saveAssessmentRecords(supabase, dbInserts);
 
         const newReport = {
             id: "rep_" + Date.now(),

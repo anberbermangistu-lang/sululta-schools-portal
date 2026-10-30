@@ -1,4 +1,6 @@
 import { supabase } from "./supabase.js";
+import { getAssessmentDetails, normalizeAssessmentMark } from "./assessment-config.js";
+import { updateAssessmentRecord } from "./results-persistence.js";
 
 const messageBox = document.getElementById("messageBox");
 const resultForm = document.getElementById("resultForm");
@@ -69,6 +71,7 @@ function setupEvents() {
         "input",
         calculateResult
     );
+    examTypeInput?.addEventListener("change", updateMarkMaximum);
 
     retryButton?.addEventListener(
         "click",
@@ -114,6 +117,7 @@ async function loadResult() {
                 subject_code,
                 exam_type,
                 mark,
+                max_mark,
                 grade,
                 remark,
                 created_at
@@ -165,10 +169,12 @@ function fillForm(result) {
         examTypeInput.value =
             result.exam_type || "";
     }
+    updateMarkMaximum();
 
     if (markInput) {
+        const details = getAssessmentDetails(result.exam_type, result.max_mark);
         markInput.value =
-            result.mark ?? "";
+            normalizeAssessmentMark(result.mark, details) ?? "";
     }
 
     if (gradeInput) {
@@ -195,14 +201,22 @@ function calculateResult() {
         return;
     }
 
+    const details = getAssessmentDetails(examTypeInput?.value);
     const result =
-        getGradeAndRemark(mark);
+        getGradeAndRemark(mark / details.maxMark * 100);
 
     gradeInput.value =
         result.grade;
 
     remarkInput.value =
         result.remark;
+}
+
+function updateMarkMaximum() {
+    if (!markInput) return;
+    const maximum = getAssessmentDetails(examTypeInput?.value).maxMark;
+    markInput.max = String(maximum);
+    markInput.placeholder = `0-${maximum}`;
 }
 
 function getGradeAndRemark(mark) {
@@ -270,6 +284,7 @@ async function handleSubmit(event) {
 
     const mark =
         Number(markInput.value);
+    const details = getAssessmentDetails(examType);
 
     if (!studentId) {
         showMessage(
@@ -304,10 +319,10 @@ async function handleSubmit(event) {
     if (
         Number.isNaN(mark) ||
         mark < 0 ||
-        mark > 100
+        mark > details.maxMark
     ) {
         showMessage(
-            "Mark must be between 0 and 100.",
+            `Mark must be between 0 and ${details.maxMark}.`,
             "error"
         );
 
@@ -316,7 +331,7 @@ async function handleSubmit(event) {
     }
 
     const calculated =
-        getGradeAndRemark(mark);
+        getGradeAndRemark(mark / details.maxMark * 100);
 
     gradeInput.value =
         calculated.grade;
@@ -326,22 +341,17 @@ async function handleSubmit(event) {
 
     setSaving(true);
 
-    const { error } =
-        await supabase
-            .from("results")
-            .update({
-                student_id: studentId,
-                subject_code: subjectCode,
-                exam_type: examType,
-                mark: mark,
-                grade: calculated.grade,
-                remark: calculated.remark
-            })
-            .eq("id", resultId);
-
-    setSaving(false);
-
-    if (error) {
+    try {
+        await updateAssessmentRecord(supabase, resultId, {
+            student_id: studentId,
+            subject_code: subjectCode,
+            exam_type: examType,
+            mark,
+            max_mark: details.maxMark,
+            grade: calculated.grade,
+            remark: calculated.remark
+        });
+    } catch (error) {
         console.error(
             "Failed to update result:",
             error
@@ -353,6 +363,8 @@ async function handleSubmit(event) {
         );
 
         return;
+    } finally {
+        setSaving(false);
     }
 
     showMessage(

@@ -82,6 +82,7 @@ Deno.serve(async request => {
     });
 
     let createdUserId: string | null = null;
+    let createdProfileId: string | null = null;
     let createdRecordId: number | null = null;
     let recordTable: "students" | "teachers" | null = null;
 
@@ -112,6 +113,130 @@ Deno.serve(async request => {
         const email = String(payload?.email || "").trim().toLowerCase();
         const password = typeof payload?.password === "string" ? payload.password : "";
         const submittedRecord = payload?.record;
+
+        if (payload?.mode === "link-existing") {
+            const firstName = optionalText(payload.first_name);
+            const lastName = optionalText(payload.last_name);
+            const username = optionalText(payload.username);
+            const phone = optionalText(payload.phone);
+            const recordId = payload.record_id == null ? null : Number(payload.record_id);
+
+            if (!["admin", "teacher", "student"].includes(role)) {
+                return response(request, { error: "Choose Admin, Teacher, or Student." }, 400);
+            }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                return response(request, { error: "Enter a valid email address." }, 400);
+            }
+            if (password.length < 8) {
+                return response(request, { error: "Temporary passwords must be at least 8 characters." }, 400);
+            }
+            if (!firstName || !lastName) {
+                return response(request, { error: "First name and last name are required." }, 400);
+            }
+            if (
+                role !== "admin" &&
+                (recordId === null || !Number.isSafeInteger(recordId) || recordId < 1)
+            ) {
+                return response(request, { error: "Select the matching school record." }, 400);
+            }
+
+            let teacherRecord:
+                | { id: number; user_id: string | null; status: string | null }
+                | null = null;
+
+            if (role === "teacher" && recordId !== null) {
+                const { data, error: teacherError } = await serviceClient
+                    .from("teachers")
+                    .select("id, user_id, status")
+                    .eq("id", recordId)
+                    .maybeSingle();
+
+                if (teacherError) throw teacherError;
+                teacherRecord = data;
+                if (
+                    !teacherRecord ||
+                    teacherRecord.user_id ||
+                    String(teacherRecord.status || "").toLowerCase() !== "active"
+                ) {
+                    return response(request, { error: "The selected teacher record is missing, inactive, or already linked to an account." }, 409);
+                }
+            }
+
+            if (role === "student" && recordId !== null) {
+                const { data: studentRecord, error: studentError } = await serviceClient
+                    .from("students")
+                    .select("id, status")
+                    .eq("id", recordId)
+                    .maybeSingle();
+
+                if (studentError) throw studentError;
+                if (
+                    !studentRecord ||
+                    String(studentRecord.status || "").toLowerCase() !== "active"
+                ) {
+                    return response(request, { error: "The selected student record is missing or inactive." }, 409);
+                }
+
+                const { data: linkedProfile, error: profileLookupError } = await serviceClient
+                    .from("profiles")
+                    .select("id")
+                    .eq("student_id", recordId)
+                    .maybeSingle();
+
+                if (profileLookupError) throw profileLookupError;
+                if (linkedProfile) {
+                    return response(request, { error: "The selected student already has an account." }, 409);
+                }
+            }
+
+            const { data: authData, error: createUserError } =
+                await serviceClient.auth.admin.createUser({
+                    email,
+                    password,
+                    email_confirm: true,
+                    user_metadata: { first_name: firstName, last_name: lastName, role }
+                });
+
+            if (createUserError) throw createUserError;
+            if (!authData.user) throw new Error("Supabase did not return the created user.");
+            createdUserId = authData.user.id;
+
+            const profile = {
+                id: createdUserId,
+                first_name: firstName,
+                last_name: lastName,
+                full_name: `${firstName} ${lastName}`,
+                email,
+                username,
+                phone,
+                role,
+                status: "active",
+                ...(role === "student" && recordId !== null ? { student_id: recordId } : {})
+            };
+            const { error: profileError } = await serviceClient
+                .from("profiles")
+                .insert(profile);
+
+            if (profileError) throw profileError;
+            createdProfileId = createdUserId;
+
+            if (teacherRecord && recordId !== null) {
+                const { data: linkedTeacher, error: linkError } = await serviceClient
+                    .from("teachers")
+                    .update({ user_id: createdUserId, email })
+                    .eq("id", recordId)
+                    .is("user_id", null)
+                    .select("id")
+                    .maybeSingle();
+
+                if (linkError) throw linkError;
+                if (!linkedTeacher) {
+                    throw new Error("The teacher record was linked by another administrator. Please retry.");
+                }
+            }
+
+            return response(request, { success: true }, 200);
+        }
 
         if (!["teacher", "student"].includes(role)) {
             return response(request, { error: "Only teacher and student accounts can be created here." }, 400);
@@ -234,10 +359,24 @@ Deno.serve(async request => {
             .insert(profile);
 
         if (profileError) throw profileError;
+        createdProfileId = createdUserId;
 
         return response(request, { success: true }, 200);
     } catch (error) {
         console.error("admin-create-school-account failed:", error instanceof Error ? error.message : error);
+
+        if (createdProfileId) {
+            const { error: deleteProfileError } = await serviceClient
+                .from("profiles")
+                .delete()
+                .eq("id", createdProfileId);
+            if (deleteProfileError) {
+                console.error("Could not roll back newly created profile:", deleteProfileError.message);
+                return response(request, {
+                    error: "Account setup failed and profile cleanup was unsuccessful. Contact the Supabase administrator."
+                }, 500);
+            }
+        }
 
         if (createdRecordId !== null && recordTable) {
             const { error: deleteRecordError } = await serviceClient

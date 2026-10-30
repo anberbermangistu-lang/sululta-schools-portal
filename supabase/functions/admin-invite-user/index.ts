@@ -97,33 +97,65 @@ Deno.serve(async request => {
         const username = String(payload.username || "").trim();
         const phone = String(payload.phone || "").trim();
         const role = String(payload.role || "").trim().toLowerCase();
-        const recordId = Number(payload.record_id);
+        const recordId = payload.record_id == null ? null : Number(payload.record_id);
 
         if (
             !firstName ||
             !lastName ||
             !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
-            !["teacher", "student"].includes(role) ||
-            !Number.isSafeInteger(recordId) ||
-            recordId < 1
+            !["admin", "teacher", "student"].includes(role) ||
+            (role !== "admin" &&
+                (recordId === null || !Number.isSafeInteger(recordId) || recordId < 1))
         ) {
-            return response(request, { error: "Provide valid account details and an existing school record." }, 400);
+            return response(request, { error: "Provide valid account details and a school record for teacher or student accounts." }, 400);
         }
 
-        const table = role === "teacher" ? "teachers" : "students";
-        const { data: schoolRecord, error: recordError } = await serviceClient
-            .from(table)
-            .select("id, user_id, status")
-            .eq("id", recordId)
-            .maybeSingle();
+        let teacherRecord:
+            | { id: number; user_id: string | null; status: string | null }
+            | null = null;
+        if (role === "teacher" && recordId !== null) {
+            const { data, error: recordError } = await serviceClient
+                .from("teachers")
+                .select("id, user_id, status")
+                .eq("id", recordId)
+                .maybeSingle();
 
-        if (recordError) throw recordError;
-        if (
-            !schoolRecord ||
-            schoolRecord.user_id ||
-            String(schoolRecord.status || "").toLowerCase() !== "active"
-        ) {
-            return response(request, { error: "The selected school record is missing, inactive, or already linked to an account." }, 409);
+            if (recordError) throw recordError;
+            teacherRecord = data;
+            if (
+                !teacherRecord ||
+                teacherRecord.user_id ||
+                String(teacherRecord.status || "").toLowerCase() !== "active"
+            ) {
+                return response(request, { error: "The selected school record is missing, inactive, or already linked to an account." }, 409);
+            }
+        }
+
+        if (role === "student" && recordId !== null) {
+            const { data: schoolRecord, error: recordError } = await serviceClient
+                .from("students")
+                .select("id, status")
+                .eq("id", recordId)
+                .maybeSingle();
+
+            if (recordError) throw recordError;
+            if (
+                !schoolRecord ||
+                String(schoolRecord.status || "").toLowerCase() !== "active"
+            ) {
+                return response(request, { error: "The selected school record is missing or inactive." }, 409);
+            }
+
+            const { data: linkedProfile, error: profileLookupError } = await serviceClient
+                .from("profiles")
+                .select("id")
+                .eq("student_id", recordId)
+                .maybeSingle();
+
+            if (profileLookupError) throw profileLookupError;
+            if (linkedProfile) {
+                return response(request, { error: "The selected student already has an account." }, 409);
+            }
         }
 
         const redirectTo = new URL("/reset-password.html", appUrl).toString();
@@ -147,7 +179,7 @@ Deno.serve(async request => {
             phone: phone || null,
             role,
             status: "active",
-            ...(role === "student" ? { student_id: recordId } : {})
+            ...(role === "student" && recordId !== null ? { student_id: recordId } : {})
         };
 
         const { error: profileError } =
@@ -158,18 +190,20 @@ Deno.serve(async request => {
             throw profileError;
         }
 
-        const { data: linkedRecord, error: linkError } = await serviceClient
-            .from(table)
-            .update({ user_id: invitedUser.id, email })
-            .eq("id", recordId)
-            .is("user_id", null)
-            .select("id")
-            .maybeSingle();
+        if (teacherRecord && recordId !== null) {
+            const { data: linkedRecord, error: linkError } = await serviceClient
+                .from("teachers")
+                .update({ user_id: invitedUser.id, email })
+                .eq("id", recordId)
+                .is("user_id", null)
+                .select("id")
+                .maybeSingle();
 
-        if (linkError || !linkedRecord) {
-            await rollbackInvitedUser(serviceClient, invitedUser.id);
-            if (linkError) throw linkError;
-            throw new Error("The school record was linked by another administrator. Please retry.");
+            if (linkError || !linkedRecord) {
+                await rollbackInvitedUser(serviceClient, invitedUser.id);
+                if (linkError) throw linkError;
+                throw new Error("The school record was linked by another administrator. Please retry.");
+            }
         }
 
         return response(request, { success: true }, 200);

@@ -21,7 +21,7 @@ const sidebarToggle =
     document.getElementById("sidebarToggle");
 
 const adminSidebar =
-    document.querySelector(".admin-sidebar");
+    document.getElementById("sidebar");
 
 
 function getSubjectId() {
@@ -187,7 +187,7 @@ function renderSubject(subject) {
     if (editSubjectButton) {
 
         editSubjectButton.href =
-            `/subjects/edit.html?id=${subject.id}`;
+            `edit.html?id=${encodeURIComponent(subject.id)}`;
 
     }
 
@@ -323,9 +323,11 @@ if (
         "click",
         () => {
 
-            adminSidebar.classList.toggle(
-                "open"
-            );
+            if (window.matchMedia("(max-width: 768px)").matches) {
+                adminSidebar.classList.toggle("mobile-open");
+            } else {
+                adminSidebar.classList.toggle("collapsed");
+            }
 
         }
     );
@@ -334,21 +336,18 @@ if (
 
 
 const logoutButton =
-    document.getElementById("logoutButton");
-
+    document.getElementById("logoutBtn");
 
 if (logoutButton) {
-
-    logoutButton.addEventListener(
-        "click",
-        () => {
-
-            window.location.href =
-                "/login.html";
-
+    logoutButton.addEventListener("click", async event => {
+        event.preventDefault();
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+            showMessage(`Unable to sign out: ${error.message}`);
+            return;
         }
-    );
-
+        window.location.href = "../login.html";
+    });
 }
 
 

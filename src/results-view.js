@@ -1,4 +1,5 @@
 import { supabase } from "./supabase.js";
+import { getAssessmentDetails, normalizeAssessmentMark } from "./assessment-config.js";
 
 const messageBox = document.getElementById("messageBox");
 const resultContent = document.getElementById("resultContent");
@@ -118,6 +119,7 @@ async function loadResult() {
                 subject_code,
                 exam_type,
                 mark,
+                max_mark,
                 grade,
                 remark,
                 created_at
@@ -191,13 +193,9 @@ function renderResult(result) {
         result.exam_type
     );
 
-    setText(
-        "resultMark",
-        result.mark !== null &&
-        result.mark !== undefined
-            ? formatMark(result.mark)
-            : "N/A"
-    );
+    const assessment = getAssessmentDetails(result.exam_type, result.max_mark);
+    const mark = normalizeAssessmentMark(result.mark, assessment);
+    setText("resultMark", mark == null ? "N/A" : `${formatMark(mark)} / ${assessment.maxMark}`);
 
     setText(
         "resultGrade",

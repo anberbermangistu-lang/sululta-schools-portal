@@ -270,11 +270,26 @@
 
     <script type="module">
         import { supabase } from '../src/supabase.js';
+        import { getAssessmentDetails, normalizeAssessmentMark } from '../src/assessment-config.js';
+        import { saveAssessmentRecords } from '../src/results-persistence.js';
 
         let allResults = [];
         let cachedStudentsMap = new Map();
         let passFailChartInstance = null;
         const STORAGE_TEACHER_REPORTS = "sululta_teacher_excel_reports";
+
+        function getResultAssessmentMark(result) {
+            const details = getAssessmentDetails(result.exam_type, result.max_mark);
+            return {
+                mark: normalizeAssessmentMark(result.mark, details) ?? 0,
+                maximum: details.maxMark
+            };
+        }
+
+        function getResultPercentage(result) {
+            const score = getResultAssessmentMark(result);
+            return score.maximum > 0 ? score.mark / score.maximum * 100 : 0;
+        }
 
         // Sidebar toggle
         document.getElementById('toggleSidebar').addEventListener('click', () => {
@@ -315,7 +330,7 @@
                 const [resultsRes, studentsRes] = await Promise.all([
                     supabase
                         .from('results')
-                        .select('id, student_id, subject_code, exam_type, mark, remark, created_at, recorded_by')
+                        .select('id, student_id, subject_code, exam_type, mark, max_mark, remark, created_at, recorded_by')
                         .order('created_at', { ascending: false }),
                     supabase
                         .from('students')
@@ -352,6 +367,7 @@
                                     subject_code: r.subject_code || report.subject_code || 'General',
                                     exam_type: r.exam_type || report.exam_type || 'Semester 1',
                                     mark: parseFloat(r.mark) || 0,
+                                    max_mark: r.max_mark,
                                     remark: r.remark || (parseFloat(r.mark) >= 50 ? 'Pass' : 'Fail'),
                                     created_at: report.submitted_at || new Date().toISOString()
                                 });
@@ -359,23 +375,6 @@
                         });
                     }
                 });
-
-                // If completely empty, supply representative sample records
-                if (mergedResults.length === 0 && students.length > 0) {
-                    const sampleSubjects = ['MATH', 'ENG', 'PHYS', 'CHEM', 'BIO'];
-                    students.slice(0, 15).forEach((s, i) => {
-                        const mark = 45 + ((i * 13) % 52);
-                        mergedResults.push({
-                            id: 'sample_' + i,
-                            student_id: s.student_id,
-                            subject_code: sampleSubjects[i % sampleSubjects.length],
-                            exam_type: 'Semester 1 Final Exam',
-                            mark: mark,
-                            remark: mark >= 85 ? 'Excellent' : (mark >= 50 ? 'Pass' : 'Needs Improvement'),
-                            created_at: new Date().toISOString()
-                        });
-                    });
-                }
 
                 allResults = mergedResults;
 
@@ -411,15 +410,15 @@
                 return;
             }
 
-            const passed = resultsList.filter(r => (parseFloat(r.mark) || 0) >= 50).length;
+            const passed = resultsList.filter(r => getResultPercentage(r) >= 50).length;
             const failed = total - passed;
             const passPct = ((passed / total) * 100).toFixed(1);
             const failPct = ((failed / total) * 100).toFixed(1);
 
-            const totalMarks = resultsList.reduce((sum, r) => sum + (parseFloat(r.mark) || 0), 0);
-            const avgMark = (totalMarks / total).toFixed(1);
+            const averagePercent = resultsList.reduce((sum, r) => sum + getResultPercentage(r), 0) / total;
+            const avgMark = averagePercent.toFixed(1);
 
-            const distinctionCount = resultsList.filter(r => (parseFloat(r.mark) || 0) >= 85).length;
+            const distinctionCount = resultsList.filter(r => getResultPercentage(r) >= 85).length;
             const distinctionPct = ((distinctionCount / total) * 100).toFixed(1);
 
             setEl("overallPassPercent", `${passPct}%`);
@@ -482,7 +481,7 @@
                     `;
                 }
 
-                const passCount = matchingResults.filter(r => (parseFloat(r.mark) || 0) >= 50).length;
+                const passCount = matchingResults.filter(r => getResultPercentage(r) >= 50).length;
                 const failCount = totalInGrade - passCount;
                 const passPct = Math.round((passCount / totalInGrade) * 100);
                 const failPct = 100 - passPct;
@@ -515,7 +514,7 @@
             if (!canvas) return;
 
             const total = resultsList.length;
-            const passed = resultsList.filter(r => (parseFloat(r.mark) || 0) >= 50).length;
+            const passed = resultsList.filter(r => getResultPercentage(r) >= 50).length;
             const failed = total - passed;
 
             if (passFailChartInstance) {
@@ -571,47 +570,14 @@
         function getLocalTeacherReports() {
             try {
                 const raw = localStorage.getItem(STORAGE_TEACHER_REPORTS);
-                if (raw) return JSON.parse(raw);
+                if (raw) {
+                    const reports = JSON.parse(raw);
+                    return Array.isArray(reports) ? reports : [];
+                }
             } catch (e) {
                 console.warn("Could not read local teacher reports:", e);
             }
-
-            const defaultReports = [
-                {
-                    id: "rep_sample_01",
-                    teacher_name: "Abebe Kebede",
-                    subject_name: "Mathematics",
-                    subject_code: "MATH",
-                    class_name: "Grade 10-A",
-                    exam_type: "Semester 1 Final Exam",
-                    submitted_at: new Date(Date.now() - 3600000 * 24 * 2).toISOString(),
-                    total_students: 42,
-                    passed_count: 36,
-                    failed_count: 6,
-                    pass_rate: "85.7%",
-                    fail_rate: "14.3%",
-                    records: []
-                },
-                {
-                    id: "rep_sample_02",
-                    teacher_name: "Tigist Haile",
-                    subject_name: "English",
-                    subject_code: "ENG",
-                    class_name: "Grade 9-B",
-                    exam_type: "Semester 1 Midterm",
-                    submitted_at: new Date(Date.now() - 3600000 * 24 * 5).toISOString(),
-                    total_students: 38,
-                    passed_count: 34,
-                    failed_count: 4,
-                    pass_rate: "89.5%",
-                    fail_rate: "10.5%",
-                    records: []
-                }
-            ];
-            try {
-                localStorage.setItem(STORAGE_TEACHER_REPORTS, JSON.stringify(defaultReports));
-            } catch (e) {}
-            return defaultReports;
+            return [];
         }
 
         function saveTeacherReport(report) {
@@ -712,8 +678,8 @@
                 const student = cachedStudentsMap.get(sid);
                 const studentName = student ? `${student.first_name} ${student.last_name || ""}`.trim() : "Student";
                 const studentClass = student?.class ? `${student.class} ${student.section || ""}`.trim() : "—";
-                const mark = parseFloat(r.mark) || 0;
-                const pass = mark >= 50;
+                const { mark, maximum } = getResultAssessmentMark(r);
+                const pass = getResultPercentage(r) >= 50;
 
                 return {
                     "No": idx + 1,
@@ -722,7 +688,8 @@
                     "Class / Section": studentClass,
                     "Subject Code": r.subject_code || "N/A",
                     "Exam / Semester": r.exam_type || "N/A",
-                    "Mark (100)": mark,
+                    "Mark": mark,
+                    "Maximum Mark": maximum,
                     "Status": pass ? "PASS" : "FAIL",
                     "Remark": r.remark || (pass ? "Satisfactory" : "Needs Remedial"),
                     "Date Recorded": r.created_at ? new Date(r.created_at).toLocaleDateString("en-GB") : ""
@@ -779,17 +746,27 @@
 
         function downloadReportAsExcel(report) {
             const rows = (report.records && report.records.length > 0)
-                ? report.records.map((r, i) => ({
-                    "No": i + 1,
-                    "Student ID": r.student_id,
-                    "Student Name": r.student_name || "Student",
-                    "Subject": report.subject_name || report.subject_code,
-                    "Class": report.class_name,
-                    "Exam": report.exam_type,
-                    "Mark": r.mark,
-                    "Status": r.mark >= 50 ? "PASS" : "FAIL",
-                    "Remark": r.remark || (r.mark >= 50 ? "Pass" : "Fail")
-                }))
+                ? report.records.map((r, i) => {
+                    const result = {
+                        ...r,
+                        exam_type: r.exam_type || report.exam_type,
+                        max_mark: r.max_mark || report.max_mark
+                    };
+                    const { mark, maximum } = getResultAssessmentMark(result);
+                    const passed = getResultPercentage(result) >= 50;
+                    return {
+                        "No": i + 1,
+                        "Student ID": r.student_id,
+                        "Student Name": r.student_name || "Student",
+                        "Subject": report.subject_name || report.subject_code,
+                        "Class": report.class_name,
+                        "Exam": result.exam_type,
+                        "Mark": mark,
+                        "Maximum Mark": maximum,
+                        "Status": passed ? "PASS" : "FAIL",
+                        "Remark": r.remark || (passed ? "Pass" : "Fail")
+                    };
+                })
                 : [
                     { "Report ID": report.id, "Teacher": report.teacher_name, "Subject": report.subject_name || report.subject_code, "Class": report.class_name, "Total Students": report.total_students, "Pass Rate": report.pass_rate, "Fail Rate": report.fail_rate, "Date": report.submitted_at }
                 ];
@@ -829,15 +806,21 @@
                     let passCount = 0;
                     let failCount = 0;
 
-                    parsedRows.forEach(row => {
+                    for (const row of parsedRows) {
                         const sid = row["Student ID"] || row["student_id"] || row["StudentID"] || row["ID"];
                         const markVal = parseFloat(row["Mark"] || row["mark"] || row["Score"] || row["Marks"] || 0);
                         const subject = row["Subject"] || row["Subject Code"] || row["subject"] || "General";
                         const exam = row["Exam Type"] || row["Exam"] || row["exam_type"] || "Teacher Excel Submission";
-                        const remark = row["Remark"] || row["remark"] || (markVal >= 50 ? "Pass" : "Fail");
 
                         if (sid) {
-                            const isPass = markVal >= 50;
+                            const details = getAssessmentDetails(exam);
+                            const providedMaximum = Number(row["Max Mark"] || row["max_mark"] || details.maxMark);
+                            if (!Number.isFinite(markVal) || !Number.isFinite(providedMaximum) ||
+                                providedMaximum <= 0 || markVal < 0 || markVal > providedMaximum) {
+                                throw new Error(`Invalid mark for ${sid} in ${exam}; marks must be between 0 and ${providedMaximum}.`);
+                            }
+                            const percentage = markVal / providedMaximum * 100;
+                            const isPass = percentage >= 50;
                             if (isPass) passCount++; else failCount++;
 
                             recordsToInsert.push({
@@ -845,22 +828,19 @@
                                 subject_code: String(subject).trim(),
                                 exam_type: String(exam).trim(),
                                 mark: markVal,
-                                remark: remark,
+                                max_mark: providedMaximum,
+                                remark: row["Remark"] || row["remark"] || (isPass ? "Pass" : "Fail"),
                                 created_at: new Date().toISOString()
                             });
                         }
-                    });
+                    }
 
                     if (recordsToInsert.length === 0) {
                         alert("Could not find required columns ('Student ID', 'Mark') in the uploaded Excel file.");
                         return;
                     }
 
-                    try {
-                        await supabase.from("results").insert(recordsToInsert);
-                    } catch (dbErr) {
-                        console.warn("Notice on insert:", dbErr);
-                    }
+                    await saveAssessmentRecords(supabase, recordsToInsert);
 
                     const total = recordsToInsert.length;
                     const passPct = ((passCount / total) * 100).toFixed(1) + "%";
@@ -941,15 +921,15 @@
                             <th>Student Name</th>
                             <th>Subject</th>
                             <th>Exam / Semester</th>
-                            <th>Mark /100</th>
+                            <th>Mark / Max</th>
                             <th>Remark</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>${results.map(r => {
-                        const mark = parseFloat(r.mark) || 0;
-                        const pass = mark >= 50;
+                        const { mark, maximum } = getResultAssessmentMark(r);
+                        const pass = getResultPercentage(r) >= 50;
                         const remark = r.remark || (pass ? 'Pass' : 'Fail');
                         const sid = String(r.student_id || '').trim().toUpperCase();
                         const st = cachedStudentsMap.get(sid);
@@ -961,7 +941,7 @@
                             <td>${escHtml(sName)}</td>
                             <td><strong style="color: #2563eb;">${escHtml(r.subject_code || 'N/A')}</strong></td>
                             <td>${escHtml(r.exam_type || 'N/A')}</td>
-                            <td><strong>${mark}</strong></td>
+                            <td><strong>${mark} / ${maximum}</strong></td>
                             <td>${escHtml(remark)}</td>
                             <td>
                                 <span class="pf-pill ${pass ? 'pf-pill-pass' : 'pf-pill-fail'}">

@@ -1,5 +1,6 @@
 import { initThemeToggle } from "./theme.js";
 import { supabase, getSession } from "./supabase.js";
+import { ASSESSMENTS, getAssessmentDetails, normalizeAssessmentMark } from "./assessment-config.js";
 
 const message = document.getElementById("studentMessage");
 const profileMessage = document.getElementById("profileMessage");
@@ -22,14 +23,6 @@ let allSubjectCatalog = [];
 let subjectMap = new Map();
 let allEnrolledSubjects = [];
 let resultsRefreshInProgress = false;
-
-const ASSESSMENT_MAX_MARKS = {
-    assignment: 10,
-    quiz: 10,
-    test: 20,
-    midterm: 25,
-    final: 35
-};
 
 /* ──────────────────────────────────────────────────────────────
    UI HELPERS & FORMATTING
@@ -71,28 +64,11 @@ function showEmptyRow(body, columnCount, text) {
     body.appendChild(row);
 }
 
-function getAssessmentDetails(examType) {
-    const value = String(examType || "").trim();
-    const match = value.match(
-        /^(Assignment|Quiz(?:zes)?|Test|Mid[\s-]*term|Final(?:\s+Exam)?)(?:\s*[—–-]\s*(.*))?$/i
-    );
-
-    if (!match) {
-        return { maxMark: 100, session: `legacy:${value}`, category: "" };
-    }
-
-    const name = match[1].toLowerCase().replace(/\s+/g, " ");
-    const category = name.startsWith("quiz")
-        ? "quiz"
-        : name.startsWith("final")
-            ? "final"
-        : name.replace(/[\s-]+/g, "");
-
-    return {
-        maxMark: ASSESSMENT_MAX_MARKS[category] || 100,
-        session: (match[2] || "unspecified").trim(),
-        category
-    };
+function isMissingMaxMarkColumn(error) {
+    const message = `${error?.message || ""} ${error?.details || ""} ${error?.hint || ""}`.toLowerCase();
+    return message.includes("max_mark") &&
+        (error?.code === "42703" || error?.code === "PGRST204" ||
+            message.includes("does not exist") || message.includes("schema cache"));
 }
 
 function inferSubjectCategory(code, name) {
@@ -534,15 +510,15 @@ async function loadStudentProfile() {
 ────────────────────────────────────────────────────────────── */
 function computeAndRenderSubjectTotals() {
     const bySubject = new Map();
-    const categories = ["quiz", "test", "midterm", "final"];
+    const categories = ASSESSMENTS.map(assessment => assessment.key);
 
     for (const r of allRawResults) {
         const code = r.subject_code;
         if (!code) continue;
-        const details = getAssessmentDetails(r.exam_type);
-        if (!categories.includes(details.category) || r.mark == null || r.mark === "") continue;
-        const mark = Number(r.mark);
-        if (!Number.isFinite(mark)) continue;
+        if (r.mark == null || r.mark === "") continue;
+        const details = getAssessmentDetails(r.exam_type, r.max_mark);
+        const mark = normalizeAssessmentMark(r.mark, details);
+        if (mark == null) continue;
 
         if (!bySubject.has(code)) {
             bySubject.set(code, {
@@ -556,12 +532,21 @@ function computeAndRenderSubjectTotals() {
         if (!record.sessions.has(details.session)) {
             record.sessions.set(details.session, {
                 latestTimestamp: 0,
-                marks: new Map()
+                marks: new Map(),
+                legacyMark: null
             });
         }
 
         const session = record.sessions.get(details.session);
         const timestamp = Date.parse(r.created_at || "") || 0;
+        if (!details.category) {
+            if (!session.legacyMark || timestamp >= session.legacyMark.timestamp) {
+                session.legacyMark = { mark, timestamp };
+            }
+            session.latestTimestamp = Math.max(session.latestTimestamp, timestamp);
+            continue;
+        }
+
         const previous = session.marks.get(details.category);
         if (!previous || timestamp > previous.timestamp) {
             session.marks.set(details.category, {
@@ -576,27 +561,35 @@ function computeAndRenderSubjectTotals() {
     const totalsList = [];
     for (const [code, item] of bySubject.entries()) {
         const latestSession = [...item.sessions.values()]
-            .reduce((latest, current) => !latest || current.latestTimestamp > latest.latestTimestamp ? current : latest, null);
+            .reduce((latest, current) => {
+                if (!latest || current.latestTimestamp > latest.latestTimestamp) return current;
+                if (current.latestTimestamp === latest.latestTimestamp && current.marks.size > latest.marks.size) return current;
+                return latest;
+            }, null);
         if (!latestSession) continue;
+        const total = latestSession.marks.size
+            ? Math.min(100, [...latestSession.marks.values()].reduce((sum, score) => sum + score.mark, 0))
+            : latestSession.legacyMark?.mark ?? 0;
         totalsList.push({
             code,
             name: item.name,
-            marks: latestSession.marks
+            marks: latestSession.marks,
+            total
         });
     }
 
     totalsList.sort((a, b) => a.name.localeCompare(b.name));
 
     let cumulativePoints = 0;
-    let maxPoints = 0;
-    let evaluatedSubjects = 0;
+    const maxPoints = totalsList.length * 100;
+    let evaluatedSubjects = totalsList.length;
 
     if (subjectTotalsBody) {
         if (!totalsList.length) {
             const hasLegacyResults = allRawResults.length > 0;
             showEmptyRow(
                 subjectTotalsBody,
-                5,
+                8,
                 hasLegacyResults
                     ? "Quiz, Test, Midterm, or Final marks are not available for these records."
                     : "No subject results are available yet."
@@ -615,7 +608,6 @@ function computeAndRenderSubjectTotals() {
                 subjectCell.append(name, code);
                 row.appendChild(subjectCell);
 
-                let subjectHasMarks = false;
                 for (const category of categories) {
                     const cell = document.createElement("td");
                     const score = item.marks.get(category);
@@ -626,16 +618,20 @@ function computeAndRenderSubjectTotals() {
                         markText.className = "subject-results-mark";
                         markText.textContent = `${formattedMark} / ${score.maxMark}`;
                         cell.appendChild(markText);
-                        cumulativePoints += score.mark;
-                        maxPoints += score.maxMark;
-                        subjectHasMarks = true;
                     } else {
                         cell.textContent = "—";
                         cell.style.color = "#94a3b8";
                     }
                     row.appendChild(cell);
                 }
-                if (subjectHasMarks) evaluatedSubjects++;
+
+                const totalCell = document.createElement("td");
+                totalCell.className = "subject-results-total";
+                const total = Number(item.total.toFixed(1));
+                const totalText = Number.isInteger(total) ? String(total) : total.toFixed(1);
+                totalCell.textContent = `${totalText} / 100`;
+                row.appendChild(totalCell);
+                cumulativePoints += item.total;
                 subjectTotalsBody.appendChild(row);
             }
         }
@@ -648,62 +644,131 @@ function computeAndRenderSubjectTotals() {
     const progress = document.getElementById("subjectAverageProgress");
     const progressFill = document.getElementById("subjectAverageProgressFill");
     const performanceBadge = document.getElementById("subjectPerformanceBadge");
+    const performanceRing = document.getElementById("performanceOverviewRing");
+    const performanceRingValue = document.getElementById("performanceOverviewPercent");
+    const performanceOverviewAverage = document.getElementById("performanceOverviewAverage");
+    const performanceOverviewStatus = document.getElementById("performanceOverviewStatus");
+    const performanceSubjectList = document.getElementById("performanceSubjectList");
+    const category = overallAvg == null
+        ? "Awaiting results"
+        : overallAvg >= 90
+            ? "Excellent"
+            : overallAvg >= 80
+                ? "Very Good"
+                : overallAvg >= 70
+                    ? "Good"
+                    : overallAvg >= 60
+                        ? "Satisfactory"
+                        : overallAvg >= 50
+                            ? "Pass"
+                            : "Needs Improvement";
 
     setText("subjectOverallAverage", averageText);
     if (progress) progress.setAttribute("aria-valuenow", overallAvg == null ? "0" : String(Math.round(overallAvg)));
     if (progressFill) progressFill.style.width = `${Math.min(100, Math.max(0, overallAvg || 0))}%`;
+    if (performanceRing) {
+        const progressValue = Math.min(100, Math.max(0, overallAvg || 0));
+        performanceRing.style.background = `conic-gradient(#16a34a ${progressValue}%, #e5e7eb ${progressValue}%)`;
+        performanceRing.setAttribute("aria-valuenow", overallAvg == null ? "0" : String(Math.round(overallAvg)));
+    }
+    if (performanceRingValue) performanceRingValue.textContent = overallAvg == null ? "—" : `${Math.round(overallAvg)}%`;
+    if (performanceOverviewAverage) performanceOverviewAverage.textContent = averageText;
+    if (performanceOverviewStatus) performanceOverviewStatus.textContent = category;
     if (performanceBadge) {
-        if (overallAvg == null) {
-            performanceBadge.textContent = "Awaiting results";
-            performanceBadge.className = "subject-results-badge pending";
-        } else if (overallAvg >= 90) {
-            performanceBadge.textContent = "Excellent";
-            performanceBadge.className = "subject-results-badge";
-        } else if (overallAvg >= 80) {
-            performanceBadge.textContent = "Very Good";
-            performanceBadge.className = "subject-results-badge";
-        } else if (overallAvg >= 65) {
-            performanceBadge.textContent = "Good";
-            performanceBadge.className = "subject-results-badge";
-        } else if (overallAvg >= 50) {
-            performanceBadge.textContent = "Satisfactory";
-            performanceBadge.className = "subject-results-badge";
+        performanceBadge.textContent = category;
+        performanceBadge.className = `subject-results-badge${overallAvg == null ? " pending" : overallAvg < 50 ? " needs-improvement" : ""}`;
+    }
+    if (performanceSubjectList) {
+        performanceSubjectList.replaceChildren();
+        if (!totalsList.length) {
+            const emptyMessage = document.createElement("span");
+            emptyMessage.className = "empty";
+            emptyMessage.textContent = "Subject performance will appear when marks are available.";
+            performanceSubjectList.appendChild(emptyMessage);
         } else {
-            performanceBadge.textContent = "Needs Improvement";
-            performanceBadge.className = "subject-results-badge needs-improvement";
+            for (const subjectResult of totalsList) {
+                const percent = Math.min(100, Math.max(0, subjectResult.total));
+                const row = document.createElement("div");
+                row.className = "performance-subject-row";
+                const name = document.createElement("span");
+                name.className = "performance-subject-name";
+                name.textContent = subjectResult.name;
+                const track = document.createElement("span");
+                track.className = "performance-subject-track";
+                track.setAttribute("role", "progressbar");
+                track.setAttribute("aria-label", `${subjectResult.name} performance`);
+                track.setAttribute("aria-valuemin", "0");
+                track.setAttribute("aria-valuemax", "100");
+                track.setAttribute("aria-valuenow", String(Math.round(percent)));
+                const fill = document.createElement("span");
+                fill.className = "performance-subject-fill";
+                fill.style.width = `${percent}%`;
+                track.appendChild(fill);
+                const score = document.createElement("span");
+                score.className = "performance-subject-percent";
+                score.textContent = `${Math.round(percent)}%`;
+                row.append(name, track, score);
+                performanceSubjectList.appendChild(row);
+            }
         }
     }
 
     setText("kpiAverage", overallAvg == null ? "—" : `${overallAvg.toFixed(1)}%`);
-    setText("kpiTotalPoints", overallAvg == null ? "—" : `${cumulativePoints.toFixed(1)} / ${maxPoints}`);
+    const displayedPoints = Number(cumulativePoints.toFixed(1));
+    setText("kpiTotalPoints", overallAvg == null ? "—" : `${displayedPoints} / ${maxPoints}`);
     setText("kpiEvaluatedCount", `${evaluatedSubjects} Subject${evaluatedSubjects === 1 ? "" : "s"}`);
     setText("kpiAverageSub", evaluatedSubjects ? `Across ${evaluatedSubjects} evaluated subjects` : "Awaiting assessment entries");
-    setText("kpiTotalPointsSub", evaluatedSubjects ? "Earned across recorded exam types" : "No marks registered");
+    setText("kpiTotalPointsSub", evaluatedSubjects ? `Maximum total marks: ${maxPoints}` : "No marks registered");
     setText("kpiEvaluatedSub", `${allRawResults.length} total assessment submission${allRawResults.length === 1 ? "" : "s"}`);
 
     const standingBadge = document.getElementById("standingBadge");
     if (overallAvg == null) {
-        setText("kpiStanding", "PENDING");
+        setText("kpiStanding", "Awaiting results");
+        setText("kpiStandingSub", "No published results yet");
         if (standingBadge) {
             standingBadge.textContent = "AWAITING";
             standingBadge.className = "badge badge-warn";
         }
-    } else if (overallAvg >= 85) {
-        setText("kpiStanding", "DISTINCTION");
+    } else if (overallAvg >= 90) {
+        setText("kpiStanding", "Excellent");
+        setText("kpiStandingSub", "Excellent academic performance");
         if (standingBadge) {
-            standingBadge.textContent = "TOP HONORS";
+            standingBadge.textContent = "EXCELLENT";
             standingBadge.className = "badge badge-emerald";
         }
-    } else if (overallAvg >= 50) {
-        setText("kpiStanding", "PASS");
+    } else if (overallAvg >= 80) {
+        setText("kpiStanding", "Very Good");
+        setText("kpiStandingSub", "Very good academic performance");
         if (standingBadge) {
-            standingBadge.textContent = "PROMOTED";
+            standingBadge.textContent = "VERY GOOD";
+            standingBadge.className = "badge badge-emerald";
+        }
+    } else if (overallAvg >= 70) {
+        setText("kpiStanding", "Good");
+        setText("kpiStandingSub", "Good academic performance");
+        if (standingBadge) {
+            standingBadge.textContent = "GOOD";
+            standingBadge.className = "badge badge-pass";
+        }
+    } else if (overallAvg >= 60) {
+        setText("kpiStanding", "Satisfactory");
+        setText("kpiStandingSub", "Satisfactory academic performance");
+        if (standingBadge) {
+            standingBadge.textContent = "SATISFACTORY";
+            standingBadge.className = "badge badge-pass";
+        }
+    } else if (overallAvg >= 50) {
+        setText("kpiStanding", "Pass");
+        setText("kpiStandingSub", "Passing academic performance");
+        if (standingBadge) {
+            standingBadge.textContent = "PASS";
             standingBadge.className = "badge badge-pass";
         }
     } else {
-        setText("kpiStanding", "NEEDS REVIEW");
+        setText("kpiStanding", "Needs Improvement");
+        setText("kpiStandingSub", "Additional academic support recommended");
         if (standingBadge) {
-            standingBadge.textContent = "ACADEMIC CONCERN";
+            standingBadge.textContent = "NEEDS IMPROVEMENT";
             standingBadge.className = "badge badge-fail";
         }
     }
@@ -713,15 +778,7 @@ function computeAndRenderSubjectTotals() {
     setText("performanceStatus", overallAvg == null ? "Not calculated" : overallAvg >= 50 ? "Pass" : "Fail");
     setText(
         "performanceRemark",
-        overallAvg == null
-            ? "No marks recorded"
-            : overallAvg >= 85
-                ? "Excellent Distinction"
-                : overallAvg >= 75
-                    ? "Very Good Standing"
-                    : overallAvg >= 50
-                        ? "Satisfactory Promotion"
-                        : "Academic Support Required"
+        overallAvg == null ? "No marks recorded" : category
     );
 }
 
@@ -838,27 +895,90 @@ async function refreshStudentResults() {
             throw new Error("No student identifier is available to load results.");
         }
 
-        const { data, error } = await supabase
+        let { data, error } = await supabase
             .from("results")
-            .select("id, subject_code, exam_type, mark, grade, remark, created_at")
+            .select("id, subject_code, exam_type, mark, max_mark, grade, remark, created_at")
             .in("student_id", studentKeys)
             .order("created_at", { ascending: false });
+
+        let scaleMetadataUnavailable = false;
+        if (error && isMissingMaxMarkColumn(error)) {
+            console.warn(
+                "The results.max_mark migration is not applied yet; loading results using the known legacy assessment scales."
+            );
+            scaleMetadataUnavailable = true;
+            const fallback = await supabase
+                .from("results")
+                .select("id, subject_code, exam_type, mark, grade, remark, created_at")
+                .in("student_id", studentKeys)
+                .order("created_at", { ascending: false });
+            data = fallback.data;
+            error = fallback.error;
+        }
         if (error) throw error;
 
         allRawResults = data || [];
         computeAndRenderSubjectTotals();
+        await refreshStudentClassRank();
         if (status) {
-            status.textContent = "Your results refresh automatically while this page is open.";
+            status.textContent = scaleMetadataUnavailable
+                ? "Results loaded. Apply the latest database migration to enable stored assessment scales and class rank."
+                : "Your results refresh automatically while this page is open.";
+            status.classList.toggle("warning", scaleMetadataUnavailable);
             status.classList.remove("error");
         }
     } catch (error) {
         console.error("Student results refresh failed:", error);
         if (status) {
             status.textContent = "Unable to refresh your results. Please try again shortly.";
+            status.classList.remove("warning");
             status.classList.add("error");
+        }
+        if (allRawResults.length === 0) {
+            showEmptyRow(subjectTotalsBody, 8, "Results could not be loaded. Please refresh the page or try again later.");
+            computeAndRenderSubjectTotals();
         }
     } finally {
         resultsRefreshInProgress = false;
+    }
+}
+
+async function refreshStudentClassRank() {
+    const rankValue = document.getElementById("kpiClassRank");
+    const rankSub = document.getElementById("kpiClassRankSub");
+    if (!rankValue || !rankSub) return;
+
+    try {
+        const { data, error } = await supabase.rpc("get_student_class_rank");
+        if (error) throw error;
+
+        const rank = Array.isArray(data) ? data[0] : data;
+        if (!rank?.class_size) {
+            rankValue.textContent = "—";
+            rankSub.textContent = "No class assigned";
+            return;
+        }
+
+        rankValue.textContent = rank.class_rank == null
+            ? "—"
+            : `${rank.class_rank}${getOrdinalSuffix(Number(rank.class_rank))} / ${rank.class_size}`;
+        rankSub.textContent = rank.student_average == null
+            ? "No scored subjects yet"
+            : `Average: ${Number(rank.student_average).toFixed(1)} / 100`;
+    } catch (error) {
+        console.error("Student class rank could not be loaded:", error);
+        rankValue.textContent = "—";
+        rankSub.textContent = "Class rank unavailable; database update required";
+    }
+}
+
+function getOrdinalSuffix(rank) {
+    if (rank % 100 >= 11 && rank % 100 <= 13) return "th";
+    switch (rank % 10) {
+        case 1: return "st";
+        case 2: return "nd";
+        case 3: return "rd";
+        default: return "th";
     }
 }
 
@@ -1142,7 +1262,7 @@ async function loadAcademicRecords() {
             },
             {
                 title: "Assessment & Grading System",
-                message: "Subject marks are evaluated continuously through Assignments (10%), Quizzes (10%), Tests (20%), Midterm (25%), and Final Exam (35%).",
+                message: "Each subject is marked out of 100: Quiz (20), Test (20), Assignment (10), Classwork (10), Midterm Exam (20), and Final Exam (20).",
                 publish_date: new Date().toISOString()
             },
             {

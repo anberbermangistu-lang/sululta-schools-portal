@@ -1,4 +1,5 @@
 import { supabase } from "./supabase.js";
+import { ASSESSMENTS, getAssessmentDetails, normalizeAssessmentMark } from "./assessment-config.js";
 
 const resultMessage = document.getElementById("resultMessage");
 const resultsTableBody = document.getElementById("resultsTableBody");
@@ -26,13 +27,7 @@ const logoutButton = document.getElementById("logoutButton");
 const sidebarToggle = document.getElementById("sidebarToggle");
 const sidebar = document.querySelector(".admin-sidebar");
 
-const EXAM_CATEGORIES = [
-    { value: "assignment", label: "Assignment", max: 10 },
-    { value: "quiz", label: "Quiz", max: 10 },
-    { value: "test", label: "Test", max: 20 },
-    { value: "midterm", label: "Midterm", max: 25 },
-    { value: "final", label: "Final Exam", max: 35 }
-];
+const EXAM_CATEGORIES = ASSESSMENTS;
 
 let allResults = [];
 let currentStudent = null;
@@ -273,6 +268,7 @@ async function loadResults() {
             subject_code,
             exam_type,
             mark,
+            max_mark,
             grade,
             remark,
             recorded_by,
@@ -369,18 +365,7 @@ function populateExamFilter() {
 }
 
 function getExamCategory(examType) {
-    const normalized = String(examType || "")
-        .trim()
-        .toLowerCase()
-        .replace(/[_-]+/g, " ");
-
-    if (/\bassignment\b/.test(normalized)) return "assignment";
-    if (/\bquiz(?:zes)?\b/.test(normalized)) return "quiz";
-    if (/\btest\b/.test(normalized)) return "test";
-    if (/\bmid[\s-]*term\b/.test(normalized)) return "midterm";
-    if (/\bfinal\b/.test(normalized)) return "final";
-
-    return "";
+    return getAssessmentDetails(examType).category;
 }
 
 function getExamLabel(examType) {
@@ -393,11 +378,7 @@ function getExamLabel(examType) {
 }
 
 function getExamMaximum(examType) {
-    const category = getExamCategory(examType);
-    if (!/^(Assignment|Quiz(?:zes)?|Test|Mid[\s-]*term|Final(?:\s+Exam)?)\s*[—–-]\s*.+/i.test(String(examType || ""))) {
-        return 100;
-    }
-    return EXAM_CATEGORIES.find(item => item.value === category)?.max || 100;
+    return getAssessmentDetails(examType).maxMark;
 }
 
 function populateGradeFilter() {
@@ -508,8 +489,10 @@ function renderResults() {
 
     resultsTableBody.innerHTML = filteredResults
         .map((result, index) => {
+            const details = getAssessmentDetails(result.exam_type, result.max_mark);
             const maxMark = getExamMaximum(result.exam_type);
-            const percentage = Number(result.mark) / maxMark * 100;
+            const mark = normalizeAssessmentMark(result.mark, details);
+            const percentage = mark == null ? NaN : mark / maxMark * 100;
             const grade = formatGrade(result.grade, percentage);
             const gradeClass = getGradeClass(grade);
 
@@ -533,7 +516,7 @@ function renderResults() {
 
                     <td>
                         <strong>
-                            ${formatMark(result.mark, maxMark)}
+                            ${mark == null ? "-" : formatMark(mark, maxMark)}
                         </strong>
                     </td>
 
@@ -560,8 +543,12 @@ function updateStatistics(results) {
     );
 
     const marks = results
-        .map(result => Number(result.mark) / getExamMaximum(result.exam_type) * 100)
-        .filter(mark => !Number.isNaN(mark));
+        .map(result => {
+            const details = getAssessmentDetails(result.exam_type, result.max_mark);
+            const mark = normalizeAssessmentMark(result.mark, details);
+            return mark == null ? NaN : mark / details.maxMark * 100;
+        })
+        .filter(Number.isFinite);
 
     const average =
         marks.length > 0

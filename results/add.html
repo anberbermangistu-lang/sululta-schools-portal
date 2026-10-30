@@ -183,7 +183,7 @@
             <div class="card-title">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
                 Subject Assessment Marks
-                <span style="margin-left:auto;font-size:.75rem;color:#718096;font-weight:400">Assessment weights: Assignment 10% · Quiz 10% · Test 20% · Midterm 25% · Final 35%</span>
+                <span style="margin-left:auto;font-size:.75rem;color:#718096;font-weight:400">Assessment weights total 100 marks per subject.</span>
             </div>
 
             <div style="overflow-x:auto">
@@ -191,18 +191,19 @@
                     <thead>
                         <tr>
                             <th style="min-width:160px">Subject</th>
-                            <th>Assignment<br><small style="font-weight:400">/10</small></th>
-                            <th>Quiz<br><small style="font-weight:400">/10</small></th>
+                            <th>Quiz<br><small style="font-weight:400">/20</small></th>
                             <th>Test<br><small style="font-weight:400">/20</small></th>
-                            <th>Midterm<br><small style="font-weight:400">/25</small></th>
-                            <th>Final Exam<br><small style="font-weight:400">/35</small></th>
+                            <th>Assignment<br><small style="font-weight:400">/10</small></th>
+                            <th>Classwork<br><small style="font-weight:400">/10</small></th>
+                            <th>Midterm Exam<br><small style="font-weight:400">/20</small></th>
+                            <th>Final Exam<br><small style="font-weight:400">/20</small></th>
                             <th>Total<br><small style="font-weight:400">/100</small></th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody id="subjectRows">
                         <tr id="emptyRow">
-                            <td colspan="8" style="text-align:center;color:#94a3b8;padding:1.5rem;font-size:.875rem">
+                            <td colspan="9" style="text-align:center;color:#94a3b8;padding:1.5rem;font-size:.875rem">
                                 No subjects added yet. Use the form below to add subjects.
                             </td>
                         </tr>
@@ -233,6 +234,7 @@
                 <div class="summary-item">
                     <div class="s-label">Total Marks</div>
                     <div class="s-value" id="sumTotal">0</div>
+                    <div class="remark-text" id="sumMaximum">Maximum: 0</div>
                 </div>
                 <div class="summary-item highlight">
                     <div class="s-label">Average / 100</div>
@@ -262,14 +264,9 @@ import { supabase } from '../src/supabase.js';
 /* ──────────────────────────────────────────────────────────────
    CONSTANTS
 ────────────────────────────────────────────────────────────── */
-// Assessment weights (must sum to 100)
-const WEIGHTS = {
-    assignment: { max: 10,  label: 'Assignment' },
-    quiz:       { max: 10,  label: 'Quiz'       },
-    test:       { max: 20,  label: 'Test'       },
-    midterm:    { max: 25,  label: 'Midterm'    },
-    final:      { max: 35,  label: 'Final Exam' },
-};
+import { ASSESSMENTS } from '../src/assessment-config.js';
+import { saveAssessmentRecords } from '../src/results-persistence.js';
+const WEIGHTS = Object.fromEntries(ASSESSMENTS.map(({ key, label, max }) => [key, { max, label }]));
 const ASSESS_KEYS = Object.keys(WEIGHTS);
 
 /* ──────────────────────────────────────────────────────────────
@@ -377,7 +374,7 @@ document.getElementById('addSubjectBtn').addEventListener('click', () => {
     if (!subj) return;
 
     subjectRows.push({ code: subj.subject_code, name: subj.subject_name,
-        marks: { assignment: '', quiz: '', test: '', midterm: '', final: '' }, total: 0 });
+        marks: Object.fromEntries(ASSESS_KEYS.map(key => [key, ''])), total: 0 });
     renderTable();
     populateSubjectSelect();
 });
@@ -389,7 +386,7 @@ function renderTable() {
     const tbody = document.getElementById('subjectRows');
 
     if (!subjectRows.length) {
-        tbody.innerHTML = `<tr id="emptyRow"><td colspan="8" style="text-align:center;color:#94a3b8;padding:1.5rem;font-size:.875rem">No subjects added yet.</td></tr>`;
+        tbody.innerHTML = `<tr id="emptyRow"><td colspan="9" style="text-align:center;color:#94a3b8;padding:1.5rem;font-size:.875rem">No subjects added yet.</td></tr>`;
         updateSummary();
         return;
     }
@@ -463,7 +460,6 @@ function onMarkInput(e) {
 ────────────────────────────────────────────────────────────── */
 function calcTotal(marks) {
     // Each assessment contributes its raw mark (already on the correct scale)
-    // assignment/10, quiz/10, test/20, midterm/25, final/35 — they sum to 100
     let total = 0;
     let entered = false;
     ASSESS_KEYS.forEach(key => {
@@ -510,11 +506,13 @@ function updateSummary() {
     const n = rowsWithMarks.length;
     const totalMarks = rowsWithMarks.reduce((s, r) => s + r.total, 0);
     const avg = totalMarks / n;
+    const maximumTotal = n * 100;
     const remark = getRemark(avg);
     const pass = avg >= 50;
 
     document.getElementById('sumSubjects').textContent = n;
     document.getElementById('sumTotal').textContent = totalMarks.toFixed(1);
+    document.getElementById('sumMaximum').textContent = `Maximum: ${maximumTotal}`;
     document.getElementById('sumAverage').textContent = avg.toFixed(1);
     document.getElementById('sumRemark').textContent = remark;
 
@@ -549,52 +547,38 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
 
     const { data: { user } } = await supabase.auth.getUser();
 
-    const storedExamTypes = [
-        `${examType} — ${academicYear}`,
-        ...ASSESS_KEYS.map(key => `${WEIGHTS[key].label} — ${examType} — ${academicYear}`)
-    ];
-    const inserts = rowsWithMarks.flatMap(row =>
+    const records = rowsWithMarks.flatMap(row =>
         ASSESS_KEYS
             .filter(key => row.marks[key] !== '' && row.marks[key] != null)
             .map(key => {
-                const percentage = Number(row.marks[key]) / WEIGHTS[key].max * 100;
+                const mark = Number(row.marks[key]);
                 return {
                     student_id: resolvedStudentId,
                     subject_code: row.code,
                     exam_type: `${WEIGHTS[key].label} — ${examType} — ${academicYear}`,
-                    mark: Number(row.marks[key]),
+                    mark,
+                    max_mark: WEIGHTS[key].max,
                     grade: null,
-                    remark: getRemark(percentage),
+                    remark: getRemark(mark / WEIGHTS[key].max * 100),
                     recorded_by: user?.id ?? null,
                 };
             })
     );
 
-    // Delete existing records for this student/semester/year to avoid duplicates
-    const { error: deleteError } = await supabase
-        .from('results')
-        .delete()
-        .eq('student_id', resolvedStudentId)
-        .in('exam_type', storedExamTypes);
-
-    if (deleteError) {
+    try {
+        await saveAssessmentRecords(supabase, records);
+    } catch (error) {
         saveBtn.disabled = false;
         saveBtn.textContent = 'Save Results';
-        showMsg('Error replacing previous results: ' + deleteError.message, 'error');
+        showMsg('Error saving results: ' + error.message, 'error');
         return;
     }
-
-    const { error } = await supabase.from('results').insert(inserts);
 
     saveBtn.disabled = false;
     saveBtn.textContent = 'Save Results';
 
-    if (error) {
-        showMsg('Error saving results: ' + error.message, 'error');
-    } else {
-        showMsg(`Results saved successfully! ${inserts.length} assessment mark(s) recorded.`, 'success');
-        setTimeout(() => window.location.href = 'dashboard.html', 1500);
-    }
+    showMsg(`Results saved successfully! ${records.length} assessment mark(s) recorded.`, 'success');
+    setTimeout(() => window.location.href = 'dashboard.html', 1500);
 });
 
 /* ──────────────────────────────────────────────────────────────

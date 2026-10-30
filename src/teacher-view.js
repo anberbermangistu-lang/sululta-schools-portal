@@ -71,7 +71,6 @@ async function loadTeacher() {
                 phone,
                 email,
                 qualification,
-                department,
                 status,
                 photo_url,
                 created_at,
@@ -92,6 +91,29 @@ async function loadTeacher() {
 
         }
 
+        const { data: assignments, error: assignmentsError } = await supabase
+            .from("teacher_subject_assignments")
+            .select("subject_code")
+            .eq("teacher_id", data.id);
+
+        const subjectCodes = [...new Set((assignments || []).map(item => item.subject_code).filter(Boolean))];
+        let assignedSubjects = [];
+        if (assignmentsError) {
+            console.warn("Teacher subject assignments could not be loaded:", assignmentsError);
+        } else if (subjectCodes.length) {
+            const { data: subjects, error: subjectsError } = await supabase
+                .from("subjects")
+                .select("subject_code, subject_name")
+                .in("subject_code", subjectCodes);
+
+            if (subjectsError) {
+                console.warn("Teacher subjects could not be loaded:", subjectsError);
+            } else {
+                assignedSubjects = (subjects || []).map(subject => subject.subject_name || subject.subject_code);
+            }
+        }
+
+        data.assigned_subjects = assignedSubjects;
         displayTeacher(data);
 
     } catch (error) {
@@ -164,6 +186,12 @@ function displayTeacher(teacher) {
 
     detailQualification.textContent =
         teacher.qualification || "N/A";
+
+    if (detailSubject) {
+        detailSubject.textContent =
+            teacher.assigned_subjects?.join(", ") ||
+            "N/A";
+    }
 
     detailStatus.textContent =
         capitalize(status);
@@ -433,7 +461,7 @@ deleteTeacherButton?.addEventListener(
 
         const confirmed =
             window.confirm(
-                "Are you sure you want to delete this teacher?"
+                "Delete this teacher? Their class-teacher assignment will also be removed."
             );
 
         if (!confirmed) {
@@ -442,14 +470,28 @@ deleteTeacherButton?.addEventListener(
 
         try {
 
-            const { error } =
+            const { error: classUpdateError } = await supabase
+                .from("classes")
+                .update({ class_teacher: null })
+                .eq("class_teacher", id);
+
+            if (classUpdateError) {
+                throw classUpdateError;
+            }
+
+            const { data, error } =
                 await supabase
                     .from("teachers")
                     .delete()
-                    .eq("id", id);
+                    .eq("id", id)
+                    .select("id")
+                    .maybeSingle();
 
             if (error) {
                 throw error;
+            }
+            if (!data) {
+                throw new Error("Teacher was not deleted. Check that the record exists and your admin permissions allow deletion.");
             }
 
             window.location.href =
@@ -479,20 +521,23 @@ document
         () => {
 
             document
-                .querySelector(".admin-sidebar")
-                ?.classList.toggle("open");
+                .getElementById("sidebar")
+                ?.classList.toggle("collapsed");
 
         }
     );
 
 document
-    .getElementById("logoutButton")
+    .getElementById("logoutBtn")
     ?.addEventListener(
         "click",
-        () => {
-
-            window.location.href =
-                "../login.html";
-
+        async event => {
+            event.preventDefault();
+            const { error } = await supabase.auth.signOut();
+            if (error) {
+                showError(`Unable to sign out: ${error.message}`);
+                return;
+            }
+            window.location.href = "../login.html";
         }
     );

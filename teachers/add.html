@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Teacher - Sululta School Portal</title>
     <link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
-    <link rel="stylesheet" href="../src/sidebar.css">`n    <link rel="stylesheet" href="../src/responsive.css">
+    <link rel="stylesheet" href="../src/sidebar.css">
+    <link rel="stylesheet" href="../src/responsive.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; }
@@ -121,22 +122,8 @@
                             <textarea id="address"></textarea>
                         </div>
                         <div class="form-group">
-                            <label for="subject">Subject</label>
-                            <select id="subject">
-                                <option value="">Select Subject</option>
-                                <option value="Mathematics">Mathematics</option>
-                                <option value="English">English</option>
-                                <option value="Physics">Physics</option>
-                                <option value="Chemistry">Chemistry</option>
-                                <option value="Biology">Biology</option>
-                                <option value="Amharic">Amharic</option>
-                                <option value="Afan Oromo">Afan Oromo</option>
-                                <option value="History">History</option>
-                                <option value="Geography">Geography</option>
-                                <option value="Civics">Civics</option>
-                                <option value="Economics">Economics</option>
-                                <option value="Information Technology">Information Technology</option>
-                            </select>
+                            <label>Subject Assignments</label>
+                            <p>Assign classes and subjects after creating the teacher from Teaching Assignments.</p>
                         </div>
                     </div>
                     <div class="form-actions">
@@ -163,36 +150,12 @@
             setTimeout(() => alert.style.display = 'none', 5000);
         }
 
-        async function loadSubjects() {
-            const subjectSelect = document.getElementById('subject');
-            if (!subjectSelect) return;
-            try {
-                const { data: subjects, error } = await supabase
-                    .from('subjects')
-                    .select('id, subject_code, subject_name')
-                    .order('subject_name');
-
-                if (!error && subjects && subjects.length > 0) {
-                    subjectSelect.innerHTML = '<option value="">Select Subject</option>' +
-                        subjects.map(s => {
-                            const label = s.subject_code ? `${s.subject_name} (${s.subject_code})` : s.subject_name;
-                            return `<option value="${s.subject_name}">${label}</option>`;
-                        }).join('');
-                }
-            } catch (err) {
-                console.warn('Could not load subjects from database:', err);
-            }
-        }
-
-        loadSubjects();
-
         document.getElementById('addTeacherForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const form = e.currentTarget;
             const btn = form.querySelector('button[type="submit"]');
             btn.disabled = true;
             btn.textContent = 'Creating Account...';
-            const selectedSubject = document.getElementById('subject')?.value || null;
             const payload = {
                 role: 'teacher',
                 email: document.getElementById('email').value.trim(),
@@ -204,7 +167,6 @@
                     phone: document.getElementById('phone').value.trim() || null,
                     gender: document.getElementById('gender').value || null,
                     qualification: document.getElementById('qualification').value || null,
-                    department: selectedSubject,
                     address: document.getElementById('address').value || null,
                     status: document.getElementById('status').value
                 }
@@ -224,17 +186,6 @@
                     throw new Error(details?.error || error.message);
                 }
                 if (!data?.success) throw new Error('Teacher account could not be created.');
-
-                if (selectedSubject) {
-                    try {
-                        await supabase
-                            .from('teachers')
-                            .update({ department: selectedSubject })
-                            .eq('teacher_id', payload.record.teacher_id);
-                    } catch (updateErr) {
-                        console.warn('Teacher department sync notice:', updateErr);
-                    }
-                }
 
                 showAlert(payload.record.status === 'active'
                     ? 'Teacher account created. They can now sign in with the email and temporary password you provided.'

@@ -1,4 +1,6 @@
 import { supabase } from "./supabase.js";
+import { getAssessmentDetails } from "./assessment-config.js";
+import { insertAssessmentRecord } from "./results-persistence.js";
 
 const form = document.getElementById("resultForm");
 const studentIdInput = document.getElementById("studentId");
@@ -42,6 +44,15 @@ function setupSidebar() {
 
 function setupMarkCalculation() {
     markInput?.addEventListener("input", calculateResult);
+    examTypeInput?.addEventListener("change", updateMarkMaximum);
+    updateMarkMaximum();
+}
+
+function updateMarkMaximum() {
+    if (!markInput) return;
+    const maximum = getAssessmentDetails(examTypeInput?.value).maxMark;
+    markInput.max = String(maximum);
+    markInput.placeholder = `0-${maximum}`;
 }
 
 function calculateResult() {
@@ -55,25 +66,27 @@ function calculateResult() {
 
     const mark = Number(value);
 
-    if (!Number.isFinite(mark) || mark < 0 || mark > 100) {
+    const details = getAssessmentDetails(examTypeInput?.value);
+    if (!Number.isFinite(mark) || mark < 0 || mark > details.maxMark) {
         gradeInput.value = "";
         remarkInput.value = "";
         return;
     }
 
-    if (mark >= 90) {
+    const percentage = mark / details.maxMark * 100;
+    if (percentage >= 90) {
         gradeInput.value = "A+";
         remarkInput.value = "Excellent";
-    } else if (mark >= 80) {
+    } else if (percentage >= 80) {
         gradeInput.value = "A";
         remarkInput.value = "Very Good";
-    } else if (mark >= 70) {
+    } else if (percentage >= 70) {
         gradeInput.value = "B";
         remarkInput.value = "Good";
-    } else if (mark >= 60) {
+    } else if (percentage >= 60) {
         gradeInput.value = "C";
         remarkInput.value = "Satisfactory";
-    } else if (mark >= 50) {
+    } else if (percentage >= 50) {
         gradeInput.value = "D";
         remarkInput.value = "Pass";
     } else {
@@ -119,10 +132,11 @@ async function handleSubmit(event) {
     }
 
     const mark = Number(markValue);
+    const details = getAssessmentDetails(examType);
 
-    if (!Number.isFinite(mark) || mark < 0 || mark > 100) {
+    if (!Number.isFinite(mark) || mark < 0 || mark > details.maxMark) {
         showMessage(
-            "Mark must be a number between 0 and 100.",
+            `Mark must be a number between 0 and ${details.maxMark}.`,
             "error"
         );
         markInput?.focus();
@@ -139,6 +153,7 @@ async function handleSubmit(event) {
         subject_code: String(subjectCode),
         exam_type: String(examType),
         mark: mark,
+        max_mark: details.maxMark,
         grade: String(grade),
         remark: String(remark)
     };
@@ -147,13 +162,10 @@ async function handleSubmit(event) {
 
     setSaving(true);
 
-    const { data, error } = await supabase
-        .from("results")
-        .insert(resultData)
-        .select()
-        .single();
-
-    if (error) {
+    let data;
+    try {
+        data = await insertAssessmentRecord(supabase, resultData);
+    } catch (error) {
         console.error("Failed to save result:", error);
         console.error("Error message:", error?.message);
         console.error("Error details:", error?.details);

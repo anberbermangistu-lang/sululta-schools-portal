@@ -49,6 +49,26 @@ const message =
 const editClassButton =
     document.getElementById("editClassButton");
 
+document.getElementById("sidebarToggle")?.addEventListener("click", () => {
+    const sidebar = document.getElementById("sidebar");
+    if (!sidebar) return;
+    if (window.matchMedia("(max-width: 768px)").matches) {
+        sidebar.classList.toggle("mobile-open");
+    } else {
+        sidebar.classList.toggle("collapsed");
+    }
+});
+
+document.getElementById("logoutBtn")?.addEventListener("click", async event => {
+    event.preventDefault();
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+        showMessage(`Unable to sign out: ${error.message}`);
+        return;
+    }
+    window.location.href = "../login.html";
+});
+
 
 function escapeHTML(value) {
 
@@ -358,6 +378,7 @@ async function loadStudents(classData) {
     } = await supabase
         .from("students")
         .select("*")
+        .eq("class_id", classData.id)
         .order(
             "id",
             {
@@ -413,52 +434,7 @@ async function loadStudents(classData) {
     }
 
 
-    const currentClassId =
-        normalize(classData.id);
-
-    const currentClassName =
-        normalize(classData.class_name);
-
-    const currentSection =
-        normalize(classData.section);
-
-
-    const matchedStudents =
-        students.filter(student => {
-
-            const studentClass =
-                normalize(student.class);
-
-            const studentSection =
-                normalize(student.section);
-
-
-            const classMatches =
-                studentClass === currentClassId ||
-                studentClass === currentClassName;
-
-
-            if (!classMatches) {
-                return false;
-            }
-
-
-            if (!currentSection) {
-                return true;
-            }
-
-
-            if (!studentSection) {
-                return true;
-            }
-
-
-            return (
-                studentSection ===
-                currentSection
-            );
-
-        });
+    const matchedStudents = students || [];
 
 
     console.log(

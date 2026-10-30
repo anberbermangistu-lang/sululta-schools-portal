@@ -634,10 +634,18 @@
                     <div class="form-group">
                         <label for="excelExamType">Exam / Semester <span>*</span></label>
                         <select id="excelExamType">
-                            <option value="Semester 1 Final Exam" selected>Semester 1 Final Exam</option>
-                            <option value="Semester 1 Midterm">Semester 1 Midterm</option>
-                            <option value="Semester 2 Final Exam">Semester 2 Final Exam</option>
-                            <option value="Semester 2 Midterm">Semester 2 Midterm</option>
+                            <option value="Quiz — Semester 1 — 2026/2027">Quiz — Semester 1 — 2026/2027</option>
+                            <option value="Test — Semester 1 — 2026/2027">Test — Semester 1 — 2026/2027</option>
+                            <option value="Assignment — Semester 1 — 2026/2027">Assignment — Semester 1 — 2026/2027</option>
+                            <option value="Classwork — Semester 1 — 2026/2027">Classwork — Semester 1 — 2026/2027</option>
+                            <option value="Midterm Exam — Semester 1 — 2026/2027">Midterm Exam — Semester 1 — 2026/2027</option>
+                            <option value="Final Exam — Semester 1 — 2026/2027" selected>Final Exam — Semester 1 — 2026/2027</option>
+                            <option value="Quiz — Semester 2 — 2026/2027">Quiz — Semester 2 — 2026/2027</option>
+                            <option value="Test — Semester 2 — 2026/2027">Test — Semester 2 — 2026/2027</option>
+                            <option value="Assignment — Semester 2 — 2026/2027">Assignment — Semester 2 — 2026/2027</option>
+                            <option value="Classwork — Semester 2 — 2026/2027">Classwork — Semester 2 — 2026/2027</option>
+                            <option value="Midterm Exam — Semester 2 — 2026/2027">Midterm Exam — Semester 2 — 2026/2027</option>
+                            <option value="Final Exam — Semester 2 — 2026/2027">Final Exam — Semester 2 — 2026/2027</option>
                         </select>
                     </div>
 
@@ -661,7 +669,7 @@
                                     <th>#</th>
                                     <th>Student ID</th>
                                     <th>Student Name</th>
-                                    <th>Mark / 100</th>
+                                    <th>Mark / Max</th>
                                     <th>Status</th>
                                     <th>Remark</th>
                                 </tr>
@@ -732,7 +740,7 @@
                         </svg>
                         Subject Assessment Marks
                     </div>
-                    <span class="card-caption">Assessment weights: Assignment 10% · Quiz 10% · Test 20% · Midterm 25% · Final 35%</span>
+                    <span class="card-caption">Assessment weights total 100 marks per subject.</span>
                 </div>
 
                 <div class="assessment-table-wrapper">
@@ -740,18 +748,19 @@
                         <thead>
                             <tr>
                                 <th class="th-subject">Subject</th>
-                                <th>Assignment<small>/10</small></th>
-                                <th>Quiz<small>/10</small></th>
+                                <th>Quiz<small>/20</small></th>
                                 <th>Test<small>/20</small></th>
-                                <th>Midterm<small>/25</small></th>
-                                <th>Final Exam<small>/35</small></th>
+                                <th>Assignment<small>/10</small></th>
+                                <th>Classwork<small>/10</small></th>
+                                <th>Midterm Exam<small>/20</small></th>
+                                <th>Final Exam<small>/20</small></th>
                                 <th>Total<small>/100</small></th>
                                 <th style="width: 40px;"></th>
                             </tr>
                         </thead>
                         <tbody id="subjectRowsBody">
                             <tr id="emptySubjectRow">
-                                <td colspan="8" style="text-align: center; color: #94a3b8; padding: 2.25rem 1rem; font-size: 0.875rem;">
+                                <td colspan="9" style="text-align: center; color: #94a3b8; padding: 2.25rem 1rem; font-size: 0.875rem;">
                                     No subjects added yet. Use the form below to add subjects.
                                 </td>
                             </tr>
@@ -853,7 +862,7 @@
                                 <th>Class &amp; Sec</th>
                                 <th>Subject</th>
                                 <th>Exam / Semester</th>
-                                <th>Mark /100</th>
+                                <th>Mark / Max</th>
                                 <th>Status</th>
                                 <th>Remark</th>
                                 <th style="width: 140px; text-align: center;">Actions</th>

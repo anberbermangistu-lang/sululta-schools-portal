@@ -130,10 +130,6 @@
                                 <option value="inactive">Inactive</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label for="photoUrl">Photo URL</label>
-                            <input type="url" id="photoUrl" name="photo_url" placeholder="https://example.com/photo.jpg">
-                        </div>
                         <div class="form-group form-group-full">
                             <label for="address">Address</label>
                             <textarea id="address" name="address" rows="3"></textarea>
@@ -185,7 +181,6 @@
                     class_id: raw.class_id ? Number(raw.class_id) : null,
                     phone: raw.phone || null,
                     status: raw.status || 'active',
-                    photo_url: raw.photo_url || null,
                     address: raw.address || null,
                 }
             };

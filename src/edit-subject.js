@@ -218,6 +218,20 @@ async function updateSubject(event) {
         return;
     }
 
+    const creditNumber =
+        creditValue === ""
+            ? null
+            : Number(creditValue);
+
+    if (
+        creditNumber !== null &&
+        (!Number.isFinite(creditNumber) || creditNumber < 0)
+    ) {
+        showMessage("Credit must be a non-negative number.");
+        credit.focus();
+        return;
+    }
+
 
     saveButton.disabled = true;
 
@@ -234,19 +248,14 @@ async function updateSubject(event) {
         grade_level: grade,
 
         description:
-            descriptionValue || null
+            descriptionValue || null,
+
+        updated_at:
+            new Date().toISOString()
     };
 
 
-    if (creditValue === "") {
-
-        updateData.credit = null;
-
-    } else {
-
-        updateData.credit =
-            Number(creditValue);
-    }
+    updateData.credit = creditNumber;
 
 
     console.log(
@@ -324,7 +333,7 @@ async function updateSubject(event) {
         setTimeout(() => {
 
             window.location.href =
-                `/subjects/view.html?id=${subjectId}`;
+                `view.html?id=${encodeURIComponent(subjectId)}`;
 
         }, 1000);
 
@@ -366,9 +375,7 @@ const sidebarToggle =
 
 
 const adminSidebar =
-    document.querySelector(
-        ".admin-sidebar"
-    );
+    document.getElementById("sidebar");
 
 
 if (
@@ -380,9 +387,11 @@ if (
         "click",
         () => {
 
-            adminSidebar.classList.toggle(
-                "open"
-            );
+            if (window.matchMedia("(max-width: 768px)").matches) {
+                adminSidebar.classList.toggle("mobile-open");
+            } else {
+                adminSidebar.classList.toggle("collapsed");
+            }
 
         }
     );
@@ -391,21 +400,21 @@ if (
 
 const logoutButton =
     document.getElementById(
-        "logoutButton"
+        "logoutBtn"
     );
 
 
 if (logoutButton) {
 
-    logoutButton.addEventListener(
-        "click",
-        () => {
-
-            window.location.href =
-                "/login.html";
-
+    logoutButton.addEventListener("click", async event => {
+        event.preventDefault();
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+            showMessage(`Unable to sign out: ${error.message}`);
+            return;
         }
-    );
+        window.location.href = "../login.html";
+    });
 }
 
 

@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Account - Sululta School Portal</title>
     <link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
-    <link rel="stylesheet" href="../src/sidebar.css">`n    <link rel="stylesheet" href="../src/responsive.css">
+    <link rel="stylesheet" href="../src/sidebar.css">
+    <link rel="stylesheet" href="../src/responsive.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; }
@@ -21,6 +22,7 @@
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
         .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
         .form-group.full { grid-column: 1 / -1; }
+        #schoolRecordGroup[hidden] { display: none; }
         .form-group label { font-size: 0.875rem; font-weight: 600; color: #4a5568; }
         .form-group label span { color: #e53e3e; }
         .form-group input, .form-group select { padding: 0.6rem 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem; color: #2d3748; background: white; transition: border-color 0.2s; }
@@ -73,7 +75,7 @@
 
             <div class="form-card">
                 <h3>Account Information</h3>
-                <p>Invite a teacher or student linked to an existing school record. The user sets their password from the email link.</p>
+                <p>Create an administrator, teacher, or student account with a temporary password. Teachers and students must be linked to an existing school record. Share the temporary password securely and ask the user to change it after signing in.</p>
 
                 <form id="userForm">
                     <div class="form-grid">
@@ -98,15 +100,20 @@
                             <input type="tel" id="phone" placeholder="Enter phone number" autocomplete="tel">
                         </div>
                         <div class="form-group">
+                            <label for="password">Temporary Password <span>*</span></label>
+                            <input type="password" id="password" placeholder="At least 8 characters" required minlength="8" autocomplete="new-password">
+                        </div>
+                        <div class="form-group">
                             <label for="role">Role <span>*</span></label>
                             <select id="role" required>
                                 <option value="">Select Role</option>
+                                <option value="admin">Admin</option>
                                 <option value="teacher">Teacher</option>
                                 <option value="student">Student</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label for="schoolRecordId">Linked School Record <span>*</span></label>
+                        <div class="form-group" id="schoolRecordGroup">
+                            <label for="schoolRecordId">Linked School Record <span id="schoolRecordRequired">*</span></label>
                             <select id="schoolRecordId" required disabled>
                                 <option value="">Choose a role first</option>
                             </select>
@@ -115,7 +122,7 @@
                             <a href="/admin/users.html" class="btn btn-secondary">Cancel</a>
                             <button type="submit" id="saveUserButton" class="btn btn-primary">
                                 <span id="btnIcon">✓</span>
-                                <span id="btnText">Send Invitation</span>
+                                <span id="btnText">Submit</span>
                             </button>
                         </div>
                     </div>

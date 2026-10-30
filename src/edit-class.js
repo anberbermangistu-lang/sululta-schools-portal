@@ -41,6 +41,7 @@ document.addEventListener(
 async function initialize() {
 
     setupSidebar();
+    setupLogout();
 
     if (!classId) {
 
@@ -207,17 +208,7 @@ async function loadTeachers() {
         return;
     }
 
-    const teachers =
-        (data || [])
-            .filter(
-                teacher =>
-                    String(
-                        teacher.status || ""
-                    )
-                        .trim()
-                        .toLowerCase() ===
-                    "active"
-            );
+    const teachers = data || [];
 
     teachers.forEach(
         teacher => {
@@ -237,7 +228,7 @@ async function loadTeachers() {
 
             option.textContent =
                 teacher.teacher_id
-                    ? `${fullName} (${teacher.teacher_id})`
+                    ? `${fullName} (${teacher.teacher_id}${String(teacher.status || "").toLowerCase() === "active" ? "" : ", inactive"})`
                     : fullName;
 
             classTeacherSelect.appendChild(
@@ -407,6 +398,7 @@ async function handleSubmit(
     hideMessage();
 
     const {
+        data: updatedClass,
         error
     } = await supabase
         .from("classes")
@@ -435,7 +427,9 @@ async function handleSubmit(
         .eq(
             "id",
             classId
-        );
+        )
+        .select("id")
+        .maybeSingle();
 
     if (error) {
 
@@ -456,6 +450,15 @@ async function handleSubmit(
         saveButton.textContent =
             "Save Changes";
 
+        return;
+    }
+    if (!updatedClass) {
+        showMessage(
+            "Class was not updated. Check that it still exists and your admin permissions allow editing.",
+            "error"
+        );
+        saveButton.disabled = false;
+        saveButton.textContent = "Save Changes";
         return;
     }
 
@@ -546,23 +549,31 @@ function setupSidebar() {
         );
 
     const sidebar =
-        document.querySelector(
-            ".admin-sidebar"
-        );
+        document.getElementById("sidebar");
 
     toggle?.addEventListener(
         "click",
         () => {
 
-            sidebar?.classList.toggle(
-                "mobile-open"
-            );
-
-            sidebar?.classList.toggle(
-                "open"
-            );
+            if (window.matchMedia("(max-width: 768px)").matches) {
+                sidebar?.classList.toggle("mobile-open");
+            } else {
+                sidebar?.classList.toggle("collapsed");
+            }
         }
     );
+}
+
+function setupLogout() {
+    document.getElementById("logoutBtn")?.addEventListener("click", async event => {
+        event.preventDefault();
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+            showMessage(`Unable to sign out: ${error.message}`, "error");
+            return;
+        }
+        window.location.href = "../login.html";
+    });
 }
 
 function showMessage(

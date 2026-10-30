@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Subjects - Sululta School Portal</title>
     <link rel="icon" type="image/svg+xml" href="../public/favicon.svg">
-    <link rel="stylesheet" href="../src/sidebar.css">`n    <link rel="stylesheet" href="../src/responsive.css">
+    <link rel="stylesheet" href="../src/sidebar.css">
+    <link rel="stylesheet" href="../src/responsive.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; }
@@ -17,6 +18,8 @@
         .content-area { padding: 2rem; }
         .page-header { display: flex; justify-content: space-between; margin-bottom: 2rem; }
         .btn { padding: 0.625rem 1.25rem; border-radius: 8px; border: none; font-weight: 600; font-size: 0.875rem; cursor: pointer; text-decoration: none; display: inline-block; transition: all 0.2s; }
+        .page-header .btn-primary { display: inline-flex; align-items: center; gap: 0.5rem; width: auto; min-height: 38px; padding: 0.5rem 0.875rem; }
+        .page-header .btn-primary svg { width: 18px; height: 18px; flex: 0 0 18px; }
         .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
         .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
@@ -39,8 +42,9 @@
         .status-badge { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
         .status-badge.active { background: #f0fdf4; color: #22543d; }
         .status-badge.inactive { background: #fffaf0; color: #7c2d12; }
-        .action-btn { padding: 0.5rem; border: none; background: none; cursor: pointer; border-radius: 6px; color: #718096; font-size: 1.125rem; }
+        .action-btn { width: 36px; height: 36px; padding: 0.5rem; border: none; background: none; cursor: pointer; border-radius: 6px; color: #718096; display: inline-flex; align-items: center; justify-content: center; vertical-align: middle; text-decoration: none; }
         .action-btn:hover { background: #edf2f7; }
+        .action-btn svg { width: 18px; height: 18px; flex: 0 0 18px; }
         @media (max-width: 768px) {
             .main-content { margin-left: 0; }
             .stats-grid { grid-template-columns: 1fr; }
@@ -157,15 +161,21 @@
                     <thead><tr><th>Subject Name</th><th>Code</th><th>Grade Level</th><th>Credit</th><th>Description</th><th>Actions</th></tr></thead>
                     <tbody>${subjects.map(s => `
                         <tr>
-                            <td><strong>${s.subject_name || 'N/A'}</strong></td>
-                            <td>${s.subject_code || 'N/A'}</td>
-                            <td>${s.grade_level || 'N/A'}</td>
-                            <td>${s.credit || 'N/A'}</td>
-                            <td>${s.description ? (s.description.length > 50 ? s.description.substring(0, 50) + '...' : s.description) : 'N/A'}</td>
+                            <td><strong>${escapeHtml(s.subject_name || 'N/A')}</strong></td>
+                            <td>${escapeHtml(s.subject_code || 'N/A')}</td>
+                            <td>${escapeHtml(s.grade_level || 'N/A')}</td>
+                            <td>${escapeHtml(s.credit ?? 'N/A')}</td>
+                            <td>${escapeHtml(s.description ? (s.description.length > 50 ? s.description.substring(0, 50) + '...' : s.description) : 'N/A')}</td>
                             <td>
-                                <button class="action-btn" onclick="viewSubject(${s.id})" title="View"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>??</button>
-                                <button class="action-btn" onclick="editSubject(${s.id})" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>?</button>
-                                <button class="action-btn" onclick="deleteSubject(${s.id})" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>??</button>
+                                <a class="action-btn" href="view.html?id=${encodeURIComponent(String(s.id))}" aria-label="View subject" title="View">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                </a>
+                                <a class="action-btn" href="edit.html?id=${encodeURIComponent(String(s.id))}" aria-label="Edit subject" title="Edit">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg>
+                                </a>
+                                <button type="button" class="action-btn" data-action="delete" data-id="${escapeHtml(s.id)}" aria-label="Delete subject" title="Delete">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="m19 6-1 14H6L5 6"/><path d="M10 11v5M14 11v5"/></svg>
+                                </button>
                             </td>
                         </tr>
                     `).join('')}</tbody>
@@ -174,13 +184,26 @@
             document.getElementById('tableContent').innerHTML = html;
         }
 
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, character => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            })[character]);
+        }
+
         function applyFilters() {
             const search = document.getElementById('searchInput').value.toLowerCase();
+            const status = document.getElementById('statusFilter').value.toLowerCase();
 
             const filtered = allSubjects.filter(s => {
                 const matchSearch = !search || 
                     `${s.subject_name} ${s.subject_code} ${s.grade_level}`.toLowerCase().includes(search);
-                return matchSearch;
+                const subjectStatus = String(s.status || 'active').toLowerCase();
+                const matchStatus = !status || subjectStatus === status;
+                return matchSearch && matchStatus;
             });
             renderTable(filtered);
         }
@@ -188,21 +211,39 @@
         document.getElementById('searchInput').addEventListener('input', applyFilters);
         document.getElementById('statusFilter').addEventListener('change', applyFilters);
 
-        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
-            e.preventDefault();
-            await supabase.auth.signOut();
-            window.location.href = '../login.html';
+        document.getElementById('tableContent').addEventListener('click', async event => {
+            const button = event.target.closest('button[data-action="delete"][data-id]');
+            if (!button || !confirm('Delete this subject? This action cannot be undone.')) return;
+
+            button.disabled = true;
+            try {
+                const { data, error } = await supabase.from('subjects')
+                    .delete()
+                    .eq('id', button.dataset.id)
+                    .select('id')
+                    .maybeSingle();
+                if (error) throw error;
+                if (!data) throw new Error('Subject was not deleted. Check that it still exists and your admin permissions allow deletion.');
+                await loadData();
+            } catch (error) {
+                console.error('Error deleting subject:', error);
+                const message = error.code === '23503'
+                    ? 'This subject is still referenced by academic records and cannot be deleted yet.'
+                    : `Unable to delete subject: ${error.message}`;
+                alert(message);
+                button.disabled = false;
+            }
         });
 
-        window.viewSubject = (id) => window.location.href = `view.html?id=${id}`;
-        window.editSubject = (id) => window.location.href = `edit.html?id=${id}`;
-        window.deleteSubject = async (id) => {
-            if (confirm('Delete this subject? This action cannot be undone.')) {
-                const { error } = await supabase.from('subjects').delete().eq('id', id);
-                if (error) alert('Error: ' + error.message);
-                else loadData();
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            const { error } = await supabase.auth.signOut();
+            if (error) {
+                alert(`Unable to sign out: ${error.message}`);
+                return;
             }
-        };
+            window.location.href = '../login.html';
+        });
 
         loadData();
     </script>

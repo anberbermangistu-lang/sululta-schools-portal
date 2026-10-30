@@ -34,14 +34,15 @@ The initial administrator must be provisioned by a trusted project owner, not th
 
 The **Add Student** and **Add Teacher** forms create the school record and login account together. The administrator supplies the email and an initial password (at least 8 characters); active accounts can sign in with those credentials immediately. Inactive accounts remain blocked until activated. The password is sent only to Supabase Auth and is never written to a school table or sent by email. Share initial passwords with users through a secure channel and advise them to change them after signing in.
 
-The separate **Admin → Invite User** flow remains available for accounts linked to school records that already exist. **Admin → Teaching Assignments** continues to manage teacher-subject access.
+**Admin → Add Account** creates an Auth account directly with an administrator-set temporary password. Admin accounts receive a profile without a school-record link; teacher and student accounts are linked to an existing active school record. This flow sends no invitation or password-setup email.
+
+**Admin → Teaching Assignments** continues to manage teacher-subject access. The legacy `admin-invite-user` function is not used by **Admin → Add Account**.
 
 From the project directory, link the Supabase CLI to the existing project and deploy the Edge Function:
 
 ```powershell
 supabase link --project-ref <your-project-ref>
 supabase secrets set APP_URL="https://your-school-domain.example" ALLOWED_ORIGINS="https://your-school-domain.example,http://localhost:5173,http://127.0.0.1:5173"
-supabase functions deploy admin-invite-user
 supabase functions deploy admin-create-school-account
 ```
 
@@ -49,9 +50,9 @@ The local Edge Function configuration is in `supabase/config.toml`.
 
 Run the commands from this project directory after installing the Supabase CLI and linking the existing project. Set `APP_URL` to the exact production origin without a trailing slash. `ALLOWED_ORIGINS` is a comma-separated, exact origin allowlist. Include whichever local origin is in the browser address bar: `http://localhost:5173` and/or `http://127.0.0.1:5173` are different origins. After changing secrets, redeploy the function. Remove local origins from the production allowlist when no longer needed. Supabase provides `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` to deployed Edge Functions. The service-role key must remain server-side and must never be added to `.env.local`, frontend code, or a Vite `VITE_*` variable.
 
-If account creation displays a connection error, verify the function is deployed with `supabase functions list`, then verify the exact page origin appears in `ALLOWED_ORIGINS` and redeploy `admin-create-school-account`.
+After changing the account-creation function, deploy it with `supabase functions deploy admin-create-school-account`. Verify it appears in `supabase functions list` and that the exact page origin appears in `ALLOWED_ORIGINS`.
 
-Both functions validate the caller's active administrator profile and accept only `teacher`/`student`. `admin-create-school-account` creates a confirmed Supabase Auth user with the administrator-provided password, the school record, and its profile link; it removes the newly created data if setup fails. `admin-invite-user` creates an Auth invitation, profile, and links an existing record. Do not expose service-role credentials to the browser.
+Both functions validate the caller's active administrator profile. `admin-create-school-account` creates confirmed Supabase Auth users with the administrator-provided password. It supports the Add Student/Teacher flow that creates a school record, and the Add Account flow that creates an admin profile or links an existing teacher/student record. It removes newly created data if setup fails. `admin-invite-user` is retained for deployments that still use the legacy invitation flow. Do not expose service-role credentials to the browser.
 
 ## Configure email and redirect URLs
 

@@ -1,355 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>View Subject | Sululta Secondary School</title>
-
-    <link rel="icon" href="data:,">
-    <link rel="stylesheet" href="/src/style.css">
-    <link rel="stylesheet" href="../src/sidebar.css">`n    <link rel="stylesheet" href="../src/responsive.css">
+    <title>Subject Details | Sululta School Portal</title>
+    <link rel="stylesheet" href="../src/style.css">
+    <link rel="stylesheet" href="../src/sidebar.css">
+    <link rel="stylesheet" href="../src/responsive.css">
 </head>
-
 <body>
-
 <div class="admin-page">
-        <aside class="sidebar" id="sidebar">
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <div class="logo">
+            <a class="logo" href="../admin/dashboard.html">
                 <img src="../public/school-logo.svg" alt="Logo" class="logo-image">
                 <span class="logo-text">Sululta School</span>
-            </div>
-            <button class="toggle-btn" id="toggleSidebar"><span></span><span></span><span></span></button>
+            </a>
         </div>
-        <nav class="sidebar-nav">
-            <a href="../admin/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span><span class="nav-text">Dashboard</span></a>
-            <a href="../students/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="nav-text">Students</span></a>
-            <a href="../teachers/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="12" cy="5" r="2"/></svg></span><span class="nav-text">Teachers</span></a>
-            <a href="../classes/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="nav-text">Classes</span></a>
-            <a href="../subjects/dashboard.html" class="nav-item active"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span><span class="nav-text">Subjects</span></a>
-            <a href="../attendance/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span><span class="nav-text">Attendance</span></a>
-            <a href="../results/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span class="nav-text">Results</span></a>
-            <a href="../timetable/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="nav-text">Timetable</span></a>
-            <a href="../library/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span><span class="nav-text">Library</span></a>
+        <nav class="sidebar-nav" aria-label="Admin navigation">
+            <a href="../admin/dashboard.html" class="nav-item"><span class="nav-text">Dashboard</span></a>
+            <a href="../students/dashboard.html" class="nav-item"><span class="nav-text">Students</span></a>
+            <a href="../teachers/dashboard.html" class="nav-item"><span class="nav-text">Teachers</span></a>
+            <a href="../classes/dashboard.html" class="nav-item"><span class="nav-text">Classes</span></a>
+            <a href="dashboard.html" class="nav-item active"><span class="nav-text">Subjects</span></a>
+            <a href="../attendance/dashboard.html" class="nav-item"><span class="nav-text">Attendance</span></a>
+            <a href="../results/dashboard.html" class="nav-item"><span class="nav-text">Results</span></a>
+            <a href="../timetable/dashboard.html" class="nav-item"><span class="nav-text">Timetable</span></a>
+            <a href="../library/dashboard.html" class="nav-item"><span class="nav-text">Library</span></a>
         </nav>
         <div class="sidebar-footer">
-            <a href="#" class="nav-item" id="logoutBtn"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span class="nav-text">Logout</span></a>
+            <a href="#" class="nav-item" id="logoutBtn"><span class="nav-text">Logout</span></a>
         </div>
     </aside>
 
-</div>
-            <button class="toggle-btn" id="toggleSidebar"><span></span><span></span><span></span></button>
-        </div>
-        <nav class="sidebar-nav">
-            <a href="../admin/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="nav-text">Dashboard</span></a>
-            <a href="../students/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="nav-text">Students</span></a>
-            <a href="../teachers/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><circle cx="12" cy="5" r="2"/></svg></span><span class="nav-text">Teachers</span></a>
-            <a href="../classes/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span><span class="nav-text">Classes</span></a>
-            <a href="../subjects/dashboard.html" class="nav-item active"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span><span class="nav-text">Subjects</span></a>
-            <a href="../attendance/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="nav-text">Attendance</span></a>
-            <a href="../results/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span class="nav-text">Results</span></a>
-            <a href="../timetable/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/></svg></span><span class="nav-text">Timetable</span></a>
-            <a href="../library/dashboard.html" class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span><span class="nav-text">Library</span></a>
-        </nav>
-        <div class="sidebar-footer">
-            <a href="#" class="nav-item" id="logoutBtn"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span class="nav-text">Logout</span></a>
-        </div>
-
-    
-
-            <a href="/classes/dashboard.html" class="sidebar-link">
-                <span>??</span>
-                <span>Classes</span>
-            </a>
-
-            <a href="/subjects/dashboard.html" class="sidebar-link active">
-                <span>??</span>
-                <span>Subjects</span>
-            </a>
-
-            <div class="menu-title">
-                ACADEMIC
-            </div>
-
-            <a href="/attendance/dashboard.html" class="sidebar-link">
-                <span>?</span>
-                <span>Attendance</span>
-            </a>
-
-            <a href="/results/dashboard.html" class="sidebar-link">
-                <span>??</span>
-                <span>Results</span>
-            </a>
-
-            <a href="/timetable/dashboard.html" class="sidebar-link">
-                <span>??</span>
-                <span>Timetable</span>
-            </a>
-
-            <div class="menu-title">
-                SCHOOL
-            </div>
-
-            <a href="/library/dashboard.html" class="sidebar-link">
-                <span>??</span>
-                <span>Library</span>
-            </a>
-
-            
-
-            
-
-            
-
-        </nav>
-
-        <div class="sidebar-bottom">
-
-            <button
-                type="button"
-                class="logout-button"
-                id="logoutButton">
-
-                <span>?</span>
-                <span>Sign Out</span>
-
-            </button>
-
-        </div>
-
     <main class="admin-main">
-
         <header class="admin-header">
-
             <div class="header-left">
-
-                <button
-                    type="button"
-                    class="sidebar-toggle"
-                    id="sidebarToggle">
-                    ?
-                </button>
-
+                <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle navigation">Menu</button>
                 <div>
-
-                    <span class="header-label">
-                        ACADEMIC MANAGEMENT
-                    </span>
-
-                    <h1>
-                        Subject Details
-                    </h1>
-
+                    <span class="header-label">Academic Management</span>
+                    <h1>Subject Details</h1>
                 </div>
-
             </div>
-
-            <div class="admin-profile">
-
-                <div class="admin-avatar">
-                    A
-                </div>
-
-                <div class="admin-profile-info">
-                    <strong>Administrator</strong>
-                    <span>Admin</span>
-                </div>
-
-            </div>
-
         </header>
 
         <section class="page-container">
-
             <div class="page-header">
-
-                <div class="header-left">
-
-                    <div class="page-icon">
-                        ??
-                    </div>
-
-                    <div>
-
-                        <h1>
-                            Subject Details
-                        </h1>
-
-                        <p>
-                            View complete subject information
-                        </p>
-
-                    </div>
-
+                <div>
+                    <h2 id="subjectTitle">Loading subject...</h2>
+                    <p id="subjectSubtitle">Please wait while subject information is loaded.</p>
                 </div>
-
                 <div class="header-actions">
-
-                    <a
-                        href="/subjects/dashboard.html"
-                        class="btn btn-secondary">
-                        ? Back
-                    </a>
-
-                    <a
-                        href="#"
-                        id="editSubjectButton"
-                        class="btn btn-primary">
-                        ? Edit Subject
-                    </a>
-
+                    <a href="dashboard.html" class="btn btn-secondary">Back to Subjects</a>
+                    <a href="#" id="editSubjectButton" class="btn btn-primary">Edit Subject</a>
                 </div>
-
             </div>
 
-            <div
-                id="message"
-                class="message"
-                hidden>
-            </div>
+            <div id="message" class="message" hidden></div>
 
-            <section
-                id="subjectContent"
-                class="form-card">
-
-                <div class="panel-header">
-
-                    <div>
-
-                        <h2 id="subjectTitle">
-                            Loading subject...
-                        </h2>
-
-                        <p id="subjectSubtitle">
-                            Please wait while subject information is loaded.
-                        </p>
-
-                    </div>
-
-                </div>
-
+            <section id="subjectContent" class="form-card">
                 <div class="form-grid">
-
                     <div class="form-group">
-
-                        <label>
-                            Subject Name
-                        </label>
-
-                        <input
-                            type="text"
-                            id="subjectName"
-                            readonly>
-
+                        <label for="subjectName">Subject Name</label>
+                        <input type="text" id="subjectName" readonly>
                     </div>
-
                     <div class="form-group">
-
-                        <label>
-                            Subject Code
-                        </label>
-
-                        <input
-                            type="text"
-                            id="subjectCode"
-                            readonly>
-
+                        <label for="subjectCode">Subject Code</label>
+                        <input type="text" id="subjectCode" readonly>
                     </div>
-
                     <div class="form-group">
-
-                        <label>
-                            Grade Level
-                        </label>
-
-                        <input
-                            type="text"
-                            id="gradeLevel"
-                            readonly>
-
+                        <label for="gradeLevel">Grade Level</label>
+                        <input type="text" id="gradeLevel" readonly>
                     </div>
-
                     <div class="form-group">
-
-                        <label>
-                            Credit
-                        </label>
-
-                        <input
-                            type="text"
-                            id="credit"
-                            readonly>
-
+                        <label for="credit">Credit</label>
+                        <input type="text" id="credit" readonly>
                     </div>
-
                     <div class="form-group">
-
-                        <label>
-                            Status
-                        </label>
-
-                        <input
-                            type="text"
-                            id="status"
-                            readonly>
-
+                        <label for="status">Status</label>
+                        <input type="text" id="status" readonly>
                     </div>
-
                     <div class="form-group">
-
-                        <label>
-                            Created
-                        </label>
-
-                        <input
-                            type="text"
-                            id="createdAt"
-                            readonly>
-
+                        <label for="createdAt">Created</label>
+                        <input type="text" id="createdAt" readonly>
                     </div>
-
                     <div class="form-group full-width">
-
-                        <label>
-                            Description
-                        </label>
-
-                        <textarea
-                            id="description"
-                            rows="5"
-                            readonly></textarea>
-
+                        <label for="description">Description</label>
+                        <textarea id="description" rows="5" readonly></textarea>
                     </div>
-
                 </div>
-
             </section>
-
         </section>
-
-        <footer class="admin-footer">
-
-            <span>
-                � 2026 Sululta Secondary School
-            </span>
-
-            <span>
-                Academic Management
-            </span>
-
-        </footer>
-
     </main>
-
 </div>
-
-<script
-    type="module"
-    src="/src/view-subject.js">
-</script>
-
+<script type="module" src="../src/view-subject.js"></script>
 </body>
-
 </html>

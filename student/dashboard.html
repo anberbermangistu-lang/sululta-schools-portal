@@ -333,12 +333,13 @@
         table { width: 100%; border-collapse: collapse; text-align: left; }
         th, td { padding: 12px 10px; border-bottom: 1px solid #e8edf4; white-space: nowrap; }
         th { color: #52657e; font-size: 12.5px; font-weight: 700; background: #fafbfc; text-transform: uppercase; letter-spacing: 0.03em; }
-        .subject-results-table { min-width: 570px; }
+        .subject-results-table { min-width: 900px; }
         .subject-results-table th:not(:first-child), .subject-results-table td:not(:first-child) { text-align: center; }
-        .subject-results-table td:first-child { min-width: 180px; }
+        .subject-results-table td:first-child { min-width: 170px; }
         .subject-results-name { display: block; color: #172b4d; font-weight: 650; }
         .subject-results-code { display: block; margin-top: 3px; color: #64748b; font-size: 12px; }
         .subject-results-mark { color: #172b4d; font-weight: 600; }
+        .subject-results-total { color: #15803d; font-weight: 750; }
         .subject-results-summary { margin-top: 20px; padding-top: 18px; border-top: 1px solid #e2e8f0; }
         .subject-results-average { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
         .subject-results-average-title { color: #172b4d; font-size: 16px; font-weight: 650; }
@@ -351,6 +352,20 @@
         .subject-results-badge.pending { background: #f1f5f9; color: #64748b; }
         .subject-results-status { margin: -6px 0 12px; color: #64748b; font-size: 12px; }
         .subject-results-status.error { color: #b42318; }
+        .subject-results-status.warning { color: #9a6700; }
+        .performance-overview { display: grid; grid-template-columns: minmax(210px, 0.8fr) minmax(260px, 1.2fr); gap: 24px; align-items: center; }
+        .performance-overview-summary { display: flex; align-items: center; gap: 18px; }
+        .performance-overview-ring { display: grid; flex: 0 0 104px; width: 104px; height: 104px; place-items: center; border-radius: 50%; background: conic-gradient(#16a34a 0%, #e5e7eb 0); }
+        .performance-overview-ring-inner { display: grid; width: 82px; height: 82px; place-items: center; border-radius: 50%; background: #fff; color: #172b4d; font-size: 21px; font-weight: 750; }
+        .performance-overview-detail { min-width: 0; flex: 1; }
+        .performance-overview-detail strong { display: block; margin-top: 3px; color: #15803d; font-size: 19px; }
+        .performance-overview-label { color: #64748b; font-size: 12px; }
+        .performance-subject-list { display: grid; gap: 10px; }
+        .performance-subject-row { display: grid; grid-template-columns: minmax(84px, 1fr) minmax(80px, 2fr) 40px; align-items: center; gap: 10px; color: #334155; font-size: 12px; }
+        .performance-subject-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .performance-subject-track { height: 8px; overflow: hidden; border-radius: 999px; background: #e5e7eb; }
+        .performance-subject-fill { height: 100%; border-radius: inherit; background: #16a34a; }
+        .performance-subject-percent { color: #334155; text-align: right; font-weight: 650; }
         .empty, .message { color: #64748b; padding: 16px 0; font-size: 14px; }
         .message.error { color: #b42318; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; }
         .message.success { color: #137547; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; }
@@ -782,6 +797,8 @@
             .wide { grid-column: auto; }
             .topbar { align-items: flex-start; }
             .identity span { max-width: 110px; overflow-wrap: anywhere; }
+            .performance-overview { grid-template-columns: 1fr; gap: 18px; }
+            .performance-overview-summary { justify-content: center; }
         }
 
         /* ════════════════ DARK THEME OVERRIDES ════════════════ */
@@ -793,12 +810,18 @@
         html.dark-theme .subject-results-name,
         html.dark-theme .subject-results-average-title,
         html.dark-theme .subject-results-mark { color: #f8fafc; }
+        html.dark-theme .subject-results-total { color: #4ade80; }
         html.dark-theme .subject-results-code,
         html.dark-theme .subject-results-performance,
         html.dark-theme .subject-results-status { color: #94a3b8; }
+        html.dark-theme .subject-results-status.warning { color: #f0c36d; }
         html.dark-theme .subject-results-summary { border-color: #334155; }
         html.dark-theme .subject-results-progress { background: #334155; }
         html.dark-theme .subject-results-average-value { color: #4ade80; }
+        html.dark-theme .performance-overview-ring-inner { background: #1e293b; color: #f8fafc; }
+        html.dark-theme .performance-subject-row,
+        html.dark-theme .performance-subject-percent { color: #cbd5e1; }
+        html.dark-theme .performance-subject-track { background: #334155; }
         html.dark-theme .subject-results-badge { background: rgba(22, 163, 74, 0.2); color: #86efac; }
         html.dark-theme .subject-results-badge.needs-improvement { background: rgba(220, 38, 38, 0.2); color: #fca5a5; }
         html.dark-theme .subject-results-badge.pending { background: #334155; color: #cbd5e1; }
@@ -1052,35 +1075,35 @@
                 <div class="kpi-grid">
                     <div class="kpi-card">
                         <div class="kpi-label">
-                            <span>Overall Average</span>
-                            <span>📈</span>
+                            <span>Total Marks</span>
+                            <span>📄</span>
                         </div>
-                        <div class="kpi-value" id="kpiAverage">—</div>
-                        <div class="kpi-sub" id="kpiAverageSub">Cumulative average across all subjects</div>
+                        <div class="kpi-value" id="kpiTotalPoints">—</div>
+                        <div class="kpi-sub" id="kpiTotalPointsSub">Maximum total marks</div>
                     </div>
                     <div class="kpi-card">
                         <div class="kpi-label">
-                            <span>Academic Standing</span>
+                            <span>Overall Average</span>
+                            <span>%</span>
+                        </div>
+                        <div class="kpi-value" id="kpiAverage">—</div>
+                        <div class="kpi-sub" id="kpiAverageSub">Average across your subjects</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">
+                            <span>Class Rank</span>
+                            <span>👥</span>
+                        </div>
+                        <div class="kpi-value" id="kpiClassRank">—</div>
+                        <div class="kpi-sub" id="kpiClassRankSub">Loading class rank…</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">
+                            <span>Performance</span>
                             <span id="standingBadge" class="badge badge-blue">EVALUATING</span>
                         </div>
                         <div class="kpi-value" id="kpiStanding" style="font-size: 20px;">—</div>
-                        <div class="kpi-sub" id="kpiStandingSub">Overall pass/fail status</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-label">
-                            <span>Total Points</span>
-                            <span>🎯</span>
-                        </div>
-                        <div class="kpi-value" id="kpiTotalPoints">—</div>
-                        <div class="kpi-sub" id="kpiTotalPointsSub">Cumulative points earned</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-label">
-                            <span>Evaluated Subjects</span>
-                            <span>📚</span>
-                        </div>
-                        <div class="kpi-value" id="kpiEvaluatedCount">—</div>
-                        <div class="kpi-sub" id="kpiEvaluatedSub">Total subjects with recorded marks</div>
+                        <div class="kpi-sub" id="kpiStandingSub">Overall performance status</div>
                     </div>
                 </div>
 
@@ -1099,21 +1122,24 @@
 
                 <div class="card">
                     <h2>Subject Results</h2>
-                    <p class="card-desc">Your latest recorded Quiz, Test, Midterm, and Final marks are shown using each assessment’s configured maximum.</p>
+                    <p class="card-desc">Your latest marks by assessment are shown using the current 100-mark subject scale.</p>
                     <p class="subject-results-status" id="subjectResultsStatus" aria-live="polite">Loading your results…</p>
                     <div class="table-wrap">
                         <table class="subject-results-table">
                             <thead>
                                 <tr>
                                     <th>Subject</th>
-                                    <th>Quiz</th>
-                                    <th>Test</th>
-                                    <th>Midterm</th>
-                                    <th>Final</th>
+                                    <th>Quiz <small>(20)</small></th>
+                                    <th>Test <small>(20)</small></th>
+                                    <th>Assignment <small>(10)</small></th>
+                                    <th>Classwork <small>(10)</small></th>
+                                    <th>Midterm <small>(20)</small></th>
+                                    <th>Final <small>(20)</small></th>
+                                    <th>Total <small>(100)</small></th>
                                 </tr>
                             </thead>
                             <tbody id="subjectTotalsBody">
-                                <tr><td colspan="5" class="empty">Loading your results...</td></tr>
+                                <tr><td colspan="8" class="empty">Loading your results...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1128,6 +1154,24 @@
                         <div class="subject-results-performance">
                             <span>Academic Performance</span>
                             <span class="subject-results-badge" id="subjectPerformanceBadge">Awaiting results</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h2>Performance Overview</h2>
+                    <div class="performance-overview">
+                        <div class="performance-overview-summary">
+                            <div class="performance-overview-ring" id="performanceOverviewRing" role="progressbar" aria-label="Overall average" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                                <div class="performance-overview-ring-inner" id="performanceOverviewPercent">—</div>
+                            </div>
+                            <div class="performance-overview-detail">
+                                <span class="performance-overview-label">Overall Average</span>
+                                <strong id="performanceOverviewAverage">—</strong>
+                                <span class="performance-overview-label" id="performanceOverviewStatus">Academic performance</span>
+                            </div>
+                        </div>
+                        <div class="performance-subject-list" id="performanceSubjectList">
+                            <span class="empty">Subject performance will appear when marks are available.</span>
                         </div>
                     </div>
                 </div>

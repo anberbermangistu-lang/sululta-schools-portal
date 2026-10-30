@@ -12,24 +12,37 @@
 
     <title>Edit Class | Sululta School Portal</title>
 
-    <link
-        rel="stylesheet"
-        href="../src/style.css"
-    >
-    <link rel="stylesheet" href="../src/sidebar.css">`n    <link rel="stylesheet" href="../src/responsive.css">
+    <link rel="stylesheet" href="../src/style.css">
+    <link rel="stylesheet" href="../src/sidebar.css">
+    <link rel="stylesheet" href="../src/responsive.css">
 
 </head>
 
 <body>
 
 <div class="admin-page">
-        <aside class="sidebar" id="sidebar">
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <div class="logo">
+            <a class="logo" href="../admin/dashboard.html">
                 <img src="../public/school-logo.svg" alt="Logo" class="logo-image">
                 <span class="logo-text">Sululta School</span>
-            
-
+            </a>
+        </div>
+        <nav class="sidebar-nav" aria-label="Admin navigation">
+            <a href="../admin/dashboard.html" class="nav-item"><span class="nav-text">Dashboard</span></a>
+            <a href="../students/dashboard.html" class="nav-item"><span class="nav-text">Students</span></a>
+            <a href="../teachers/dashboard.html" class="nav-item"><span class="nav-text">Teachers</span></a>
+            <a href="../classes/dashboard.html" class="nav-item active"><span class="nav-text">Classes</span></a>
+            <a href="../subjects/dashboard.html" class="nav-item"><span class="nav-text">Subjects</span></a>
+            <a href="../attendance/dashboard.html" class="nav-item"><span class="nav-text">Attendance</span></a>
+            <a href="../results/dashboard.html" class="nav-item"><span class="nav-text">Results</span></a>
+            <a href="../timetable/dashboard.html" class="nav-item"><span class="nav-text">Timetable</span></a>
+            <a href="../library/dashboard.html" class="nav-item"><span class="nav-text">Library</span></a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="#" class="nav-item" id="logoutBtn"><span class="nav-text">Logout</span></a>
+        </div>
+    </aside>
     <main class="admin-main">
 
         <header class="admin-header">
@@ -39,9 +52,9 @@
                 <button
                     type="button"
                     class="sidebar-toggle"
-                    onclick="document.querySelector('.admin-sidebar').classList.toggle('open')"
+                    id="sidebarToggle"
                 >
-                    ?
+                    Menu
                 </button>
 
                 <div>
