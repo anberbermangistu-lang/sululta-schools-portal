@@ -42,8 +42,6 @@ function getDashboard(role) {
             return "/teacher/dashboard.html";
         case "student":
             return "/student/dashboard.html";
-        case "parent":
-            return "/parent/dashboard.html";
         default:
             return null;
     }

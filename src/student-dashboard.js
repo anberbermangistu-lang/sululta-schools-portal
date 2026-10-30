@@ -12,7 +12,6 @@ const timetableBody = document.getElementById("studentTimetableBody");
 const subjectsBody = document.getElementById("studentSubjectsBody");
 const subjectTotalsBody = document.getElementById("subjectTotalsBody");
 const enrolledCardsGrid = document.getElementById("enrolledCardsGrid");
-const noticesContainer = document.getElementById("studentNotices");
 
 let student = null;
 let profile = null;
@@ -304,7 +303,6 @@ function setupTabNavigation() {
         attendance: "My Attendance",
         timetable: "My Class Timetable",
         subjects: "My Enrolled Curriculum Subjects",
-        notices: "School Notices & Announcements",
         profile: "My Student Profile"
     };
 
@@ -1238,70 +1236,6 @@ async function loadAcademicRecords() {
     }
     setText("attendanceCount", `${attendance.length} record${attendance.length === 1 ? "" : "s"}`);
 
-    // 6. Load Notices
-    let notices = [];
-    try {
-        const { data, error } = await supabase
-            .from("notices")
-            .select("title, message, publish_date")
-            .order("publish_date", { ascending: false });
-
-        if (!error && data && data.length) {
-            notices = data;
-        }
-    } catch (e) {
-        console.warn("Notices table unavailable:", e);
-    }
-
-    if (!notices.length) {
-        notices = [
-            {
-                title: "Welcome to 2026/2027 Academic Year",
-                message: "Classes and regular schedules are now active. Check your portal for timetable, attendance, and exam results updates.",
-                publish_date: new Date().toISOString()
-            },
-            {
-                title: "Assessment & Grading System",
-                message: "Each subject is marked out of 100: Quiz (20), Test (20), Assignment (10), Classwork (10), Midterm Exam (20), and Final Exam (20).",
-                publish_date: new Date().toISOString()
-            },
-            {
-                title: "School Library Circulation",
-                message: "Textbooks and reference materials are available for loan in the school library during standard library hours.",
-                publish_date: new Date().toISOString()
-            }
-        ];
-    }
-
-    if (noticesContainer) {
-        noticesContainer.replaceChildren();
-        for (const notice of notices) {
-            const article = document.createElement("article");
-            article.style.padding = "12px 0";
-            article.style.borderBottom = "1px solid #e8edf4";
-
-            const title = document.createElement("strong");
-            title.style.display = "block";
-            title.style.color = "#082b59";
-            title.style.fontSize = "14px";
-            title.textContent = notice.title;
-
-            const date = document.createElement("small");
-            date.style.display = "block";
-            date.style.color = "#64748b";
-            date.style.margin = "2px 0 6px";
-            date.textContent = formatDate(notice.publish_date);
-
-            const text = document.createElement("p");
-            text.style.margin = "0";
-            text.style.color = "#334155";
-            text.style.fontSize = "13px";
-            text.textContent = notice.message;
-
-            article.append(title, date, text);
-            noticesContainer.appendChild(article);
-        }
-    }
 }
 
 /* ──────────────────────────────────────────────────────────────

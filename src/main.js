@@ -3,12 +3,10 @@ import { supabase } from "./supabase.js";
 const totalStudents = document.getElementById("totalStudents");
 const totalTeachers = document.getElementById("totalTeachers");
 const totalClasses = document.getElementById("totalClasses");
-const totalParents = document.getElementById("totalParents");
 
 const overviewStudents = document.getElementById("overviewStudents");
 const overviewTeachers = document.getElementById("overviewTeachers");
 const overviewClasses = document.getElementById("overviewClasses");
-const overviewParents = document.getElementById("overviewParents");
 
 const logoutButton = document.getElementById("logoutButton");
 const sidebarToggle = document.getElementById("sidebarToggle");
@@ -103,9 +101,7 @@ function redirectByRole(role) {
     const routes = {
         teacher: "/teacher/dashboard.html",
         student: "/student/dashboard.html",
-        parent: "/parents/dashboard.html",
-        librarian: "/library/dashboard.html",
-        finance: "/fees/dashboard.html"
+        librarian: "/library/dashboard.html"
     };
 
     window.location.href =
@@ -224,13 +220,11 @@ async function loadStatistics() {
     const [
         students,
         teachers,
-        classes,
-        parents
+        classes
     ] = await Promise.all([
         getCount("students"),
         getCount("teachers"),
-        getCount("classes"),
-        getCount("parents")
+        getCount("classes")
     ]);
 
     if (totalStudents) {
@@ -243,10 +237,6 @@ async function loadStatistics() {
 
     if (totalClasses) {
         totalClasses.textContent = classes;
-    }
-
-    if (totalParents) {
-        totalParents.textContent = parents;
     }
 
     if (overviewStudents) {
@@ -264,10 +254,6 @@ async function loadStatistics() {
             `${classes} available`;
     }
 
-    if (overviewParents) {
-        overviewParents.textContent =
-            `${parents} registered`;
-    }
 }
 
 async function loadRecentStudents() {

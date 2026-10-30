@@ -376,8 +376,7 @@ function updateStatistics() {
             [
                 "admin",
                 "teacher",
-                "librarian",
-                "finance"
+                "librarian"
             ].includes(
                 String(user.role || "").toLowerCase()
             )

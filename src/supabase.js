@@ -83,8 +83,6 @@ export function getRoleDashboard(role) {
             return "/teacher/dashboard.html";
         case "student":
             return "/student/dashboard.html";
-        case "parent":
-            return "/parent/dashboard.html";
         case "admin":
         case "administrator":
             return "/admin/dashboard.html";
@@ -203,16 +201,6 @@ if (supabase) {
                 }
             } else if (pathname.startsWith("/student/")) {
                 if (role && role !== "student" && role !== "admin") {
-                    const target = getRoleDashboard(role);
-                    if (target) {
-                        window.location.replace(target);
-                        return;
-                    }
-                    window.location.replace("/login.html");
-                    return;
-                }
-            } else if (pathname.startsWith("/parent/")) {
-                if (role && role !== "parent" && role !== "admin") {
                     const target = getRoleDashboard(role);
                     if (target) {
                         window.location.replace(target);

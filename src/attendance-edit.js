@@ -138,11 +138,6 @@ async function checkAdmin() {
             window.location.href =
                 "/teachers/dashboard.html";
 
-        } else if (role === "parent") {
-
-            window.location.href =
-                "/parent/dashboard.html";
-
         } else {
 
             window.location.href =
