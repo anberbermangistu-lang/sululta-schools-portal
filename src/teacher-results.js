@@ -1,4 +1,4 @@
-rimport { supabase, getSession, getUserProfile, getRoleDashboard } from "./supabase.js";
+import { supabase, getSession, getUserProfile, getRoleDashboard } from "./supabase.js";
 import { ASSESSMENTS, ASSESSMENT_BY_KEY, getAssessmentDetails, normalizeAssessmentMark } from "./assessment-config.js";
 import { saveAssessmentRecords, updateAssessmentRecord } from "./results-persistence.js";
 
