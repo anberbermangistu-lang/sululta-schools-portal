@@ -22,6 +22,8 @@ let subjectRows = [];
 let resolvedStudent = null;
 let lookupTimer = null;
 let editingResultId = null;
+let editingAssessmentKey = null;
+let editingExamType = null;
 let cachedRecordedResults = [];
 let cachedStudentsMap = new Map();
 
@@ -104,7 +106,7 @@ async function checkTeacherAuth() {
         ? `${teacherRecord.first_name} ${teacherRecord.last_name || ""}`.trim()
         : (profile?.first_name ? `${profile.first_name} ${profile.last_name || ""}`.trim() : "Teacher");
 
-    const photo = teacherRecord?.photo_url || profile.avatar_url || localStorage.getItem(`sululta_teacher_photo_${teacherRecord?.id}`);
+    const photo = teacherRecord?.photo_url || profile.photo_url || localStorage.getItem(`sululta_teacher_photo_${teacherRecord?.id}`);
 
     const headerNameEl = document.getElementById("teacherHeaderName");
     const avatarEl = document.getElementById("teacherAvatar");
@@ -379,6 +381,13 @@ function getPerformanceRemark(avg) {
     return "Fail";
 }
 
+function getAssessmentKey(examType) {
+    const value = String(examType || "").trim().toLowerCase();
+    return ASSESS_KEYS.find(key =>
+        value.startsWith(`${WEIGHTS[key].label.toLowerCase()} —`)
+    ) || null;
+}
+
 /* ──────────────────────────────────────────────────────────────
    SUMMARY & ACTION STATE
 ────────────────────────────────────────────────────────────── */
@@ -386,7 +395,9 @@ function updateSummaryAndActions() {
     const summaryCard = document.getElementById("summaryCard");
     const saveBtn = document.getElementById("saveResultsBtn");
 
-    const rowsWithMarks = subjectRows.filter(r => r.total > 0);
+    const rowsWithMarks = subjectRows.filter(r =>
+        ASSESS_KEYS.some(key => r.marks[key] !== "" && r.marks[key] != null)
+    );
 
     if (!rowsWithMarks.length) {
         if (summaryCard) summaryCard.style.display = "none";
@@ -436,7 +447,9 @@ function setupSaveResults() {
             return;
         }
 
-        const rowsWithMarks = subjectRows.filter(r => r.total > 0);
+        const rowsWithMarks = subjectRows.filter(r =>
+            ASSESS_KEYS.some(key => r.marks[key] !== "" && r.marks[key] != null)
+        );
         if (!rowsWithMarks.length) {
             showToast("Please add at least one subject with entered marks.", "error");
             return;
@@ -451,18 +464,31 @@ function setupSaveResults() {
 
         try {
             if (editingResultId) {
-                // Re-edit single record
                 const r = rowsWithMarks[0];
+                const updateData = editingAssessmentKey
+                    ? {
+                        student_id: resolvedStudent.student_id,
+                        subject_code: r.code,
+                        exam_type: editingExamType,
+                        mark: Number(r.marks[editingAssessmentKey]),
+                        grade: null,
+                        remark: getPerformanceRemark(
+                            Number(r.marks[editingAssessmentKey]) /
+                            WEIGHTS[editingAssessmentKey].max * 100
+                        ),
+                        updated_at: new Date().toISOString()
+                    }
+                    : {
+                        student_id: resolvedStudent.student_id,
+                        subject_code: r.code,
+                        exam_type: examType,
+                        mark: r.total,
+                        remark: getPerformanceRemark(r.total),
+                        updated_at: new Date().toISOString()
+                    };
                 const { error: updateErr } = await supabase
                     .from("results")
-                    .update({
-                        student_id:   resolvedStudent.student_id,
-                        subject_code: r.code,
-                        exam_type:    examType,
-                        mark:         r.total,
-                        remark:       getPerformanceRemark(r.total),
-                        updated_at:   new Date().toISOString()
-                    })
+                    .update(updateData)
                     .eq("id", editingResultId);
 
                 if (updateErr) throw updateErr;
@@ -471,27 +497,35 @@ function setupSaveResults() {
                 cancelReEdit();
 
             } else {
-                // Normal bulk save or new student results
-                const inserts = rowsWithMarks.map(r => ({
-                    student_id:   resolvedStudent.student_id,
-                    subject_code: r.code,
-                    exam_type:    examType,
-                    mark:         r.total,
-                    grade:        null,
-                    remark:       getPerformanceRemark(r.total),
-                    recorded_by:  currentUser?.id || null
-                }));
+                const assessmentTypes = ASSESS_KEYS.map(key =>
+                    `${WEIGHTS[key].label} — ${semester} — ${academicYear}`
+                );
+                const inserts = rowsWithMarks.flatMap(row =>
+                    ASSESS_KEYS
+                        .filter(key => row.marks[key] !== "" && row.marks[key] != null)
+                        .map(key => {
+                            const percentage =
+                                Number(row.marks[key]) / WEIGHTS[key].max * 100;
 
-                // Delete previous entries for this student & semester to prevent duplicates
-                try {
-                    await supabase
-                        .from("results")
-                        .delete()
-                        .eq("student_id", resolvedStudent.student_id)
-                        .eq("exam_type", examType);
-                } catch (delErr) {
-                    console.warn("Notice on delete previous:", delErr);
-                }
+                            return {
+                                student_id: resolvedStudent.student_id,
+                                subject_code: row.code,
+                                exam_type: `${WEIGHTS[key].label} — ${semester} — ${academicYear}`,
+                                mark: Number(row.marks[key]),
+                                grade: null,
+                                remark: getPerformanceRemark(percentage),
+                                recorded_by: currentUser?.id || null
+                            };
+                        })
+                );
+
+                const { error: deleteError } = await supabase
+                    .from("results")
+                    .delete()
+                    .eq("student_id", resolvedStudent.student_id)
+                    .in("exam_type", [examType, ...assessmentTypes]);
+
+                if (deleteError) throw deleteError;
 
                 const { error: insertError } = await supabase
                     .from("results")
@@ -500,7 +534,7 @@ function setupSaveResults() {
                 if (insertError) throw insertError;
 
                 const studentFullName = `${resolvedStudent.first_name || ""} ${resolvedStudent.last_name || ""}`.trim();
-                showToast(`✓ Results saved successfully for ${studentFullName}! ${inserts.length} subject(s) recorded.`, "success");
+                showToast(`✓ Results saved successfully for ${studentFullName}! ${inserts.length} assessment mark(s) recorded.`, "success");
 
                 // Reset form
                 subjectRows = [];
@@ -602,7 +636,9 @@ function renderRecordedResultsTable() {
 
     tbody.innerHTML = filtered.map((r, i) => {
         const mark = parseFloat(r.mark) || 0;
-        const pass = mark >= 50;
+        const assessmentKey = getAssessmentKey(r.exam_type);
+        const maxMark = assessmentKey ? WEIGHTS[assessmentKey].max : 100;
+        const pass = mark / maxMark * 100 >= 50;
         const sid = String(r.student_id || "").trim().toUpperCase();
         const st = cachedStudentsMap.get(sid);
         const sName = st ? `${st.first_name || ""} ${st.last_name || ""}`.trim() : "—";
@@ -616,7 +652,7 @@ function renderRecordedResultsTable() {
                 <td><span style="font-size: 0.8125rem; background: #f1f5f9; padding: 2px 8px; border-radius: 4px; font-weight: 600;">${escapeHtml(classStr)}</span></td>
                 <td><strong style="color: #4f46e5;">${escapeHtml(r.subject_code || "N/A")}</strong></td>
                 <td><small style="color: #64748b; font-weight: 500;">${escapeHtml(r.exam_type || "N/A")}</small></td>
-                <td><strong style="font-size: 0.9375rem; color: #0f172a;">${mark}</strong></td>
+                <td><strong style="font-size: 0.9375rem; color: #0f172a;">${mark} / ${maxMark}</strong></td>
                 <td>
                     <span class="status-pill ${pass ? "pass" : "fail"}">
                         ${pass ? "Pass" : "Fail"}
@@ -702,19 +738,30 @@ window.reEditResult = function(resultId) {
     const subjectMatch = allSubjects.find(s => s.subject_code === result.subject_code);
     const subName = subjectMatch ? subjectMatch.subject_name : (result.subject_code || "Subject");
     const markVal = parseFloat(result.mark) || 0;
+    editingAssessmentKey = getAssessmentKey(result.exam_type);
+    editingExamType = result.exam_type;
+    const markMaximum = editingAssessmentKey
+        ? WEIGHTS[editingAssessmentKey].max
+        : 100;
 
-    // Distribute into assessment categories with exact sum matching markVal
-    const a = Math.min(10, Math.round(markVal * 0.10 * 10) / 10);
-    const q = Math.min(10, Math.round(markVal * 0.10 * 10) / 10);
-    const t = Math.min(20, Math.round(markVal * 0.20 * 10) / 10);
-    const m = Math.min(25, Math.round(markVal * 0.25 * 10) / 10);
-    const f = Math.round((markVal - a - q - t - m) * 10) / 10;
+    let marks;
+    if (editingAssessmentKey) {
+        marks = Object.fromEntries(ASSESS_KEYS.map(key => [key, ""]));
+        marks[editingAssessmentKey] = markVal;
+    } else {
+        const a = Math.min(10, Math.round(markVal * 0.10 * 10) / 10);
+        const q = Math.min(10, Math.round(markVal * 0.10 * 10) / 10);
+        const t = Math.min(20, Math.round(markVal * 0.20 * 10) / 10);
+        const m = Math.min(25, Math.round(markVal * 0.25 * 10) / 10);
+        const f = Math.round((markVal - a - q - t - m) * 10) / 10;
+        marks = { assignment: a, quiz: q, test: t, midterm: m, final: Math.max(0, f) };
+    }
 
     subjectRows = [{
         code: result.subject_code,
         name: subName,
-        marks: { assignment: a, quiz: q, test: t, midterm: m, final: Math.max(0, f) },
-        total: markVal
+        marks,
+        total: editingAssessmentKey ? calculateRowTotal(marks) : markVal
     }];
 
     renderSubjectTable();
@@ -724,7 +771,7 @@ window.reEditResult = function(resultId) {
     const banner = document.getElementById("editingBanner");
     const bannerText = document.getElementById("editingBannerText");
     if (banner && bannerText) {
-        bannerText.textContent = `Now Re-Editing result for ${result.student_id} (${subName} — ${markVal}/100)`;
+        bannerText.textContent = `Now Re-Editing result for ${result.student_id} (${subName} — ${markVal}/${markMaximum})`;
         banner.style.display = "flex";
     }
 
@@ -743,6 +790,8 @@ window.reEditResult = function(resultId) {
 
 function cancelReEdit() {
     editingResultId = null;
+    editingAssessmentKey = null;
+    editingExamType = null;
 
     const banner = document.getElementById("editingBanner");
     if (banner) banner.style.display = "none";

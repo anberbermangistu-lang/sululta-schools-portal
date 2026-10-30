@@ -26,9 +26,13 @@ window.addEventListener("pageshow", async () => {
 });
 
 sidebarToggle?.addEventListener("click", () => {
-    document
-        .querySelector(".admin-page")
-        ?.classList.toggle("sidebar-collapsed");
+    if (window.matchMedia("(max-width: 900px)").matches) {
+        document.querySelector(".admin-sidebar")?.classList.toggle("mobile-open");
+    } else {
+        document
+            .querySelector(".admin-page")
+            ?.classList.toggle("sidebar-collapsed");
+    }
 });
 
 refreshButton?.addEventListener("click", loadAttendance);

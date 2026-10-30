@@ -100,6 +100,8 @@ async function loadStudent() {
 
     try {
 
+        console.log("[student-view] Loading student with ID:", studentId);
+
         const {
             data,
             error
@@ -128,17 +130,20 @@ async function loadStudent() {
             .maybeSingle();
 
         if (error) {
+            console.error("[student-view] Database error:", error);
             throw error;
         }
 
         if (!data) {
-
+            console.error("[student-view] No student found with ID:", studentId);
             showError(
-                "The requested student could not be found."
+                `Student not found. The student with ID ${studentId} does not exist in the database.`
             );
 
             return;
         }
+
+        console.log("[student-view] Student loaded successfully:", data.first_name, data.last_name);
 
         student = data;
 
@@ -156,8 +161,7 @@ async function loadStudent() {
         );
 
         showError(
-            error.message ||
-            "Failed to load student information."
+            `Database error: ${error.message || "Failed to load student information."}`
         );
     }
 }

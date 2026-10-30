@@ -244,7 +244,7 @@ function setupPhotoUpload() {
                 await supabase
                     .from("profiles")
                     .update({
-                        avatar_url: finalPhotoUrl
+                        photo_url: finalPhotoUrl
                     })
                     .eq("id", teacher.user_id);
 

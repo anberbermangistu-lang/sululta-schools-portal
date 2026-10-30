@@ -495,7 +495,9 @@ function updateSummary() {
     const card = document.getElementById('summaryCard');
     const saveBtn = document.getElementById('saveBtn');
 
-    const rowsWithMarks = subjectRows.filter(r => r.total > 0);
+    const rowsWithMarks = subjectRows.filter(r =>
+        ASSESS_KEYS.some(key => r.marks[key] !== '' && r.marks[key] != null)
+    );
 
     if (rowsWithMarks.length === 0) {
         card.style.display = 'none';
@@ -532,12 +534,14 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
 
     if (!resolvedStudentId) { showMsg('Please enter a valid Student ID.', 'error'); return; }
 
-    const rowsWithMarks = subjectRows.filter(r => r.total > 0);
+    const rowsWithMarks = subjectRows.filter(r =>
+        ASSESS_KEYS.some(key => r.marks[key] !== '' && r.marks[key] != null)
+    );
     if (!rowsWithMarks.length) { showMsg('Please add at least one subject with marks.', 'error'); return; }
 
     const academicYear = document.getElementById('academicYear').value;
     const semester     = document.getElementById('semester').value;
-    const examType     = semester; // stored in exam_type field
+    const examType     = semester;
 
     const saveBtn = document.getElementById('saveBtn');
     saveBtn.disabled = true;
@@ -545,23 +549,40 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
 
     const { data: { user } } = await supabase.auth.getUser();
 
-    // Build rows to insert — one row per subject
-    const inserts = rowsWithMarks.map(r => ({
-        student_id:   resolvedStudentId,
-        subject_code: r.code,
-        exam_type:    `${examType} — ${academicYear}`,
-        mark:         r.total,
-        grade:        null,                  // no letter grades
-        remark:       getRemark(r.total),
-        recorded_by:  user?.id ?? null,
-    }));
+    const storedExamTypes = [
+        `${examType} — ${academicYear}`,
+        ...ASSESS_KEYS.map(key => `${WEIGHTS[key].label} — ${examType} — ${academicYear}`)
+    ];
+    const inserts = rowsWithMarks.flatMap(row =>
+        ASSESS_KEYS
+            .filter(key => row.marks[key] !== '' && row.marks[key] != null)
+            .map(key => {
+                const percentage = Number(row.marks[key]) / WEIGHTS[key].max * 100;
+                return {
+                    student_id: resolvedStudentId,
+                    subject_code: row.code,
+                    exam_type: `${WEIGHTS[key].label} — ${examType} — ${academicYear}`,
+                    mark: Number(row.marks[key]),
+                    grade: null,
+                    remark: getRemark(percentage),
+                    recorded_by: user?.id ?? null,
+                };
+            })
+    );
 
     // Delete existing records for this student/semester/year to avoid duplicates
-    await supabase
+    const { error: deleteError } = await supabase
         .from('results')
         .delete()
         .eq('student_id', resolvedStudentId)
-        .eq('exam_type', `${examType} — ${academicYear}`);
+        .in('exam_type', storedExamTypes);
+
+    if (deleteError) {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save Results';
+        showMsg('Error replacing previous results: ' + deleteError.message, 'error');
+        return;
+    }
 
     const { error } = await supabase.from('results').insert(inserts);
 
@@ -571,7 +592,7 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
     if (error) {
         showMsg('Error saving results: ' + error.message, 'error');
     } else {
-        showMsg(`Results saved successfully! ${rowsWithMarks.length} subject(s) recorded.`, 'success');
+        showMsg(`Results saved successfully! ${inserts.length} assessment mark(s) recorded.`, 'success');
         setTimeout(() => window.location.href = 'dashboard.html', 1500);
     }
 });

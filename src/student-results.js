@@ -26,6 +26,14 @@ const logoutButton = document.getElementById("logoutButton");
 const sidebarToggle = document.getElementById("sidebarToggle");
 const sidebar = document.querySelector(".admin-sidebar");
 
+const EXAM_CATEGORIES = [
+    { value: "assignment", label: "Assignment", max: 10 },
+    { value: "quiz", label: "Quiz", max: 10 },
+    { value: "test", label: "Test", max: 20 },
+    { value: "midterm", label: "Midterm", max: 25 },
+    { value: "final", label: "Final Exam", max: 35 }
+];
+
 let allResults = [];
 let currentStudent = null;
 
@@ -48,20 +56,24 @@ function escapeHTML(value) {
         .replace(/'/g, "&#039;");
 }
 
-function formatMark(mark) {
+function formatMark(mark, maxMark = 100) {
     const number = Number(mark);
 
     if (Number.isNaN(number)) {
         return "-";
     }
 
-    return number.toFixed(2);
+    return `${number.toFixed(2)} / ${maxMark}`;
 }
 
-function formatGrade(grade) {
-    return grade
-        ? String(grade).toUpperCase()
-        : "-";
+function formatGrade(grade, percentage) {
+    if (grade) return String(grade).toUpperCase();
+    if (!Number.isFinite(percentage)) return "-";
+    if (percentage >= 90) return "A";
+    if (percentage >= 80) return "B";
+    if (percentage >= 65) return "C";
+    if (percentage >= 50) return "D";
+    return "F";
 }
 
 function getGradeClass(grade) {
@@ -155,9 +167,20 @@ async function loadStudent() {
     }
 
     const {
-        data: students,
-        error
+        data: profile,
+        error: profileError
     } = await supabase
+        .from("profiles")
+        .select("student_id")
+        .eq("id", user.id)
+        .maybeSingle();
+
+    if (profileError) {
+        console.error("Student profile error:", profileError);
+        throw new Error("Unable to load your student profile.");
+    }
+
+    let studentQuery = supabase
         .from("students")
         .select(`
             id,
@@ -173,20 +196,28 @@ async function loadStudent() {
             address,
             photo_url,
             status
-        `)
-        .ilike("email", user.email)
-        .limit(1);
+        `);
+
+    if (profile?.student_id) {
+        studentQuery = studentQuery.eq("id", profile.student_id);
+    } else if (user.email) {
+        studentQuery = studentQuery.ilike("email", user.email).limit(1);
+    } else {
+        throw new Error("No student record is linked to your login.");
+    }
+
+    const { data: linkedStudent, error } = await studentQuery.maybeSingle();
 
     if (error) {
         console.error("Student error:", error);
         throw new Error("Unable to load your student information.");
     }
 
-    if (!students || students.length === 0) {
+    if (!linkedStudent) {
         throw new Error("No student record is linked to your login email.");
     }
 
-    currentStudent = students[0];
+    currentStudent = linkedStudent;
 
     loadStudentProfile(currentStudent);
 
@@ -247,7 +278,10 @@ async function loadResults() {
             recorded_by,
             created_at
         `)
-        .eq("student_id", currentStudent.student_id)
+        .in("student_id", [
+            String(currentStudent.id),
+            String(currentStudent.student_id)
+        ])
         .order("created_at", {
             ascending: false
         });
@@ -315,26 +349,55 @@ function populateExamFilter() {
         return;
     }
 
-    const exams = [
-        ...new Set(
-            allResults
-                .map(result => result.exam_type)
-                .filter(Boolean)
-        )
-    ].sort();
-
     examFilter.innerHTML = `
         <option value="all">All Exams</option>
     `;
 
-    exams.forEach(exam => {
+    EXAM_CATEGORIES.forEach(({ value, label }) => {
         const option = document.createElement("option");
-
-        option.value = exam;
-        option.textContent = exam;
-
+        option.value = value;
+        option.textContent = label;
         examFilter.appendChild(option);
     });
+
+    if (allResults.some(result => !getExamCategory(result.exam_type))) {
+        const option = document.createElement("option");
+        option.value = "other";
+        option.textContent = "Other Exams";
+        examFilter.appendChild(option);
+    }
+}
+
+function getExamCategory(examType) {
+    const normalized = String(examType || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[_-]+/g, " ");
+
+    if (/\bassignment\b/.test(normalized)) return "assignment";
+    if (/\bquiz(?:zes)?\b/.test(normalized)) return "quiz";
+    if (/\btest\b/.test(normalized)) return "test";
+    if (/\bmid[\s-]*term\b/.test(normalized)) return "midterm";
+    if (/\bfinal\b/.test(normalized)) return "final";
+
+    return "";
+}
+
+function getExamLabel(examType) {
+    const category = getExamCategory(examType);
+    const categoryLabel = EXAM_CATEGORIES.find(
+        item => item.value === category
+    )?.label;
+
+    return categoryLabel || String(examType || "-");
+}
+
+function getExamMaximum(examType) {
+    const category = getExamCategory(examType);
+    if (!/^(Assignment|Quiz(?:zes)?|Test|Mid[\s-]*term|Final(?:\s+Exam)?)\s*[—–-]\s*.+/i.test(String(examType || ""))) {
+        return 100;
+    }
+    return EXAM_CATEGORIES.find(item => item.value === category)?.max || 100;
 }
 
 function populateGradeFilter() {
@@ -391,9 +454,12 @@ function getFilteredResults() {
             !search ||
             searchableText.includes(search);
 
+        const category = getExamCategory(result.exam_type);
         const matchesExam =
             selectedExam === "all" ||
-            String(result.exam_type || "").toLowerCase() === selectedExam;
+            (selectedExam === "other"
+                ? !category
+                : category === selectedExam);
 
         const matchesGrade =
             selectedGrade === "all" ||
@@ -442,7 +508,10 @@ function renderResults() {
 
     resultsTableBody.innerHTML = filteredResults
         .map((result, index) => {
-            const gradeClass = getGradeClass(result.grade);
+            const maxMark = getExamMaximum(result.exam_type);
+            const percentage = Number(result.mark) / maxMark * 100;
+            const grade = formatGrade(result.grade, percentage);
+            const gradeClass = getGradeClass(grade);
 
             return `
                 <tr>
@@ -459,18 +528,18 @@ function renderResults() {
                     </td>
 
                     <td>
-                        ${escapeHTML(result.exam_type || "-")}
+                        ${escapeHTML(getExamLabel(result.exam_type))}
                     </td>
 
                     <td>
                         <strong>
-                            ${formatMark(result.mark)}
+                            ${formatMark(result.mark, maxMark)}
                         </strong>
                     </td>
 
                     <td>
                         <span class="grade-badge ${gradeClass}">
-                            ${escapeHTML(formatGrade(result.grade))}
+                            ${escapeHTML(grade)}
                         </span>
                     </td>
 
@@ -491,7 +560,7 @@ function updateStatistics(results) {
     );
 
     const marks = results
-        .map(result => Number(result.mark))
+        .map(result => Number(result.mark) / getExamMaximum(result.exam_type) * 100)
         .filter(mark => !Number.isNaN(mark));
 
     const average =
