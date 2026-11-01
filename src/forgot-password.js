@@ -51,8 +51,10 @@ try {
         await supabase.auth.resetPasswordForEmail(
             email,
             {
-                redirectTo:
-                    `${window.location.origin}/reset-password.html`
+                redirectTo: new URL(
+                    "/reset-password",
+                    window.location.origin
+                ).toString()
             }
         );
 

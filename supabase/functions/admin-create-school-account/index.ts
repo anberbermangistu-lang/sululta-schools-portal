@@ -197,7 +197,7 @@ Deno.serve(async request => {
                 }
             }
 
-            const redirectTo = new URL("/reset-password.html", appUrl).toString();
+            const redirectTo = new URL("/reset-password", appUrl).toString();
             const accountResult = temporaryPassword
                 ? await serviceClient.auth.admin.createUser({
                     email,
@@ -335,7 +335,7 @@ Deno.serve(async request => {
             record.section = optionalText(schoolClass.section);
         }
 
-        const redirectTo = new URL("/reset-password.html", appUrl).toString();
+        const redirectTo = new URL("/reset-password", appUrl).toString();
         const accountResult = temporaryPassword
             ? await serviceClient.auth.admin.createUser({
                 email,

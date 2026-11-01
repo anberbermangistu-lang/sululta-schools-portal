@@ -7,7 +7,10 @@ const passwordInput = document.getElementById("password");
 const confirmPasswordInput = document.getElementById("confirmPassword");
 const inviteParams = new URLSearchParams(window.location.hash.slice(1));
 const queryParams = new URLSearchParams(window.location.search);
-const isInvitation = inviteParams.get("type") === "invite" || queryParams.get("type") === "invite";
+let hasRecoverySession = false;
+const isInvitation =
+    inviteParams.get("type") === "invite" ||
+    queryParams.get("type") === "invite";
 
 if (isInvitation) {
     const title = document.getElementById("passwordPageTitle");
@@ -24,14 +27,43 @@ function showMessage(text, type = "error") {
     message.hidden = !text;
 }
 
+if (supabase) {
+    supabase.auth.onAuthStateChange(event => {
+        if (event === "PASSWORD_RECOVERY") {
+            hasRecoverySession = true;
+        }
+    });
+}
+
 async function validateResetSession() {
     if (button) button.disabled = true;
 
     try {
+        if (!supabase) {
+            throw new Error("Authentication is not configured. Contact the administrator.");
+        }
+
+        if (
+            queryParams.has("error") ||
+            queryParams.has("error_description") ||
+            queryParams.has("error_code")
+        ) {
+            throw new Error("This password reset link is invalid or has expired. Request a new link.");
+        }
+
+        const { data: { session }, error: sessionError } =
+            await supabase.auth.getSession();
+        if (sessionError) throw sessionError;
+
         const { data: { user }, error } = await supabase.auth.getUser();
         if (error) throw error;
 
-        if (!user) {
+        if (!hasRecoverySession && !isInvitation) {
+            showMessage("Open the password reset link from your email to continue.");
+            return;
+        }
+
+        if (!session || !user) {
             showMessage("This password reset link is invalid or has expired. Request a new link.");
             return;
         }
@@ -55,8 +87,8 @@ form?.addEventListener("submit", async event => {
         return;
     }
 
-    if (password.length < 8) {
-        showMessage("Password must be at least 8 characters.");
+    if (password.length < 8 || !/[A-Za-z]/.test(password) || !/\d/.test(password)) {
+        showMessage("Use at least 8 characters, including a letter and a number.");
         return;
     }
 
@@ -70,7 +102,17 @@ form?.addEventListener("submit", async event => {
         button.textContent = "Updating...";
     }
 
+    let passwordUpdated = false;
+
     try {
+        if (!supabase) {
+            throw new Error("Authentication is not configured. Contact the administrator.");
+        }
+
+        if (!hasRecoverySession && !isInvitation) {
+            throw new Error("Open the password reset link from your email to continue.");
+        }
+
         const { data: { user }, error: authError } = await supabase.auth.getUser();
         if (authError) throw authError;
         if (!user) {
@@ -80,13 +122,27 @@ form?.addEventListener("submit", async event => {
         const { error } = await supabase.auth.updateUser({ password });
         if (error) throw error;
 
+        passwordUpdated = true;
         showMessage("Password saved successfully. Redirecting to login...", "success");
-        setTimeout(() => window.location.replace("/login.html"), 2000);
+
+        try {
+            const { error: signOutError } =
+                await supabase.auth.signOut({ scope: "local" });
+            if (signOutError) throw signOutError;
+        } catch (signOutError) {
+            console.error("Could not close the password recovery session:", signOutError);
+            showMessage(
+                "Your password was updated. Please sign in again; your recovery session could not be closed automatically.",
+                "success"
+            );
+        }
+
+        setTimeout(() => window.location.replace("/login.html"), 1800);
     } catch (error) {
         console.error("Update password error:", error);
         showMessage(error?.message || "Unable to update your password.");
     } finally {
-        if (button) {
+        if (button && !passwordUpdated) {
             button.disabled = false;
             button.textContent = "Update Password";
         }

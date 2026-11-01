@@ -99,6 +99,7 @@ const publicPaths = new Set([
     "/index.html",
     "/login.html",
     "/forgot-password.html",
+    "/reset-password",
     "/reset-password.html"
 ]);
 

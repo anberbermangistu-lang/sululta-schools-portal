@@ -119,7 +119,7 @@ Deno.serve(async request => {
                 return response(request, { error: "The selected teacher or student account has no valid email address." }, 404);
             }
 
-            const redirectTo = new URL("/reset-password.html", appUrl).toString();
+            const redirectTo = new URL("/reset-password", appUrl).toString();
             const { error: resetError } = await serviceClient.auth.resetPasswordForEmail(
                 String(targetProfile.email).trim().toLowerCase(),
                 { redirectTo }
@@ -204,7 +204,7 @@ Deno.serve(async request => {
             }
         }
 
-        const redirectTo = new URL("/reset-password.html", appUrl).toString();
+        const redirectTo = new URL("/reset-password", appUrl).toString();
         const accountResult = temporaryPassword
             ? await serviceClient.auth.admin.createUser({
                 email,

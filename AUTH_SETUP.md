@@ -32,7 +32,7 @@ The initial administrator must be provisioned by a trusted project owner, not th
 
 ## Deploy administrator account functions
 
-The **Add Student** and **Add Teacher** forms create the school record and Auth account together. By default, they email a Supabase invitation link to `/reset-password.html`; the recipient chooses their password through Supabase Auth. The optional **Set a temporary password** button instead lets the administrator provide an initial password (at least 8 characters), creates a confirmed Auth account, and skips the invitation email. Share temporary passwords through a secure channel. Inactive school accounts remain blocked until activated.
+The **Add Student** and **Add Teacher** forms create the school record and Auth account together. By default, they email a Supabase invitation link to `/reset-password`; the recipient chooses their password through Supabase Auth. The optional **Set a temporary password** button instead lets the administrator provide an initial password (at least 8 characters), creates a confirmed Auth account, and skips the invitation email. Share temporary passwords through a secure channel. Inactive school accounts remain blocked until activated.
 
 **Admin → Add Account** creates Admin, Teacher, or Student accounts using the same invitation-by-default or optional temporary-password choice. Teacher and Student accounts must link to an existing active school record; a new account is not created if that record is already linked. The Admin **Users** page has a **Send Password Reset** action for teacher/student accounts. It sends a one-time Supabase recovery link to the email address on the server-side profile lookup; the browser never receives the service-role key.
 
@@ -66,12 +66,12 @@ After changing either function, redeploy it with the matching `supabase function
 In Supabase **Authentication → URL Configuration**:
 
 - Set **Site URL** to the deployed school portal origin.
-- Add the exact allowed redirects `https://sululta-schools-portal.vercel.app/reset-password.html`, `https://sululta-school-portal.vercel.app/reset-password.html`, and, for local testing, `http://localhost:5173/reset-password.html` and/or `http://127.0.0.1:5173/reset-password.html`.
+- Add the exact allowed redirects `https://sululta-schools-portal.vercel.app/reset-password`, `https://sululta-school-portal.vercel.app/reset-password`, and, for local testing, `http://localhost:5173/reset-password` and/or `http://127.0.0.1:5173/reset-password`. Keep the corresponding `/reset-password.html` URLs allowed temporarily if outstanding emails still use the old links.
 - Keep any other deployed portal origin in the allowlist only if it is actively used.
 
-In **Authentication → SMTP Settings**, configure a real mail provider with its SMTP host, port, username, password, sender name, and verified sender address. Configure the **Invite user** and **Reset password** email templates to use Supabase's secure `{{ .ConfirmationURL }}` link. Do not put passwords in templates. The invitation and password reset use Supabase's time-limited, one-time Auth links and return to `/reset-password.html`.
+In **Authentication → SMTP Settings**, configure a real mail provider with its SMTP host, port, username, password, sender name, and verified sender address. Configure the **Invite user** and **Reset password** email templates to use Supabase's secure `{{ .ConfirmationURL }}` link. Do not put passwords in templates. The invitation and password reset use Supabase's time-limited, one-time Auth links and return to `/reset-password`.
 
-The app only shows a successful request message when Supabase accepts the request; an Auth/SMTP API error is shown as an error. Verify delivery through the configured provider's logs. The generic recovery response does not disclose whether an address is registered.
+The app only shows a successful request message when Supabase accepts the request; an Auth/SMTP API error is shown as an error. Verify delivery through the configured provider's logs. The generic recovery response does not disclose whether an address is registered. Vercel serves `/reset-password` through the rewrite in `vercel.json`; keep the reset page public in the frontend auth guard.
 
 ## Configure frontend environment
 
