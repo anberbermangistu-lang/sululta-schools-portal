@@ -216,8 +216,8 @@
                 <div class="teacher-reports-section" style="margin-top: 24px;">
                     <div class="pf-subcard-header" style="flex-wrap: wrap; gap: 10px;">
                         <div>
-                            <h4>Teacher Excel Reports & Submissions</h4>
-                            <p style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">Reports sent by teachers via Excel or uploaded by administrator</p>
+                            <h4>Saved Results by Teacher / Source</h4>
+                            <p style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">Summaries generated from saved student results</p>
                         </div>
                         <div style="display: flex; gap: 8px;">
                             <input type="text" id="reportSearchInput" class="pf-search-input" placeholder="Search teacher or subject...">
@@ -228,7 +228,7 @@
                         <table class="pf-table">
                             <thead>
                                 <tr>
-                                    <th>Teacher Name</th>
+                                    <th>Recorded By</th>
                                     <th>Subject</th>
                                     <th>Class / Exam</th>
                                     <th>Submission Date</th>
@@ -258,6 +258,7 @@
                         <select id="examFilter">
                             <option value="">All Exams</option>
                         </select>
+                        <button type="button" class="btn btn-secondary btn-sm" id="refreshResultsBtn">Refresh</button>
                     </div>
                 </div>
                 <div id="tableContent">
@@ -271,12 +272,13 @@
     <script type="module">
         import { supabase } from '../src/supabase.js';
         import { getAssessmentDetails, normalizeAssessmentMark } from '../src/assessment-config.js';
+        import { loadAssessmentResults } from '../src/results-persistence.js';
         import { saveAssessmentRecords } from '../src/results-persistence.js';
 
         let allResults = [];
         let cachedStudentsMap = new Map();
         let passFailChartInstance = null;
-        const STORAGE_TEACHER_REPORTS = "sululta_teacher_excel_reports";
+        let teacherReportSummaries = [];
 
         function getResultAssessmentMark(result) {
             const details = getAssessmentDetails(result.exam_type, result.max_mark);
@@ -327,70 +329,165 @@
         ────────────────────────────────────────────────────────────── */
         async function loadData() {
             try {
-                const [resultsRes, studentsRes] = await Promise.all([
-                    supabase
-                        .from('results')
-                        .select('id, student_id, subject_code, exam_type, mark, max_mark, remark, created_at, recorded_by')
-                        .order('created_at', { ascending: false }),
+                const [resultsData, studentsRes, teachersRes, subjectsRes, classesRes] = await Promise.all([
+                    loadAssessmentResults(
+                        supabase,
+                        'id,student_id,subject_code,exam_type,mark,max_mark,remark,created_at,recorded_by'
+                    ),
                     supabase
                         .from('students')
-                        .select('id, student_id, first_name, last_name, class, section')
+                        .select('id, student_id, first_name, last_name, class_id, class, section'),
+                    supabase
+                        .from('teachers')
+                        .select('user_id, first_name, last_name'),
+                    supabase
+                        .from('subjects')
+                        .select('subject_code, subject_name'),
+                    supabase
+                        .from('classes')
+                        .select('id, class_name, section')
                 ]);
 
-                if (resultsRes.error) {
-                    console.error('Error loading results:', resultsRes.error);
+                for (const result of [studentsRes, teachersRes, subjectsRes, classesRes]) {
+                    if (result.error) throw result.error;
                 }
 
-                const dbResults = resultsRes.data || [];
+                allResults = resultsData;
                 const students = studentsRes.data || [];
+                const teachersByUserId = new Map(
+                    (teachersRes.data || [])
+                        .filter(teacher => teacher.user_id)
+                        .map(teacher => [teacher.user_id, teacher])
+                );
+                const subjectsByCode = new Map(
+                    (subjectsRes.data || []).map(subject => [String(subject.subject_code).toLowerCase(), subject.subject_name])
+                );
+                const classesById = new Map(
+                    (classesRes.data || []).map(schoolClass => [String(schoolClass.id), schoolClass])
+                );
 
                 cachedStudentsMap.clear();
                 students.forEach(s => {
                     if (s.student_id) cachedStudentsMap.set(String(s.student_id).trim().toUpperCase(), s);
+                    cachedStudentsMap.set(String(s.id).trim().toUpperCase(), s);
                 });
 
-                // Merge any teacher uploaded reports from local storage
-                const localTeacherReports = getLocalTeacherReports();
-                const mergedResults = [...dbResults];
-
-                localTeacherReports.forEach(report => {
-                    if (Array.isArray(report.records)) {
-                        report.records.forEach(r => {
-                            const exists = mergedResults.some(m => 
-                                String(m.student_id).trim().toUpperCase() === String(r.student_id).trim().toUpperCase() &&
-                                String(m.subject_code).toLowerCase() === String(r.subject_code || report.subject_code).toLowerCase()
-                            );
-                            if (!exists) {
-                                mergedResults.push({
-                                    id: 'local_' + Math.random().toString(36).substr(2, 9),
-                                    student_id: r.student_id,
-                                    subject_code: r.subject_code || report.subject_code || 'General',
-                                    exam_type: r.exam_type || report.exam_type || 'Semester 1',
-                                    mark: parseFloat(r.mark) || 0,
-                                    max_mark: r.max_mark,
-                                    remark: r.remark || (parseFloat(r.mark) >= 50 ? 'Pass' : 'Fail'),
-                                    created_at: report.submitted_at || new Date().toISOString()
-                                });
-                            }
-                        });
-                    }
+                allResults.forEach(result => {
+                    const student = getStudentForResult(result);
+                    const schoolClass = student?.class_id == null ? null : classesById.get(String(student.class_id));
+                    const className = student?.class || schoolClass?.class_name || "Unassigned class";
+                    const section = student?.section || schoolClass?.section;
+                    result.student_name = student
+                        ? `${student.first_name || ""} ${student.last_name || ""}`.trim()
+                        : "Student record not found";
+                    result.class_name = `${className}${section ? `-${section}` : ""}`;
                 });
 
-                allResults = mergedResults;
+                const recorderIds = [...new Set(allResults.map(result => result.recorded_by).filter(Boolean))];
+                let profilesById = new Map();
+                if (recorderIds.length) {
+                    const { data: profiles, error: profilesError } = await supabase
+                        .from('profiles')
+                        .select('id, first_name, last_name')
+                        .in('id', recorderIds);
+                    if (profilesError) throw profilesError;
+                    profilesById = new Map((profiles || []).map(profile => [profile.id, profile]));
+                }
 
-                // Render Pass/Fail analytics components
+                teacherReportSummaries = buildTeacherReportSummaries(
+                    allResults,
+                    teachersByUserId,
+                    profilesById,
+                    subjectsByCode
+                );
                 renderPassFailStats(allResults);
                 renderGradePassFailBreakdown(allResults);
                 renderPassFailDonutChart(allResults);
                 renderTeacherReportsTable();
                 populateExamDropdowns(allResults);
-
-                // Render All Results table
                 renderTable(allResults);
-
             } catch (err) {
                 console.error("Results initialization error:", err);
+                const message = escHtml(err?.message || "Unable to load saved results.");
+                const tableContent = document.getElementById("tableContent");
+                const reportsBody = document.getElementById("teacherReportsTbody");
+                if (tableContent) {
+                    tableContent.innerHTML = `<div style="padding: 2rem; color: #b91c1c;">Could not load results from the database: ${message}</div>`;
+                }
+                if (reportsBody) {
+                    reportsBody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:20px;color:#b91c1c;">Could not load database results: ${message}</td></tr>`;
+                }
+                setEl("overallPassPercent", "—");
+                setEl("overallPassCount", "Unavailable");
+                setEl("overallFailPercent", "—");
+                setEl("overallFailCount", "Unavailable");
+                setEl("totalEvaluatedResults", "—");
+                setEl("schoolAvgMark", "Average unavailable");
+                setEl("distinctionPercent", "—");
+                setEl("distinctionCount", "Unavailable");
+                allResults = [];
+                teacherReportSummaries = [];
             }
+        }
+
+        function getStudentForResult(result) {
+            return cachedStudentsMap.get(String(result.student_id ?? "").trim().toUpperCase());
+        }
+
+        function buildTeacherReportSummaries(results, teachersByUserId, profilesById, subjectsByCode) {
+            const groups = new Map();
+
+            results.forEach(result => {
+                    const className = result.class_name || "Unassigned class";
+                    const submissionDate = result.created_at ? String(result.created_at).slice(0, 10) : "";
+                    const key = JSON.stringify([
+                        result.recorded_by || "",
+                        String(result.subject_code || "").toLowerCase(),
+                        result.exam_type || "",
+                        className,
+                        submissionDate
+                    ]);
+                    let report = groups.get(key);
+                    if (!report) {
+                        const teacher = result.recorded_by ? teachersByUserId.get(result.recorded_by) : null;
+                        const profile = result.recorded_by ? profilesById.get(result.recorded_by) : null;
+                        const reporter = teacher || profile;
+                        const reporterName = reporter
+                            ? `${reporter.first_name || ""} ${reporter.last_name || ""}`.trim()
+                            : (result.recorded_by ? "Account not linked to a teacher" : "Not recorded");
+                        report = {
+                            id: `database-report-${groups.size}`,
+                            teacher_name: reporterName || "Unnamed account",
+                            subject_code: result.subject_code || "",
+                            subject_name: subjectsByCode.get(String(result.subject_code || "").toLowerCase()) || result.subject_code || "Unknown subject",
+                            class_name: className,
+                            exam_type: result.exam_type || "Unspecified exam",
+                            submitted_at: result.created_at || null,
+                            records: [],
+                            passed_count: 0,
+                            failed_count: 0
+                        };
+                        groups.set(key, report);
+                    }
+
+                    if (getResultPercentage(result) >= 50) report.passed_count++;
+                    else report.failed_count++;
+                    report.records.push({
+                        ...result,
+                        student_name: result.student_name || "Student record not found"
+                    });
+                    if (result.created_at && (!report.submitted_at || result.created_at > report.submitted_at)) {
+                        report.submitted_at = result.created_at;
+                    }
+            });
+
+            return [...groups.values()].map(report => {
+                    const total = report.records.length;
+                    report.total_students = new Set(report.records.map(record => String(record.student_id))).size;
+                    report.pass_rate = `${total ? (report.passed_count / total * 100).toFixed(1) : "0.0"}%`;
+                    report.fail_rate = `${total ? (report.failed_count / total * 100).toFixed(1) : "0.0"}%`;
+                    return report;
+            }).sort((a, b) => String(b.submitted_at || "").localeCompare(String(a.submitted_at || "")));
         }
 
         /* ──────────────────────────────────────────────────────────────
@@ -457,9 +554,8 @@
 
             const rowsHtml = grades.map(g => {
                 const matchingResults = resultsList.filter(r => {
-                    const sid = String(r.student_id || "").trim().toUpperCase();
-                    const student = cachedStudentsMap.get(sid);
-                    const classStr = String(student?.class || "").toLowerCase();
+                    const student = getStudentForResult(r);
+                    const classStr = String(`${r.class_name || student?.class || ""} ${student?.section || ""}`).toLowerCase();
                     return g.pattern.test(classStr);
                 });
 
@@ -554,7 +650,7 @@
                                     if (total === 0) return " No data recorded";
                                     const val = ctx.parsed;
                                     const pct = total > 0 ? Math.round((val / total) * 100) : 0;
-                                    return ` ${ctx.label}: ${val} students (${pct}%)`;
+                                    return ` ${ctx.label}: ${val} results (${pct}%)`;
                                 }
                             }
                         }
@@ -567,34 +663,11 @@
         /* ──────────────────────────────────────────────────────────────
            TEACHER EXCEL REPORTS TABLE & SYNC
         ────────────────────────────────────────────────────────────── */
-        function getLocalTeacherReports() {
-            try {
-                const raw = localStorage.getItem(STORAGE_TEACHER_REPORTS);
-                if (raw) {
-                    const reports = JSON.parse(raw);
-                    return Array.isArray(reports) ? reports : [];
-                }
-            } catch (e) {
-                console.warn("Could not read local teacher reports:", e);
-            }
-            return [];
-        }
-
-        function saveTeacherReport(report) {
-            const list = getLocalTeacherReports();
-            list.unshift(report);
-            try {
-                localStorage.setItem(STORAGE_TEACHER_REPORTS, JSON.stringify(list));
-            } catch (e) {
-                console.warn("Could not save teacher report:", e);
-            }
-        }
-
         function renderTeacherReportsTable(searchQuery = "") {
             const tbody = document.getElementById("teacherReportsTbody");
             if (!tbody) return;
 
-            let reports = getLocalTeacherReports();
+            let reports = teacherReportSummaries;
 
             if (searchQuery) {
                 const q = searchQuery.toLowerCase();
@@ -606,12 +679,15 @@
             }
 
             if (!reports.length) {
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #94a3b8; padding: 24px;">No teacher Excel reports found.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #94a3b8; padding: 24px;">No saved result records found.</td></tr>';
                 return;
             }
 
             tbody.innerHTML = reports.map(r => {
-                const dateStr = r.submitted_at ? new Date(r.submitted_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "—";
+                const submittedDate = r.submitted_at ? new Date(r.submitted_at) : null;
+                const dateStr = submittedDate && !Number.isNaN(submittedDate.getTime())
+                    ? submittedDate.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
+                    : "—";
                 return `
                     <tr>
                         <td><strong>${escHtml(r.teacher_name || "Teacher")}</strong></td>
@@ -660,8 +736,7 @@
 
             // Expose download single teacher report globally
             window.downloadSingleTeacherReport = function(reportId) {
-                const reports = getLocalTeacherReports();
-                const rep = reports.find(r => r.id === reportId);
+                const rep = teacherReportSummaries.find(r => r.id === reportId);
                 if (!rep) return;
                 downloadReportAsExcel(rep);
             };
@@ -674,10 +749,11 @@
             }
 
             const rows = allResults.map((r, idx) => {
-                const sid = String(r.student_id || "").trim().toUpperCase();
-                const student = cachedStudentsMap.get(sid);
-                const studentName = student ? `${student.first_name} ${student.last_name || ""}`.trim() : "Student";
-                const studentClass = student?.class ? `${student.class} ${student.section || ""}`.trim() : "—";
+                const student = getStudentForResult(r);
+                const studentName = r.student_name || (student
+                    ? `${student.first_name || ""} ${student.last_name || ""}`.trim()
+                    : "Student record not found");
+                const studentClass = r.class_name || "—";
                 const { mark, maximum } = getResultAssessmentMark(r);
                 const pass = getResultPercentage(r) >= 50;
 
@@ -728,17 +804,9 @@
         }
 
         function downloadAcademicExcelTemplate() {
-            const templateRows = [
-                { "Student ID": "STU001", "Student Name": "Abebe Bekele", "Class": "Grade 10-A", "Subject": "Mathematics", "Exam Type": "Semester 1 Final Exam", "Mark": 85, "Remark": "Excellent" },
-                { "Student ID": "STU002", "Student Name": "Chaltu Desta", "Class": "Grade 10-A", "Subject": "Mathematics", "Exam Type": "Semester 1 Final Exam", "Mark": 64, "Remark": "Good" },
-                { "Student ID": "STU003", "Student Name": "Dawit Tolosa", "Class": "Grade 10-A", "Subject": "Mathematics", "Exam Type": "Semester 1 Final Exam", "Mark": 42, "Remark": "Fail - Needs Remedial" },
-                { "Student ID": "STU004", "Student Name": "Fatuma Ahmed", "Class": "Grade 10-A", "Subject": "Mathematics", "Exam Type": "Semester 1 Final Exam", "Mark": 92, "Remark": "Distinction" },
-                { "Student ID": "STU005", "Student Name": "Gamachu Megersa", "Class": "Grade 10-A", "Subject": "Mathematics", "Exam Type": "Semester 1 Final Exam", "Mark": 38, "Remark": "Fail" }
-            ];
-
             if (typeof XLSX !== "undefined") {
                 const wb = XLSX.utils.book_new();
-                const ws = XLSX.utils.json_to_sheet(templateRows);
+                const ws = XLSX.utils.aoa_to_sheet([["Student ID", "Student Name", "Class", "Subject", "Exam Type", "Mark", "Remark"]]);
                 XLSX.utils.book_append_sheet(wb, ws, "Marks Entry Template");
                 XLSX.writeFile(wb, "Sululta_Teacher_Results_Template.xlsx");
             }
@@ -802,6 +870,9 @@
                         return;
                     }
 
+                    const { data: { user }, error: userError } = await supabase.auth.getUser();
+                    if (userError) throw userError;
+
                     const recordsToInsert = [];
                     let passCount = 0;
                     let failCount = 0;
@@ -830,6 +901,7 @@
                                 mark: markVal,
                                 max_mark: providedMaximum,
                                 remark: row["Remark"] || row["remark"] || (isPass ? "Pass" : "Fail"),
+                                recorded_by: user?.id || null,
                                 created_at: new Date().toISOString()
                             });
                         }
@@ -846,23 +918,6 @@
                     const passPct = ((passCount / total) * 100).toFixed(1) + "%";
                     const failPct = ((failCount / total) * 100).toFixed(1) + "%";
 
-                    const submission = {
-                        id: "adm_up_" + Date.now(),
-                        teacher_name: "Imported via Excel",
-                        subject_name: recordsToInsert[0]?.subject_code || "General",
-                        subject_code: recordsToInsert[0]?.subject_code || "GEN",
-                        class_name: "Excel Import",
-                        exam_type: recordsToInsert[0]?.exam_type || "Semester 1",
-                        submitted_at: new Date().toISOString(),
-                        total_students: total,
-                        passed_count: passCount,
-                        failed_count: failCount,
-                        pass_rate: passPct,
-                        fail_rate: failPct,
-                        records: recordsToInsert
-                    };
-
-                    saveTeacherReport(submission);
                     alert(`Successfully imported Excel file: ${fileName}\n\nTotal Students: ${total}\nPassed: ${passCount} (${passPct})\nFailed: ${failCount} (${failPct})`);
 
                     await loadData();
@@ -931,9 +986,10 @@
                         const { mark, maximum } = getResultAssessmentMark(r);
                         const pass = getResultPercentage(r) >= 50;
                         const remark = r.remark || (pass ? 'Pass' : 'Fail');
-                        const sid = String(r.student_id || '').trim().toUpperCase();
-                        const st = cachedStudentsMap.get(sid);
-                        const sName = st ? `${st.first_name} ${st.last_name || ''}` : '—';
+                        const st = getStudentForResult(r);
+                        const sName = r.student_name || (st
+                            ? `${st.first_name || ''} ${st.last_name || ''}`.trim()
+                            : 'Student record not found');
 
                         return `
                         <tr>
@@ -968,7 +1024,7 @@
                 const sid = String(r.student_id || '').toLowerCase();
                 const sub = String(r.subject_code || '').toLowerCase();
                 const exam = String(r.exam_type || '').toLowerCase();
-                const st = cachedStudentsMap.get(String(r.student_id || '').trim().toUpperCase());
+                const st = getStudentForResult(r);
                 const sName = st ? `${st.first_name} ${st.last_name || ''}`.toLowerCase() : '';
 
                 const matchSearch = !search || sid.includes(search) || sub.includes(search) || exam.includes(search) || sName.includes(search);
@@ -980,6 +1036,7 @@
 
         document.getElementById('searchInput')?.addEventListener('input', applyTableFilters);
         document.getElementById('examFilter')?.addEventListener('change', applyTableFilters);
+        document.getElementById('refreshResultsBtn')?.addEventListener('click', loadData);
 
         window.viewResult = (id) => window.location.href = `view.html?id=${id}`;
         window.editResult = (id) => window.location.href = `edit.html?id=${id}`;

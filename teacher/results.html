@@ -620,14 +620,6 @@
                         <label for="excelClassSelect">Class / Section <span>*</span></label>
                         <select id="excelClassSelect">
                             <option value="">Select Class</option>
-                            <option value="Grade 9-A">Grade 9-A</option>
-                            <option value="Grade 9-B">Grade 9-B</option>
-                            <option value="Grade 10-A">Grade 10-A</option>
-                            <option value="Grade 10-B">Grade 10-B</option>
-                            <option value="Grade 11-Natural">Grade 11-Natural</option>
-                            <option value="Grade 11-Social">Grade 11-Social</option>
-                            <option value="Grade 12-Natural">Grade 12-Natural</option>
-                            <option value="Grade 12-Social">Grade 12-Social</option>
                         </select>
                     </div>
 
@@ -655,6 +647,13 @@
                     </div>
                 </div>
 
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 1.25rem;">
+                    <button type="button" id="clearExcelBtn" class="btn-back" style="cursor: pointer;">Clear</button>
+                    <button type="button" id="sendExcelToAdminBtn" class="btn-save-results" disabled style="display: inline-flex; align-items: center; gap: 6px;">
+                        🚀 Send Report to Admin
+                    </button>
+                </div>
+
                 <!-- Live Preview of Parsed Excel Results -->
                 <div id="excelPreviewContainer" style="display: none; margin-top: 1.25rem; border-top: 1px solid #e2e8f0; padding-top: 1rem;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 8px;">
@@ -678,12 +677,6 @@
                         </table>
                     </div>
 
-                    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 1.25rem;">
-                        <button type="button" id="clearExcelBtn" class="btn-back" style="cursor: pointer;">Clear</button>
-                        <button type="button" id="sendExcelToAdminBtn" class="btn-save-results" style="display: inline-flex; align-items: center; gap: 6px;">
-                            🚀 Send Report to Admin
-                        </button>
-                    </div>
                 </div>
             </div>
 
@@ -702,7 +695,7 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="studentId">Student ID <span>*</span></label>
-                        <input type="text" id="studentId" placeholder="e.g. STU001" autocomplete="off">
+                        <input type="text" id="studentId" placeholder="Enter student ID" autocomplete="off">
                         <div class="student-preview-pill" id="studentPreview"></div>
                     </div>
 
@@ -845,7 +838,7 @@
                 <div id="editingBanner" style="display: none; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem; align-items: center; justify-content: space-between;">
                     <div style="display: flex; align-items: center; gap: 8px; color: #3730a3; font-size: 0.875rem; font-weight: 600;">
                         <span>✏️</span>
-                        <span id="editingBannerText">Now Re-Editing result for STU001</span>
+                        <span id="editingBannerText">Now re-editing a student result</span>
                     </div>
                     <button type="button" id="cancelReEditBtn" class="btn-back" style="padding: 0.25rem 0.6rem; font-size: 0.75rem; background: #ffffff; cursor: pointer;">
                         Cancel Re-Edit

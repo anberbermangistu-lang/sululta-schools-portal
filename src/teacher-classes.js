@@ -30,7 +30,6 @@ async function initializeTeacherClasses() {
                 teacher_id,
                 first_name,
                 last_name,
-                photo_url,
                 user_id,
                 status
             `)
@@ -50,7 +49,6 @@ async function initializeTeacherClasses() {
                     teacher_id,
                     first_name,
                     last_name,
-                    photo_url,
                     user_id,
                     status
                 `)
@@ -244,7 +242,7 @@ function displayTeacher(profile, teacherRecord) {
     setText("teacherHeaderName", fullName);
 
     const avatar = document.getElementById("teacherAvatar");
-    const photo = teacherRecord.photo_url || profile.photo_url;
+    const photo = profile.photo_url;
 
     if (avatar && photo) {
         avatar.innerHTML = "";

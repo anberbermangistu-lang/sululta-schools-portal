@@ -26,7 +26,7 @@ async function getTeacher() {
 
     let teacherRecord = null;
     try {
-        const { data } = await supabase
+        const { data, error } = await supabase
             .from("teachers")
             .select(`
                 id,
@@ -35,20 +35,24 @@ async function getTeacher() {
                 last_name,
                 email,
                 phone,
-                photo_url,
                 user_id,
                 status
             `)
             .eq("user_id", user.id)
             .maybeSingle();
+        if (error) {
+            throw error;
+        }
         teacherRecord = data;
     } catch (e) {
-        console.warn("Teacher record fetch notice:", e);
+        console.error("Teacher record fetch failed:", e);
+        showMessage(`Unable to load your teacher record: ${e.message}`);
+        return null;
     }
 
     if (!teacherRecord && user.email) {
         try {
-            const { data } = await supabase
+            const { data, error } = await supabase
                 .from("teachers")
                 .select(`
                     id,
@@ -57,17 +61,29 @@ async function getTeacher() {
                     last_name,
                     email,
                     phone,
-                    photo_url,
                     user_id,
                     status
                 `)
                 .ilike("email", user.email.trim())
                 .maybeSingle();
+            if (error) {
+                throw error;
+            }
             if (data) {
                 teacherRecord = data;
-                await supabase.from("teachers").update({ user_id: user.id }).eq("id", teacherRecord.id);
+                const { error: linkError } = await supabase
+                    .from("teachers")
+                    .update({ user_id: user.id })
+                    .eq("id", teacherRecord.id);
+                if (linkError) {
+                    throw linkError;
+                }
             }
-        } catch (_) {}
+        } catch (e) {
+            console.error("Teacher email lookup/link failed:", e);
+            showMessage(`Unable to connect your teacher record: ${e.message}`);
+            return null;
+        }
     }
 
     if (!teacherRecord) {
@@ -75,6 +91,7 @@ async function getTeacher() {
         return null;
     }
 
+    teacherRecord.photo_url = profile?.photo_url || null;
     return teacherRecord;
 }
 

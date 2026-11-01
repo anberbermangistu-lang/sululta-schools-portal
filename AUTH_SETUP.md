@@ -48,7 +48,13 @@ supabase functions deploy admin-create-school-account
 
 The local Edge Function configuration is in `supabase/config.toml`.
 
-Run the commands from this project directory after installing the Supabase CLI and linking the existing project. Set `APP_URL` to the exact active production origin without a trailing slash. `ALLOWED_ORIGINS` is a comma-separated, exact origin allowlist. Include whichever local origin is in the browser address bar: `http://localhost:5173` and/or `http://127.0.0.1:5173` are different origins. Both known production portal origins are also allowed by the function source. After changing secrets, redeploy the function. Remove local origins from the production allowlist when no longer needed. Supabase provides `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` to deployed Edge Functions. The service-role key must remain server-side and must never be added to `.env.local`, frontend code, or a Vite `VITE_*` variable.
+Run the commands from this project directory after installing the Supabase CLI and linking the existing project. Set `APP_URL` to the exact active production origin without a trailing slash. `ALLOWED_ORIGINS` is a comma-separated, exact origin allowlist. Include whichever local origin is in the browser address bar: `http://localhost:5173` and/or `http://127.0.0.1:5173` are different origins. Both known production portal origins are also allowed by the function source. To repair a deployed function that is returning `Origin is not allowed`, update the `ALLOWED_ORIGINS` Edge Function secret in the Supabase Dashboard or with `supabase secrets set`, including the exact production origin, for example:
+
+```powershell
+supabase secrets set ALLOWED_ORIGINS="https://sululta-schools-portal.vercel.app,https://sululta-school-portal.vercel.app"
+```
+
+The function reads this secret at runtime; redeploy `admin-create-school-account` after changing function code, but a secret-only change does not require a code deployment. Remove local origins from the production allowlist when no longer needed. Supabase provides `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` to deployed Edge Functions. The service-role key must remain server-side and must never be added to `.env.local`, frontend code, or a Vite `VITE_*` variable.
 
 After changing the account-creation function, deploy it with `supabase functions deploy admin-create-school-account`. Verify it appears in `supabase functions list` and that the exact page origin appears in `ALLOWED_ORIGINS`.
 

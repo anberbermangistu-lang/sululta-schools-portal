@@ -31,7 +31,6 @@ async function initializeTeacherTimetable() {
                 teacher_id,
                 first_name,
                 last_name,
-                photo_url,
                 status
             `)
             .eq("user_id", user.id)
@@ -50,7 +49,6 @@ async function initializeTeacherTimetable() {
                     teacher_id,
                     first_name,
                     last_name,
-                    photo_url,
                     status
                 `)
                 .ilike("email", user.email.trim())
@@ -334,7 +332,7 @@ function displayTeacher(profile, teacher) {
     setText("teacherHeaderName", fullName);
 
     const avatar = document.getElementById("teacherAvatar");
-    const photo = teacher.photo_url || profile.photo_url;
+    const photo = profile.photo_url;
 
     if (avatar && photo) {
         avatar.innerHTML = "";

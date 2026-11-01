@@ -1,6 +1,6 @@
 import { supabase, getSession, getUserProfile, getRoleDashboard } from "./supabase.js";
 import { ASSESSMENTS, ASSESSMENT_BY_KEY, getAssessmentDetails, normalizeAssessmentMark } from "./assessment-config.js";
-import { saveAssessmentRecords, updateAssessmentRecord } from "./results-persistence.js";
+import { loadAssessmentResults, saveAssessmentRecords, updateAssessmentRecord } from "./results-persistence.js";
 
 /* ──────────────────────────────────────────────────────────────
    CONSTANTS & WEIGHTS
@@ -13,6 +13,7 @@ const ASSESS_KEYS = ASSESSMENTS.map(({ key }) => key);
 ────────────────────────────────────────────────────────────── */
 let currentUser = null;
 let currentTeacher = null;
+let currentRole = "";
 let allSubjects = [];
 let subjectRows = [];
 let resolvedStudent = null;
@@ -61,6 +62,7 @@ async function checkTeacherAuth() {
     // Fetch profile safely
     const profile = await getUserProfile(user.id);
     const role = String(profile?.role || "").trim().toLowerCase();
+    currentRole = role;
 
     if (role && role !== "teacher" && role !== "admin") {
         const dest = getRoleDashboard(role);
@@ -73,7 +75,7 @@ async function checkTeacherAuth() {
     try {
         const { data } = await supabase
             .from("teachers")
-            .select("id, teacher_id, first_name, last_name, photo_url")
+            .select("id, teacher_id, first_name, last_name")
             .eq("user_id", user.id)
             .maybeSingle();
         teacherRecord = data;
@@ -86,7 +88,7 @@ async function checkTeacherAuth() {
         try {
             const { data } = await supabase
                 .from("teachers")
-                .select("id, teacher_id, first_name, last_name, photo_url")
+                .select("id, teacher_id, first_name, last_name")
                 .ilike("email", user.email.trim())
                 .maybeSingle();
             if (data) {
@@ -102,7 +104,7 @@ async function checkTeacherAuth() {
         ? `${teacherRecord.first_name} ${teacherRecord.last_name || ""}`.trim()
         : (profile?.first_name ? `${profile.first_name} ${profile.last_name || ""}`.trim() : "Teacher");
 
-    const photo = teacherRecord?.photo_url || profile.photo_url || localStorage.getItem(`sululta_teacher_photo_${teacherRecord?.id}`);
+    const photo = profile.photo_url || localStorage.getItem(`sululta_teacher_photo_${teacherRecord?.id}`);
 
     const headerNameEl = document.getElementById("teacherHeaderName");
     const avatarEl = document.getElementById("teacherAvatar");
@@ -153,7 +155,14 @@ async function loadSubjects() {
         .select("subject_code, subject_name")
         .order("subject_name");
 
-    if (error || !data || !data.length) {
+    if (error) {
+        if (sel) sel.innerHTML = '<option value="">Unable to load subjects</option>';
+        if (addBtn) addBtn.disabled = true;
+        showToast(`Could not load subjects: ${error.message}`, "error");
+        return;
+    }
+
+    if (!data || !data.length) {
         if (sel) sel.innerHTML = '<option value="">No subjects found</option>';
         if (addBtn) addBtn.disabled = true;
         return;
@@ -161,6 +170,13 @@ async function loadSubjects() {
 
     allSubjects = data;
     refreshSubjectDropdown();
+    const excelSubjectSelect = document.getElementById("excelSubjectSelect");
+    if (excelSubjectSelect) {
+        excelSubjectSelect.innerHTML = '<option value="">Select Subject</option>' +
+            allSubjects.map(subject =>
+                `<option value="${escapeHtml(subject.subject_code)}">${escapeHtml(subject.subject_name)} (${escapeHtml(subject.subject_code)})</option>`
+            ).join("");
+    }
 }
 
 function refreshSubjectDropdown() {
@@ -210,7 +226,7 @@ function setupStudentLookup() {
         lookupTimer = setTimeout(async () => {
             const { data, error } = await supabase
                 .from("students")
-                .select("student_id, first_name, last_name, class, section")
+                .select("student_id, first_name, last_name, class_id, class, section")
                 .ilike("student_id", val)
                 .maybeSingle();
 
@@ -456,6 +472,25 @@ function setupSaveResults() {
         saveBtn.textContent = editingResultId ? "Updating..." : "Saving...";
 
         try {
+            if (currentRole === "teacher") {
+                if (!resolvedStudent.class_id) {
+                    throw new Error("This student is not assigned to a class. Ask an administrator to update the student record.");
+                }
+                const subjectCodes = [...new Set(rowsWithMarks.map(row => row.code))];
+                const { data: assignments, error: assignmentError } = await supabase
+                    .from("teacher_subject_assignments")
+                    .select("subject_code")
+                    .eq("class_id", resolvedStudent.class_id)
+                    .in("subject_code", subjectCodes);
+                if (assignmentError) throw assignmentError;
+
+                const assignedCodes = new Set((assignments || []).map(assignment => assignment.subject_code));
+                const unassignedSubject = subjectCodes.find(code => !assignedCodes.has(code));
+                if (unassignedSubject) {
+                    throw new Error(`You are not assigned to teach ${unassignedSubject} in this student's class.`);
+                }
+            }
+
             if (editingResultId) {
                 const r = rowsWithMarks[0];
                 const updateData = editingAssessmentKey
@@ -502,7 +537,7 @@ function setupSaveResults() {
                                 max_mark: WEIGHTS[key].max,
                                 grade: null,
                                 remark: getPerformanceRemark(percentage),
-                                recorded_by: currentUser?.id || null
+                                recorded_by: currentUser.id
                             };
                         })
                 );
@@ -545,17 +580,18 @@ async function loadRecordedResults() {
     if (!tbody) return;
 
     try {
-        const [resultsRes, studentsRes] = await Promise.all([
-            supabase
-                .from("results")
-                .select("id, student_id, subject_code, exam_type, mark, max_mark, remark, created_at, recorded_by")
-                .order("created_at", { ascending: false }),
+        const [results, studentsRes] = await Promise.all([
+            loadAssessmentResults(
+                supabase,
+                "id,student_id,subject_code,exam_type,mark,max_mark,remark,created_at,recorded_by"
+            ),
             supabase
                 .from("students")
                 .select("id, student_id, first_name, last_name, class, section")
         ]);
 
-        cachedRecordedResults = resultsRes.data || [];
+        if (studentsRes.error) throw studentsRes.error;
+        cachedRecordedResults = results;
         const students = studentsRes.data || [];
 
         cachedStudentsMap.clear();
@@ -576,7 +612,7 @@ async function loadRecordedResults() {
 
     } catch (err) {
         console.error("Error loading recorded results:", err);
-        tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; color: #ef4444; padding: 2rem;">Failed to load results.</td></tr>';
+        tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; color: #ef4444; padding: 2rem;">Failed to load results: ${escapeHtml(err.message || "Database request failed.")}</td></tr>`;
     }
 }
 
@@ -833,15 +869,7 @@ function setupExcelTeacherUpload() {
     const sendBtn = document.getElementById("sendExcelToAdminBtn");
     const clearBtn = document.getElementById("clearExcelBtn");
     const subjectSelect = document.getElementById("excelSubjectSelect");
-
-    // Populate subject select once allSubjects loaded
-    const checkSubjects = setInterval(() => {
-        if (allSubjects && allSubjects.length > 0 && subjectSelect) {
-            clearInterval(checkSubjects);
-            subjectSelect.innerHTML = '<option value="">Select Subject</option>' +
-                allSubjects.map(s => `<option value="${s.subject_code}">${escapeHtml(s.subject_name)} (${s.subject_code})</option>`).join("");
-        }
-    }, 200);
+    const classSelect = document.getElementById("excelClassSelect");
 
     downloadTemplateBtn?.addEventListener("click", downloadTeacherExcelTemplate);
     clearBtn?.addEventListener("click", () => {
@@ -849,16 +877,53 @@ function setupExcelTeacherUpload() {
         if (fileInput) fileInput.value = "";
         const preview = document.getElementById("excelPreviewContainer");
         if (preview) preview.style.display = "none";
+        updateExcelSubmitButton();
     });
 
     fileInput?.addEventListener("change", handleTeacherExcelFileSelect);
     sendBtn?.addEventListener("click", handleSendExcelReportToAdmin);
+    subjectSelect?.addEventListener("change", updateExcelSubmitButton);
+    classSelect?.addEventListener("change", updateExcelSubmitButton);
+    document.getElementById("excelExamType")?.addEventListener("change", renderTeacherExcelPreview);
+    loadExcelClasses().catch(error => {
+        console.error("Could not load teacher classes:", error);
+        showToast(`Could not load classes from the database: ${error.message}`, "error");
+    });
+}
+
+async function loadExcelClasses() {
+    const classSelect = document.getElementById("excelClassSelect");
+    if (!classSelect) return;
+
+    const { data, error } = await supabase
+        .from("classes")
+        .select("id, class_name, section")
+        .order("class_name")
+        .order("section");
+    if (error) throw error;
+
+    classSelect.innerHTML = '<option value="">Select Class</option>' +
+        (data || []).map(schoolClass => {
+            const label = `${schoolClass.class_name}${schoolClass.section ? `-${schoolClass.section}` : ""}`;
+            return `<option value="${escapeHtml(schoolClass.id)}">${escapeHtml(label)}</option>`;
+        }).join("");
+    updateExcelSubmitButton();
+}
+
+function updateExcelSubmitButton() {
+    const sendBtn = document.getElementById("sendExcelToAdminBtn");
+    if (!sendBtn) return;
+    sendBtn.disabled = !parsedExcelRows.length ||
+        !document.getElementById("excelSubjectSelect")?.value ||
+        !document.getElementById("excelClassSelect")?.value;
 }
 
 function handleTeacherExcelFileSelect(e) {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    parsedExcelRows = [];
+    updateExcelSubmitButton();
     const reader = new FileReader();
     reader.onload = function(evt) {
         try {
@@ -871,7 +936,7 @@ function handleTeacherExcelFileSelect(e) {
             }
 
             if (!json.length) {
-                alert("The selected Excel file is empty or formatted incorrectly.");
+                showToast("The selected file is empty or formatted incorrectly.", "error");
                 return;
             }
 
@@ -879,14 +944,15 @@ function handleTeacherExcelFileSelect(e) {
             parsedExcelRows = [];
             json.forEach(row => {
                 const sid = row["Student ID"] || row["student_id"] || row["ID"];
-                const sname = row["Student Name"] || row["student_name"] || row["Name"] || "Student";
-                const mark = parseFloat(row["Mark"] || row["mark"] || row["Score"] || 0);
-                const remark = row["Remark"] || row["remark"] || (mark >= 50 ? "Pass" : "Fail");
+                const sname = row["Student Name"] || row["student_name"] || row["Name"] || "";
+                const rawMark = row["Mark"] ?? row["mark"] ?? row["Score"];
+                const mark = rawMark == null || String(rawMark).trim() === "" ? NaN : Number(rawMark);
+                const remark = row["Remark"] || row["remark"] || "";
 
                 if (sid) {
                     parsedExcelRows.push({
                         student_id: String(sid).trim().toUpperCase(),
-                        student_name: sname,
+                        student_name: String(sname).trim(),
                         mark: mark,
                         remark: remark
                     });
@@ -894,15 +960,22 @@ function handleTeacherExcelFileSelect(e) {
             });
 
             if (!parsedExcelRows.length) {
-                alert("Could not find required columns ('Student ID', 'Mark') in the uploaded file.");
+                showToast("The file needs Student ID and Mark columns with at least one student row.", "error");
                 return;
+            }
+
+            const invalidRow = parsedExcelRows.find(row => !Number.isFinite(row.mark));
+            if (invalidRow) {
+                throw new Error(`A valid mark is required for student ${invalidRow.student_id}.`);
             }
 
             renderTeacherExcelPreview();
 
         } catch (err) {
             console.error("Excel parse error:", err);
-            alert("Error parsing Excel file: " + err.message);
+            parsedExcelRows = [];
+            updateExcelSubmitButton();
+            showToast("Error parsing Excel file: " + err.message, "error");
         }
     };
 
@@ -954,27 +1027,33 @@ function renderTeacherExcelPreview() {
     `).join("");
 
     container.style.display = "block";
+    updateExcelSubmitButton();
 }
 
 async function handleSendExcelReportToAdmin() {
     if (!parsedExcelRows.length) {
-        alert("Please choose a valid Excel file first.");
+        showToast("Choose a valid Excel file before submitting.", "error");
         return;
     }
 
     const subject = document.getElementById("excelSubjectSelect")?.value;
-    const className = document.getElementById("excelClassSelect")?.value;
+    const classId = document.getElementById("excelClassSelect")?.value;
+    const className = document.getElementById("excelClassSelect")?.selectedOptions?.[0]?.textContent;
     const examType = document.getElementById("excelExamType")?.value || "Semester 1 Final Exam";
     const assessment = getAssessmentDetails(examType);
     const maxMark = assessment.maxMark;
 
-    if (!subject) {
-        alert("Please select the Subject for this report.");
+    if (!subject || !classId) {
+        showToast("Select a subject and class before submitting results.", "error");
         return;
     }
-    const invalidRow = parsedExcelRows.find(row => row.mark < 0 || row.mark > maxMark);
+    if (!currentUser) {
+        showToast("Your session has expired. Sign in again before submitting results.", "error");
+        return;
+    }
+    const invalidRow = parsedExcelRows.find(row => !Number.isFinite(row.mark) || row.mark < 0 || row.mark > maxMark);
     if (invalidRow) {
-        alert(`Marks for ${examType} must be between 0 and ${maxMark}. Check student ${invalidRow.student_id}.`);
+        showToast(`Marks for ${examType} must be between 0 and ${maxMark}. Check student ${invalidRow.student_id}.`, "error");
         return;
     }
 
@@ -985,61 +1064,50 @@ async function handleSendExcelReportToAdmin() {
     }
 
     try {
-        const STORAGE_TEACHER_REPORTS = "sululta_teacher_excel_reports";
-        let existingReports = [];
-        try {
-            const raw = localStorage.getItem(STORAGE_TEACHER_REPORTS);
-            if (raw) existingReports = JSON.parse(raw);
-        } catch (e) {}
+        if (currentRole === "teacher") {
+            const { data: assignments, error: assignmentError } = await supabase
+                .from("teacher_subject_assignments")
+                .select("subject_code")
+                .eq("class_id", classId)
+                .eq("subject_code", subject);
+            if (assignmentError) throw assignmentError;
+            if (!assignments?.length) {
+                throw new Error("You are not assigned to teach this subject in the selected class.");
+            }
+        }
 
-        const total = parsedExcelRows.length;
-        const passed = parsedExcelRows.filter(r => r.mark / maxMark * 100 >= 50).length;
-        const failed = total - passed;
-        const passPct = total > 0 ? ((passed / total) * 100).toFixed(1) + "%" : "0%";
-        const failPct = total > 0 ? ((failed / total) * 100).toFixed(1) + "%" : "0%";
-        const examType = document.getElementById("excelExamType")?.value || "Semester 1 Final Exam";
-        const maxMark = getAssessmentDetails(examType).maxMark;
+        const { data: students, error: studentsError } = await supabase
+            .from("students")
+            .select("student_id, first_name, last_name")
+            .eq("class_id", classId);
+        if (studentsError) throw studentsError;
+        const studentsById = new Map(
+            (students || []).map(student => [String(student.student_id).trim().toUpperCase(), student])
+        );
+        const unknownStudent = parsedExcelRows.find(row => !studentsById.has(row.student_id));
+        if (unknownStudent) {
+            throw new Error(`Student ID ${unknownStudent.student_id} is not enrolled in the selected class.`);
+        }
 
-        const teacherName = currentTeacher?.first_name 
-            ? `${currentTeacher.first_name} ${currentTeacher.last_name || ""}`.trim()
-            : "Assigned Teacher";
+        const dbInserts = parsedExcelRows.map(row => {
+            const student = studentsById.get(row.student_id);
+            row.student_name = `${student.first_name || ""} ${student.last_name || ""}`.trim();
+            return {
+                student_id: student.student_id,
+                subject_code: subject,
+                exam_type: examType,
+                mark: row.mark,
+                max_mark: maxMark,
+                remark: row.remark,
+                recorded_by: currentUser.id,
+                created_at: new Date().toISOString()
+            };
+        });
 
-        // Insert / sync to database results table
-        const dbInserts = parsedExcelRows.map(r => ({
-            student_id: r.student_id,
-            subject_code: subject,
-            exam_type: examType,
-            mark: r.mark,
-            max_mark: maxMark,
-            remark: r.remark,
-            recorded_by: currentUser?.id || null,
-            created_at: new Date().toISOString()
-        }));
+        renderTeacherExcelPreview();
+        const saveResult = await saveAssessmentRecords(supabase, dbInserts);
 
-        await saveAssessmentRecords(supabase, dbInserts);
-
-        const newReport = {
-            id: "rep_" + Date.now(),
-            teacher_name: teacherName,
-            subject_name: subject,
-            subject_code: subject,
-            class_name: className || "Secondary Grade",
-            exam_type: examType,
-            submitted_at: new Date().toISOString(),
-            total_students: total,
-            passed_count: passed,
-            failed_count: failed,
-            pass_rate: passPct,
-            fail_rate: failPct,
-            records: parsedExcelRows.map(r => ({ ...r, subject_code: subject, exam_type: examType }))
-        };
-
-        existingReports.unshift(newReport);
-        try {
-            localStorage.setItem(STORAGE_TEACHER_REPORTS, JSON.stringify(existingReports));
-        } catch (e) {}
-
-        alert(`🎉 Results Successfully Sent to Admin!\n\nSubject: ${subject}\nClass: ${className || "N/A"}\nTotal Students: ${total}\nPassed: ${passed} (${passPct})\nFailed: ${failed} (${failPct})\n\nThe report is now visible on the Admin Dashboard.`);
+        showToast(`Results for ${subject} (${className}) saved. ${saveResult.inserted} new and ${saveResult.updated} updated; the administrator can now view them.`, "success");
 
         // Clear preview
         parsedExcelRows = [];
@@ -1052,31 +1120,24 @@ async function handleSendExcelReportToAdmin() {
 
     } catch (err) {
         console.error("Submit error:", err);
-        alert("Error sending report: " + err.message);
+        showToast("Could not save results: " + err.message, "error");
     } finally {
         if (sendBtn) {
             sendBtn.disabled = false;
             sendBtn.textContent = "🚀 Send Report to Admin";
         }
+        updateExcelSubmitButton();
     }
 }
 
 function downloadTeacherExcelTemplate() {
-    const templateRows = [
-        { "Student ID": "STU001", "Student Name": "Abebe Bekele", "Mark": 85, "Remark": "Excellent" },
-        { "Student ID": "STU002", "Student Name": "Chaltu Desta", "Mark": 64, "Remark": "Good" },
-        { "Student ID": "STU003", "Student Name": "Dawit Tolosa", "Mark": 42, "Remark": "Needs Remedial" },
-        { "Student ID": "STU004", "Student Name": "Fatuma Ahmed", "Mark": 91, "Remark": "Distinction" },
-        { "Student ID": "STU005", "Student Name": "Gamachu Megersa", "Mark": 38, "Remark": "Needs Improvement" }
-    ];
-
     if (typeof XLSX !== "undefined") {
         const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.json_to_sheet(templateRows);
+        const ws = XLSX.utils.aoa_to_sheet([["Student ID", "Student Name", "Mark", "Remark"]]);
         XLSX.utils.book_append_sheet(wb, ws, "Marks Template");
         XLSX.writeFile(wb, "Sululta_Teacher_Marks_Template.xlsx");
     } else {
-        const csv = "Student ID,Student Name,Mark,Remark\r\nSTU001,Abebe Bekele,85,Excellent\r\nSTU002,Chaltu Desta,64,Good\r\nSTU003,Dawit Tolosa,42,Needs Remedial";
+        const csv = "Student ID,Student Name,Mark,Remark\r\n";
         const link = document.createElement("a");
         link.href = "data:text/csv;charset=utf-8," + encodeURI(csv);
         link.download = "Sululta_Teacher_Marks_Template.csv";

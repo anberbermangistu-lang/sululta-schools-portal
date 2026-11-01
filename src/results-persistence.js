@@ -48,6 +48,27 @@ export function getResultsWriteError(error) {
     );
 }
 
+export async function loadAssessmentResults(supabase, columns) {
+    let { data, error } = await supabase
+        .from("results")
+        .select(columns)
+        .order("created_at", { ascending: false });
+
+    if (error && isMissingMaxMarkColumn(error) && columns.split(",").includes("max_mark")) {
+        const legacyColumns = columns
+            .split(",")
+            .filter(column => column !== "max_mark")
+            .join(",");
+        ({ data, error } = await supabase
+            .from("results")
+            .select(legacyColumns)
+            .order("created_at", { ascending: false }));
+    }
+
+    if (error) throw getResultsWriteError(error);
+    return data || [];
+}
+
 export async function insertAssessmentRecord(supabase, record) {
     const preparedRecord = validateRecord(record);
     let { data, error } = await supabase

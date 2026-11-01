@@ -278,7 +278,6 @@ Deno.serve(async request => {
                 qualification: optionalText(submittedRecord.qualification),
                 department: optionalText(submittedRecord.department || submittedRecord.subject),
                 address: optionalText(submittedRecord.address),
-                photo_url: optionalText(submittedRecord.photo_url),
                 email,
                 status: recordStatus,
                 user_id: null as string | null
@@ -292,7 +291,6 @@ Deno.serve(async request => {
                 class_id: Number(submittedRecord.class_id),
                 phone: optionalText(submittedRecord.phone),
                 address: optionalText(submittedRecord.address),
-                photo_url: optionalText(submittedRecord.photo_url),
                 email,
                 status: recordStatus
             };
