@@ -4,7 +4,7 @@ The portal continues to use its existing Supabase project and public frontend ke
 
 ## Live project status
 
-The `admin-create-school-account` Edge Function is deployed to the configured project. `APP_URL` and `ALLOWED_ORIGINS` currently permit local development at `http://127.0.0.1:5173` and `http://localhost:5173`; add the deployed school portal's exact origin before using the function from production.
+The `admin-create-school-account` Edge Function must be deployed to the configured project. Its CORS allowlist includes the production portal origins `https://sululta-schools-portal.vercel.app` and `https://sululta-school-portal.vercel.app`; configure `APP_URL` and `ALLOWED_ORIGINS` for the deployment as described below.
 
 The live database has not had the role-security migration applied. Inspection found that the migration references `parents`, `fees`, `events`, and `exams` tables that do not exist in this project's current schema, so do not apply that migration unchanged. RLS is currently disabled on the live public tables, and the `anon` database role has `SELECT` privileges on student and profile records. Treat these records as exposed to unauthenticated database reads; do not use real student data in production until a schema-matched RLS migration is reviewed and applied.
 
@@ -42,13 +42,13 @@ From the project directory, link the Supabase CLI to the existing project and de
 
 ```powershell
 supabase link --project-ref <your-project-ref>
-supabase secrets set APP_URL="https://your-school-domain.example" ALLOWED_ORIGINS="https://your-school-domain.example,http://localhost:5173,http://127.0.0.1:5173"
+supabase secrets set APP_URL="https://sululta-schools-portal.vercel.app" ALLOWED_ORIGINS="https://sululta-schools-portal.vercel.app,https://sululta-school-portal.vercel.app,http://localhost:5173,http://127.0.0.1:5173"
 supabase functions deploy admin-create-school-account
 ```
 
 The local Edge Function configuration is in `supabase/config.toml`.
 
-Run the commands from this project directory after installing the Supabase CLI and linking the existing project. Set `APP_URL` to the exact production origin without a trailing slash. `ALLOWED_ORIGINS` is a comma-separated, exact origin allowlist. Include whichever local origin is in the browser address bar: `http://localhost:5173` and/or `http://127.0.0.1:5173` are different origins. After changing secrets, redeploy the function. Remove local origins from the production allowlist when no longer needed. Supabase provides `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` to deployed Edge Functions. The service-role key must remain server-side and must never be added to `.env.local`, frontend code, or a Vite `VITE_*` variable.
+Run the commands from this project directory after installing the Supabase CLI and linking the existing project. Set `APP_URL` to the exact active production origin without a trailing slash. `ALLOWED_ORIGINS` is a comma-separated, exact origin allowlist. Include whichever local origin is in the browser address bar: `http://localhost:5173` and/or `http://127.0.0.1:5173` are different origins. Both known production portal origins are also allowed by the function source. After changing secrets, redeploy the function. Remove local origins from the production allowlist when no longer needed. Supabase provides `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` to deployed Edge Functions. The service-role key must remain server-side and must never be added to `.env.local`, frontend code, or a Vite `VITE_*` variable.
 
 After changing the account-creation function, deploy it with `supabase functions deploy admin-create-school-account`. Verify it appears in `supabase functions list` and that the exact page origin appears in `ALLOWED_ORIGINS`.
 

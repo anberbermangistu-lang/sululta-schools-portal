@@ -9,10 +9,15 @@ if (!supabaseUrl || !anonKey || !serviceRoleKey || !appUrl) {
     throw new Error("Missing required Supabase function environment variables.");
 }
 
-const allowedOrigins = (Deno.env.get("ALLOWED_ORIGINS") || appUrl)
+const configuredOrigins = (Deno.env.get("ALLOWED_ORIGINS") || appUrl)
     .split(",")
     .map(origin => origin.trim())
     .filter(Boolean);
+const allowedOrigins = [...new Set([
+    ...configuredOrigins,
+    "https://sululta-schools-portal.vercel.app",
+    "https://sululta-school-portal.vercel.app"
+])];
 
 function response(request: Request, body: Record<string, unknown>, status = 200) {
     const origin = request.headers.get("Origin") || "";
