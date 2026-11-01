@@ -476,19 +476,6 @@ function setupSaveResults() {
                 if (!resolvedStudent.class_id) {
                     throw new Error("This student is not assigned to a class. Ask an administrator to update the student record.");
                 }
-                const subjectCodes = [...new Set(rowsWithMarks.map(row => row.code))];
-                const { data: assignments, error: assignmentError } = await supabase
-                    .from("teacher_subject_assignments")
-                    .select("subject_code")
-                    .eq("class_id", resolvedStudent.class_id)
-                    .in("subject_code", subjectCodes);
-                if (assignmentError) throw assignmentError;
-
-                const assignedCodes = new Set((assignments || []).map(assignment => assignment.subject_code));
-                const unassignedSubject = subjectCodes.find(code => !assignedCodes.has(code));
-                if (unassignedSubject) {
-                    throw new Error(`You are not assigned to teach ${unassignedSubject} in this student's class.`);
-                }
             }
 
             if (editingResultId) {
@@ -1064,18 +1051,6 @@ async function handleSendExcelReportToAdmin() {
     }
 
     try {
-        if (currentRole === "teacher") {
-            const { data: assignments, error: assignmentError } = await supabase
-                .from("teacher_subject_assignments")
-                .select("subject_code")
-                .eq("class_id", classId)
-                .eq("subject_code", subject);
-            if (assignmentError) throw assignmentError;
-            if (!assignments?.length) {
-                throw new Error("You are not assigned to teach this subject in the selected class.");
-            }
-        }
-
         const { data: students, error: studentsError } = await supabase
             .from("students")
             .select("student_id, first_name, last_name")

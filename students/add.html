@@ -21,6 +21,7 @@
         .form-card { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 2rem; }
         .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 1.5rem; }
         .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        #temporaryPasswordGroup[hidden] { display: none; }
         .form-group label { font-weight: 600; font-size: 0.875rem; color: #2d3748; }
         .form-group label span { color: #e53e3e; }
         .form-group input, .form-group select, .form-group textarea { padding: 0.625rem 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem; }
@@ -73,7 +74,7 @@
         <div class="content-area">
             <div class="page-header">
                 <h2>New Student Registration</h2>
-                <p>Enter the student's personal and academic information</p>
+                <p>Enter the student's personal and academic information. Send a secure password setup invitation or set a temporary password to share securely.</p>
             </div>
             <div id="messageBox" class="message"></div>
             <div class="form-card">
@@ -115,11 +116,6 @@
                             <input type="email" id="email" name="email" required autocomplete="email">
                         </div>
                         <div class="form-group">
-                            <label for="password">Temporary Password <span>*</span></label>
-                            <input type="password" id="password" name="password" required minlength="8" autocomplete="new-password">
-                            <small>At least 8 characters. Share it securely and have the student change it after signing in.</small>
-                        </div>
-                        <div class="form-group">
                             <label for="phone">Phone</label>
                             <input type="tel" id="phone" name="phone">
                         </div>
@@ -129,6 +125,16 @@
                                 <option value="active">Active</option>
                                 <option value="inactive">Inactive</option>
                             </select>
+                        </div>
+                        <div class="form-group form-group-full">
+                            <button type="button" class="btn btn-secondary" id="toggleTemporaryPassword" aria-expanded="false">
+                                Set a temporary password (optional)
+                            </button>
+                        </div>
+                        <div class="form-group form-group-full" id="temporaryPasswordGroup" hidden>
+                            <label for="temporaryPassword">Temporary Password (at least 8 characters)</label>
+                            <input type="password" id="temporaryPassword" minlength="8" autocomplete="new-password">
+                            <small>When set, no invitation email is sent. Share the password with the student through a secure channel.</small>
                         </div>
                         <div class="form-group form-group-full">
                             <label for="address">Address</label>
@@ -151,6 +157,19 @@
             document.getElementById('sidebar').classList.toggle('collapsed');
         });
 
+        const temporaryPasswordGroup = document.getElementById('temporaryPasswordGroup');
+        const temporaryPasswordInput = document.getElementById('temporaryPassword');
+        const temporaryPasswordToggle = document.getElementById('toggleTemporaryPassword');
+        temporaryPasswordToggle.addEventListener('click', () => {
+            const showPasswordField = temporaryPasswordGroup.hidden;
+            temporaryPasswordGroup.hidden = !showPasswordField;
+            if (!showPasswordField) temporaryPasswordInput.value = '';
+            temporaryPasswordToggle.setAttribute('aria-expanded', String(showPasswordField));
+            temporaryPasswordToggle.textContent = showPasswordField
+                ? 'Use email invitation instead'
+                : 'Set a temporary password (optional)';
+        });
+
         async function loadDropdowns() {
             const classes = await supabase.from('classes').select('id, class_name, section').order('class_name');
 
@@ -163,15 +182,25 @@
             e.preventDefault();
             const form = e.currentTarget;
             const btn = document.getElementById('saveBtn');
+            const msgBox = document.getElementById('messageBox');
             btn.disabled = true;
             btn.textContent = 'Saving...';
 
             const formData = new FormData(form);
             const raw = Object.fromEntries(formData);
+            const temporaryPassword = temporaryPasswordInput.value;
+            if (temporaryPassword && temporaryPassword.length < 8) {
+                msgBox.textContent = 'Temporary passwords must be at least 8 characters.';
+                msgBox.className = 'message error show';
+                btn.disabled = false;
+                btn.textContent = 'Save Student';
+                return;
+            }
+            btn.textContent = temporaryPassword ? 'Creating Account...' : 'Creating and Sending Invitation...';
             const payload = {
                 role: 'student',
                 email: raw.email,
-                password: raw.password,
+                temporary_password: temporaryPassword,
                 record: {
                     first_name: raw.first_name || null,
                     last_name: raw.last_name || null,
@@ -184,14 +213,13 @@
                     address: raw.address || null,
                 }
             };
-            const msgBox = document.getElementById('messageBox');
             try {
                 const { data, error } = await supabase.functions.invoke('admin-create-school-account', {
                     body: payload
                 });
                 if (error) {
                     if (/failed to send a request/i.test(error.message || '')) {
-                        throw new Error(`Could not reach the account service. Deploy the admin-create-school-account Edge Function and allow this site origin in ALLOWED_ORIGINS: ${window.location.origin}`);
+                        throw new Error("Could not send the request to the account service. Check your internet connection and try again. If the problem continues, verify the Supabase function and this site's CORS configuration.");
                     }
                     const details = error.context && typeof error.context.json === 'function'
                         ? await error.context.json().catch(() => null)
@@ -199,9 +227,11 @@
                     throw new Error(details?.error || error.message);
                 }
                 if (!data?.success) throw new Error('Student account could not be created.');
-                msgBox.textContent = payload.record.status === 'active'
-                    ? 'Student account created. They can now sign in with the email and temporary password you provided.'
-                    : 'Student account created but is inactive. Activate the account before the student can sign in.';
+                msgBox.textContent = temporaryPassword
+                    ? `Student account created with a temporary password. Share it with the student through a secure channel.${payload.record.status === 'inactive' ? ' Activate the account before the student can sign in.' : ''}`
+                    : payload.record.status === 'active'
+                        ? `Student account created. A password setup invitation was sent to ${payload.email}.`
+                        : `Student account created but is inactive. Activate the account before the student can sign in. An invitation was sent to ${payload.email}.`;
                 msgBox.className = 'message success show';
                 form.reset();
                 setTimeout(() => window.location.href = 'dashboard.html', 2500);

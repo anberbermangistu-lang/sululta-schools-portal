@@ -24,7 +24,8 @@ async function getTeacher() {
         .select(`
             id,
             role,
-            status
+            status,
+            photo_url
         `)
         .eq("id", user.id)
         .maybeSingle();
@@ -86,7 +87,6 @@ async function getTeacher() {
             teacher_id,
             first_name,
             last_name,
-            photo_url,
             user_id,
             status
         `)
@@ -121,6 +121,7 @@ async function getTeacher() {
 
     return {
         ...teacherRecord,
+        photo_url: profile.photo_url || null,
         email: user.email || ""
     };
 }

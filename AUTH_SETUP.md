@@ -32,11 +32,11 @@ The initial administrator must be provisioned by a trusted project owner, not th
 
 ## Deploy administrator account functions
 
-The **Add Student** and **Add Teacher** forms create the school record and login account together. The administrator supplies the email and an initial password (at least 8 characters); active accounts can sign in with those credentials immediately. Inactive accounts remain blocked until activated. The password is sent only to Supabase Auth and is never written to a school table or sent by email. Share initial passwords with users through a secure channel and advise them to change them after signing in.
+The **Add Student** and **Add Teacher** forms create the school record and Auth account together. By default, they email a Supabase invitation link to `/reset-password.html`; the recipient chooses their password through Supabase Auth. The optional **Set a temporary password** button instead lets the administrator provide an initial password (at least 8 characters), creates a confirmed Auth account, and skips the invitation email. Share temporary passwords through a secure channel. Inactive school accounts remain blocked until activated.
 
-**Admin → Add Account** creates an Auth account directly with an administrator-set temporary password. Admin accounts receive a profile without a school-record link; teacher and student accounts are linked to an existing active school record. This flow sends no invitation or password-setup email.
+**Admin → Add Account** creates Admin, Teacher, or Student accounts using the same invitation-by-default or optional temporary-password choice. Teacher and Student accounts must link to an existing active school record; a new account is not created if that record is already linked. The Admin **Users** page has a **Send Password Reset** action for teacher/student accounts. It sends a one-time Supabase recovery link to the email address on the server-side profile lookup; the browser never receives the service-role key.
 
-**Admin → Teaching Assignments** continues to manage teacher-subject access. The legacy `admin-invite-user` function is not used by **Admin → Add Account**.
+Both operations require an active Admin profile. `admin-create-school-account` handles the Add Student/Teacher forms; `admin-invite-user` handles Admin → Add Account and password reset requests. **Admin → Teaching Assignments** continues to manage teacher-subject access.
 
 From the project directory, link the Supabase CLI to the existing project and deploy the Edge Function:
 
@@ -44,11 +44,12 @@ From the project directory, link the Supabase CLI to the existing project and de
 supabase link --project-ref <your-project-ref>
 supabase secrets set APP_URL="https://sululta-schools-portal.vercel.app" ALLOWED_ORIGINS="https://sululta-schools-portal.vercel.app,https://sululta-school-portal.vercel.app,http://localhost:5173,http://127.0.0.1:5173"
 supabase functions deploy admin-create-school-account
+supabase functions deploy admin-invite-user
 ```
 
-The local Edge Function configuration is in `supabase/config.toml`.
+The local Edge Function configuration is in `supabase/config.toml`; JWT verification is enabled for both functions.
 
-Run the commands from this project directory after installing the Supabase CLI and linking the existing project. Set `APP_URL` to the exact active production origin without a trailing slash. `ALLOWED_ORIGINS` is a comma-separated, exact origin allowlist. Include whichever local origin is in the browser address bar: `http://localhost:5173` and/or `http://127.0.0.1:5173` are different origins. Both known production portal origins are also allowed by the function source. To repair a deployed function that is returning `Origin is not allowed`, update the `ALLOWED_ORIGINS` Edge Function secret in the Supabase Dashboard or with `supabase secrets set`, including the exact production origin, for example:
+Run the commands from this project directory after installing the Supabase CLI and linking the existing project. Set `APP_URL` to the exact active production origin without a trailing slash; this server-controlled value determines the Auth email redirect and must not be supplied by the browser. `ALLOWED_ORIGINS` is a comma-separated, exact origin allowlist. Include whichever local origin is in the browser address bar: `http://localhost:5173` and/or `http://127.0.0.1:5173` are different origins. Both known production portal origins are also allowed by the function source. To repair a deployed function that is returning `Origin is not allowed`, update the `ALLOWED_ORIGINS` Edge Function secret in the Supabase Dashboard or with `supabase secrets set`, including the exact production origin, for example:
 
 ```powershell
 supabase secrets set ALLOWED_ORIGINS="https://sululta-schools-portal.vercel.app,https://sululta-school-portal.vercel.app"
@@ -56,16 +57,16 @@ supabase secrets set ALLOWED_ORIGINS="https://sululta-schools-portal.vercel.app,
 
 The function reads this secret at runtime; redeploy `admin-create-school-account` after changing function code, but a secret-only change does not require a code deployment. Remove local origins from the production allowlist when no longer needed. Supabase provides `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` to deployed Edge Functions. The service-role key must remain server-side and must never be added to `.env.local`, frontend code, or a Vite `VITE_*` variable.
 
-After changing the account-creation function, deploy it with `supabase functions deploy admin-create-school-account`. Verify it appears in `supabase functions list` and that the exact page origin appears in `ALLOWED_ORIGINS`.
+After changing either function, redeploy it with the matching `supabase functions deploy` command. Verify both functions appear in `supabase functions list` and that the exact page origin appears in `ALLOWED_ORIGINS`.
 
-Both functions validate the caller's active administrator profile. `admin-create-school-account` creates confirmed Supabase Auth users with the administrator-provided password. It supports the Add Student/Teacher flow that creates a school record, and the Add Account flow that creates an admin profile or links an existing teacher/student record. It removes newly created data if setup fails. `admin-invite-user` is retained for deployments that still use the legacy invitation flow. Do not expose service-role credentials to the browser.
+`admin-create-school-account` creates invited Supabase Auth users, then creates the school record and profile; it removes newly created records if account setup fails. `admin-invite-user` creates an invitation and profile for Admin → Add Account, or sends a reset email after resolving the target email from its profile ID. It restricts resets to teacher/student roles and rolls back a partially created invited account if setup fails. Do not expose service-role credentials to the browser.
 
 ## Configure email and redirect URLs
 
 In Supabase **Authentication → URL Configuration**:
 
 - Set **Site URL** to the deployed school portal origin.
-- Add the exact allowed redirects `https://your-school-domain.example/reset-password.html` and, for local testing, `http://localhost:5173/reset-password.html`.
+- Add the exact allowed redirects `https://sululta-schools-portal.vercel.app/reset-password.html`, `https://sululta-school-portal.vercel.app/reset-password.html`, and, for local testing, `http://localhost:5173/reset-password.html` and/or `http://127.0.0.1:5173/reset-password.html`.
 - Keep any other deployed portal origin in the allowlist only if it is actively used.
 
 In **Authentication → SMTP Settings**, configure a real mail provider with its SMTP host, port, username, password, sender name, and verified sender address. Configure the **Invite user** and **Reset password** email templates to use Supabase's secure `{{ .ConfirmationURL }}` link. Do not put passwords in templates. The invitation and password reset use Supabase's time-limited, one-time Auth links and return to `/reset-password.html`.
@@ -74,7 +75,9 @@ The app only shows a successful request message when Supabase accepts the reques
 
 ## Configure frontend environment
 
-Keep the existing `.env.local` settings `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` pointing at the existing project. These are the project URL and public anon/publishable key only. Never use the service-role key in the Vite app.
+Keep the existing `.env.local` settings `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` pointing at the existing project. Add those same two public settings to the Vercel project's **Settings → Environment Variables** for Production (and Preview if used), then redeploy the frontend. The Vercel build command is `npm run build` and the output directory is `dist`. These are the project URL and public anon/publishable key only. Never add `SUPABASE_SERVICE_ROLE_KEY` to Vercel frontend variables, `.env.local`, or any `VITE_*` setting.
+
+Deploy the changed frontend to the existing Vercel project after deploying both Edge Functions. Verify that the deployed site origin exactly matches `APP_URL` and is in the Edge Functions' origin allowlist.
 
 Disable public user sign-up in Supabase **Authentication → Providers / Sign-in settings**. Users are provisioned by the administrator-only Edge Functions. A manually created Auth user without a profile cannot sign in to a school dashboard.
 

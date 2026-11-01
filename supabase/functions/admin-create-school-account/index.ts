@@ -116,8 +116,14 @@ Deno.serve(async request => {
         const payload = await request.json();
         const role = String(payload?.role || "").trim().toLowerCase();
         const email = String(payload?.email || "").trim().toLowerCase();
-        const password = typeof payload?.password === "string" ? payload.password : "";
         const submittedRecord = payload?.record;
+        const temporaryPassword = payload?.temporary_password ?? "";
+        if (typeof temporaryPassword !== "string") {
+            return response(request, { error: "Temporary password must be text." }, 400);
+        }
+        if (temporaryPassword && temporaryPassword.length < 8) {
+            return response(request, { error: "Temporary passwords must be at least 8 characters." }, 400);
+        }
 
         if (payload?.mode === "link-existing") {
             const firstName = optionalText(payload.first_name);
@@ -131,9 +137,6 @@ Deno.serve(async request => {
             }
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
                 return response(request, { error: "Enter a valid email address." }, 400);
-            }
-            if (password.length < 8) {
-                return response(request, { error: "Temporary passwords must be at least 8 characters." }, 400);
             }
             if (!firstName || !lastName) {
                 return response(request, { error: "First name and last name are required." }, 400);
@@ -194,17 +197,22 @@ Deno.serve(async request => {
                 }
             }
 
-            const { data: authData, error: createUserError } =
-                await serviceClient.auth.admin.createUser({
+            const redirectTo = new URL("/reset-password.html", appUrl).toString();
+            const accountResult = temporaryPassword
+                ? await serviceClient.auth.admin.createUser({
                     email,
-                    password,
+                    password: temporaryPassword,
                     email_confirm: true,
                     user_metadata: { first_name: firstName, last_name: lastName, role }
+                })
+                : await serviceClient.auth.admin.inviteUserByEmail(email, {
+                    data: { first_name: firstName, last_name: lastName, role },
+                    redirectTo
                 });
 
-            if (createUserError) throw createUserError;
-            if (!authData.user) throw new Error("Supabase did not return the created user.");
-            createdUserId = authData.user.id;
+            if (accountResult.error) throw accountResult.error;
+            if (!accountResult.data.user) throw new Error("Supabase did not return the created user.");
+            createdUserId = accountResult.data.user.id;
 
             const profile = {
                 id: createdUserId,
@@ -240,7 +248,12 @@ Deno.serve(async request => {
                 }
             }
 
-            return response(request, { success: true }, 200);
+            return response(request, {
+                success: true,
+                email,
+                invitation_sent: !temporaryPassword,
+                temporary_password_set: Boolean(temporaryPassword)
+            }, 200);
         }
 
         if (!["teacher", "student"].includes(role)) {
@@ -248,9 +261,6 @@ Deno.serve(async request => {
         }
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
             return response(request, { error: "Enter a valid email address." }, 400);
-        }
-        if (password.length < 8) {
-            return response(request, { error: "Temporary passwords must be at least 8 characters." }, 400);
         }
         if (!submittedRecord || typeof submittedRecord !== "object" || Array.isArray(submittedRecord)) {
             return response(request, { error: "Provide the school record details." }, 400);
@@ -325,17 +335,22 @@ Deno.serve(async request => {
             record.section = optionalText(schoolClass.section);
         }
 
-        const { data: authData, error: createUserError } =
-            await serviceClient.auth.admin.createUser({
+        const redirectTo = new URL("/reset-password.html", appUrl).toString();
+        const accountResult = temporaryPassword
+            ? await serviceClient.auth.admin.createUser({
                 email,
-                password,
+                password: temporaryPassword,
                 email_confirm: true,
                 user_metadata: { first_name: firstName, last_name: lastName, role }
+            })
+            : await serviceClient.auth.admin.inviteUserByEmail(email, {
+                data: { first_name: firstName, last_name: lastName, role },
+                redirectTo
             });
 
-        if (createUserError) throw createUserError;
-        if (!authData.user) throw new Error("Supabase did not return the created user.");
-        createdUserId = authData.user.id;
+        if (accountResult.error) throw accountResult.error;
+        if (!accountResult.data.user) throw new Error("Supabase did not return the created user.");
+        createdUserId = accountResult.data.user.id;
 
         if (role === "teacher") record.user_id = createdUserId;
         const { data: schoolRecord, error: recordError } = await serviceClient
@@ -364,7 +379,12 @@ Deno.serve(async request => {
         if (profileError) throw profileError;
         createdProfileId = createdUserId;
 
-        return response(request, { success: true }, 200);
+        return response(request, {
+            success: true,
+            email,
+            invitation_sent: !temporaryPassword,
+            temporary_password_set: Boolean(temporaryPassword)
+        }, 200);
     } catch (error) {
         console.error("admin-create-school-account failed:", error instanceof Error ? error.message : error);
 

@@ -9,10 +9,15 @@ if (!supabaseUrl || !anonKey || !serviceRoleKey || !appUrl) {
     throw new Error("Missing required Supabase function environment variables.");
 }
 
-const allowedOrigins = (Deno.env.get("ALLOWED_ORIGINS") || appUrl)
+const configuredOrigins = (Deno.env.get("ALLOWED_ORIGINS") || appUrl)
     .split(",")
     .map(origin => origin.trim())
     .filter(Boolean);
+const allowedOrigins = [...new Set([
+    ...configuredOrigins,
+    "https://sululta-schools-portal.vercel.app",
+    "https://sululta-school-portal.vercel.app"
+])];
 
 function response(
     request: Request,
@@ -66,6 +71,8 @@ Deno.serve(async request => {
     const serviceClient = createClient(supabaseUrl, serviceRoleKey, {
         auth: { persistSession: false, autoRefreshToken: false }
     });
+    let createdUserId: string | null = null;
+    let createdProfileId: string | null = null;
 
     try {
         const { data: { user: actor }, error: authError } =
@@ -91,6 +98,37 @@ Deno.serve(async request => {
         }
 
         const payload = await request.json();
+        if (payload.mode === "reset-password") {
+            const userId = String(payload.user_id || "").trim();
+            if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(userId)) {
+                return response(request, { error: "Select a valid account." }, 400);
+            }
+
+            const { data: targetProfile, error: targetError } = await serviceClient
+                .from("profiles")
+                .select("email, role")
+                .eq("id", userId)
+                .maybeSingle();
+
+            if (targetError) throw targetError;
+            if (
+                !targetProfile ||
+                !["teacher", "student"].includes(String(targetProfile.role || "").toLowerCase()) ||
+                !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(targetProfile.email || ""))
+            ) {
+                return response(request, { error: "The selected teacher or student account has no valid email address." }, 404);
+            }
+
+            const redirectTo = new URL("/reset-password.html", appUrl).toString();
+            const { error: resetError } = await serviceClient.auth.resetPasswordForEmail(
+                String(targetProfile.email).trim().toLowerCase(),
+                { redirectTo }
+            );
+            if (resetError) throw resetError;
+
+            return response(request, { success: true, email: targetProfile.email }, 200);
+        }
+
         const firstName = String(payload.first_name || "").trim();
         const lastName = String(payload.last_name || "").trim();
         const email = String(payload.email || "").trim().toLowerCase();
@@ -98,6 +136,14 @@ Deno.serve(async request => {
         const phone = String(payload.phone || "").trim();
         const role = String(payload.role || "").trim().toLowerCase();
         const recordId = payload.record_id == null ? null : Number(payload.record_id);
+        const temporaryPassword = payload.temporary_password ?? "";
+
+        if (typeof temporaryPassword !== "string") {
+            return response(request, { error: "Temporary password must be text." }, 400);
+        }
+        if (temporaryPassword && temporaryPassword.length < 8) {
+            return response(request, { error: "Temporary passwords must be at least 8 characters." }, 400);
+        }
 
         if (
             !firstName ||
@@ -159,15 +205,22 @@ Deno.serve(async request => {
         }
 
         const redirectTo = new URL("/reset-password.html", appUrl).toString();
-        const { data: inviteData, error: inviteError } =
-            await serviceClient.auth.admin.inviteUserByEmail(email, {
+        const accountResult = temporaryPassword
+            ? await serviceClient.auth.admin.createUser({
+                email,
+                password: temporaryPassword,
+                email_confirm: true,
+                user_metadata: { first_name: firstName, last_name: lastName, role }
+            })
+            : await serviceClient.auth.admin.inviteUserByEmail(email, {
                 data: { first_name: firstName, last_name: lastName, role },
                 redirectTo
             });
 
-        if (inviteError) throw inviteError;
-        const invitedUser = inviteData.user;
-        if (!invitedUser) throw new Error("Supabase did not return the invited user.");
+        if (accountResult.error) throw accountResult.error;
+        const invitedUser = accountResult.data.user;
+        if (!invitedUser) throw new Error("Supabase did not return the created user.");
+        createdUserId = invitedUser.id;
 
         const profile = {
             id: invitedUser.id,
@@ -185,10 +238,8 @@ Deno.serve(async request => {
         const { error: profileError } =
             await serviceClient.from("profiles").insert(profile);
 
-        if (profileError) {
-            await rollbackInvitedUser(serviceClient, invitedUser.id);
-            throw profileError;
-        }
+        if (profileError) throw profileError;
+        createdProfileId = invitedUser.id;
 
         if (teacherRecord && recordId !== null) {
             const { data: linkedRecord, error: linkError } = await serviceClient
@@ -200,15 +251,38 @@ Deno.serve(async request => {
                 .maybeSingle();
 
             if (linkError || !linkedRecord) {
-                await rollbackInvitedUser(serviceClient, invitedUser.id);
                 if (linkError) throw linkError;
                 throw new Error("The school record was linked by another administrator. Please retry.");
             }
         }
 
-        return response(request, { success: true }, 200);
+        return response(request, {
+            success: true,
+            email,
+            invitation_sent: !temporaryPassword,
+            temporary_password_set: Boolean(temporaryPassword)
+        }, 200);
     } catch (error) {
         console.error("admin-invite-user failed:", error);
+        if (createdProfileId) {
+            const { error: profileCleanupError } = await serviceClient
+                .from("profiles")
+                .delete()
+                .eq("id", createdProfileId);
+            if (profileCleanupError) {
+                console.error("Could not roll back invited user's profile:", profileCleanupError.message);
+                return response(request, { error: "Account setup failed and profile cleanup was unsuccessful. Contact the Supabase administrator." }, 500);
+            }
+        }
+        if (createdUserId) {
+            try {
+                await rollbackInvitedUser(serviceClient, createdUserId);
+            } catch (cleanupError) {
+                return response(request, {
+                    error: cleanupError instanceof Error ? cleanupError.message : "Account setup cleanup failed."
+                }, 500);
+            }
+        }
         return response(request, { error: error instanceof Error ? error.message : "Invitation failed." }, 400);
     }
 });

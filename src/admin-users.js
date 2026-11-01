@@ -268,6 +268,8 @@ function createUserRow(user, index) {
 
     const isAdmin =
         role === "admin";
+    const canResetPassword =
+        role === "teacher" || role === "student";
 
     return `
         <tr>
@@ -337,17 +339,17 @@ function createUserRow(user, index) {
                     }
 
                     ${
-                        isAdmin
-                            ? ""
-                            : `
+                        canResetPassword
+                            ? `
                                 <button
                                     type="button"
                                     class="btn btn-sm btn-warning"
                                     data-reset-id="${escapeHtml(user.id)}"
                                 >
-                                    Reset Password
+                                    Send Password Reset
                                 </button>
                             `
+                            : ""
                     }
 
                 </div>
@@ -556,49 +558,43 @@ async function resetUserPassword(id) {
         return;
     }
 
+    if (!user.email) {
+        showMessage("This account does not have an email address for password recovery.", "error");
+        return;
+    }
+
     const fullName =
         `${user.first_name || ""} ${user.last_name || ""}`.trim() ||
         "this user";
 
-    const password =
-        window.prompt(
-            `Enter a new temporary password for ${fullName}:`
-        );
-
-    if (password === null) {
-        return;
-    }
-
-    if (password.length < 6) {
-        showMessage(
-            "Password must be at least 6 characters.",
-            "error"
-        );
-
-        return;
-    }
-
     const confirmed =
         window.confirm(
-            `Reset the password for ${fullName}?`
+            `Send a secure password reset link to ${user.email} for ${fullName}?`
         );
 
     if (!confirmed) {
         return;
     }
 
-    // Use Supabase's built-in password reset email instead of the Edge Function
     try {
-        const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
-            redirectTo: `${window.location.origin}/reset-password.html`
+        const { data, error } = await supabase.functions.invoke("admin-invite-user", {
+            body: {
+                mode: "reset-password",
+                user_id: user.id
+            }
         });
 
         if (error) {
-            throw new Error(error.message);
+            const response = error.context;
+            if (response && typeof response.json === "function") {
+                const details = await response.json().catch(() => null);
+                throw new Error(details?.error || error.message);
+            }
+            throw error;
         }
 
         showMessage(
-            `Password reset email sent to ${user.email}.`,
+            `Password reset link sent to ${data?.email || user.email}.`,
             "success"
         );
 

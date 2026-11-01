@@ -22,6 +22,7 @@
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
         .form-group { display: flex; flex-direction: column; }
         .form-group.full-width { grid-column: 1 / -1; }
+        #temporaryPasswordGroup[hidden] { display: none; }
         .form-group label { font-size: 0.875rem; font-weight: 600; color: #4a5568; margin-bottom: 0.5rem; }
         .form-group input, .form-group select, .form-group textarea { padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem; transition: all 0.2s; }
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
@@ -68,6 +69,7 @@
             <div class="form-container">
                 <div class="form-header">
                     <h2>Teacher Information</h2>
+                    <p>Send a secure password setup invitation or set a temporary password to share securely.</p>
                 </div>
                 <div id="alertBox" class="alert"></div>
                 <form id="addTeacherForm">
@@ -83,11 +85,6 @@
                         <div class="form-group">
                             <label for="email">Email *</label>
                             <input type="email" id="email" required autocomplete="email">
-                        </div>
-                        <div class="form-group">
-                            <label for="password">Temporary Password *</label>
-                            <input type="password" id="password" required minlength="8" autocomplete="new-password">
-                            <small>At least 8 characters. Share it securely and have the teacher change it after signing in.</small>
                         </div>
                         <div class="form-group">
                             <label for="phone">Phone *</label>
@@ -116,6 +113,16 @@
                                 <option value="active">Active</option>
                                 <option value="inactive">Inactive</option>
                             </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <button type="button" class="btn btn-secondary" id="toggleTemporaryPassword" aria-expanded="false">
+                                Set a temporary password (optional)
+                            </button>
+                        </div>
+                        <div class="form-group full-width" id="temporaryPasswordGroup" hidden>
+                            <label for="temporaryPassword">Temporary Password (at least 8 characters)</label>
+                            <input type="password" id="temporaryPassword" minlength="8" autocomplete="new-password">
+                            <small>When set, no invitation email is sent. Share the password with the teacher through a secure channel.</small>
                         </div>
                         <div class="form-group full-width">
                             <label for="address">Address</label>
@@ -150,16 +157,36 @@
             setTimeout(() => alert.style.display = 'none', 5000);
         }
 
+        const temporaryPasswordGroup = document.getElementById('temporaryPasswordGroup');
+        const temporaryPasswordInput = document.getElementById('temporaryPassword');
+        const temporaryPasswordToggle = document.getElementById('toggleTemporaryPassword');
+        temporaryPasswordToggle.addEventListener('click', () => {
+            const showPasswordField = temporaryPasswordGroup.hidden;
+            temporaryPasswordGroup.hidden = !showPasswordField;
+            if (!showPasswordField) temporaryPasswordInput.value = '';
+            temporaryPasswordToggle.setAttribute('aria-expanded', String(showPasswordField));
+            temporaryPasswordToggle.textContent = showPasswordField
+                ? 'Use email invitation instead'
+                : 'Set a temporary password (optional)';
+        });
+
         document.getElementById('addTeacherForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const form = e.currentTarget;
             const btn = form.querySelector('button[type="submit"]');
             btn.disabled = true;
-            btn.textContent = 'Creating Account...';
+            const temporaryPassword = temporaryPasswordInput.value;
+            if (temporaryPassword && temporaryPassword.length < 8) {
+                showAlert('Temporary passwords must be at least 8 characters.', 'error');
+                btn.disabled = false;
+                btn.textContent = 'Add Teacher';
+                return;
+            }
+            btn.textContent = temporaryPassword ? 'Creating Account...' : 'Creating and Sending Invitation...';
             const payload = {
                 role: 'teacher',
                 email: document.getElementById('email').value.trim(),
-                password: document.getElementById('password').value,
+                temporary_password: temporaryPassword,
                 record: {
                     teacher_id: document.getElementById('employeeId').value.trim(),
                     first_name: document.getElementById('firstName').value.trim(),
@@ -178,7 +205,7 @@
                 });
                 if (error) {
                     if (/failed to send a request/i.test(error.message || '')) {
-                        throw new Error(`Could not reach the account service. Deploy the admin-create-school-account Edge Function and allow this site origin in ALLOWED_ORIGINS: ${window.location.origin}`);
+                        throw new Error("Could not send the request to the account service. Check your internet connection and try again. If the problem continues, verify the Supabase function and this site's CORS configuration.");
                     }
                     const details = error.context && typeof error.context.json === 'function'
                         ? await error.context.json().catch(() => null)
@@ -187,9 +214,11 @@
                 }
                 if (!data?.success) throw new Error('Teacher account could not be created.');
 
-                showAlert(payload.record.status === 'active'
-                    ? 'Teacher account created. They can now sign in with the email and temporary password you provided.'
-                    : 'Teacher account created but is inactive. Activate the account before the teacher can sign in.', 'success');
+                showAlert(temporaryPassword
+                    ? `Teacher account created with a temporary password. Share it with the teacher through a secure channel.${payload.record.status === 'inactive' ? ' Activate the account before the teacher can sign in.' : ''}`
+                    : payload.record.status === 'active'
+                        ? `Teacher account created. A password setup invitation was sent to ${payload.email}.`
+                        : `Teacher account created but is inactive. Activate the account before the teacher can sign in. An invitation was sent to ${payload.email}.`, 'success');
                 form.reset();
                 setTimeout(() => window.location.href = 'dashboard.html', 1500);
             } catch (error) {

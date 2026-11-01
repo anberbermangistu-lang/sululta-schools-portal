@@ -11,6 +11,9 @@ const recordRequired = document.getElementById("schoolRecordRequired");
 const logoutButton = document.getElementById("logoutButton");
 const sidebarToggle = document.getElementById("sidebarToggle");
 const sidebar = document.querySelector(".admin-sidebar");
+const temporaryPasswordGroup = document.getElementById("temporaryPasswordGroup");
+const temporaryPasswordInput = document.getElementById("temporaryPassword");
+const toggleTemporaryPasswordButton = document.getElementById("toggleTemporaryPassword");
 
 function showMessage(text, type = "error") {
     if (!message) return;
@@ -117,7 +120,7 @@ function getFormData() {
         email: document.getElementById("email")?.value.trim().toLowerCase() || "",
         username: document.getElementById("username")?.value.trim() || "",
         phone: document.getElementById("phone")?.value.trim() || "",
-        password: document.getElementById("password")?.value || "",
+        temporary_password: temporaryPasswordInput?.value || "",
         role: roleSelect?.value || "",
         record_id: roleSelect?.value === "admin" ? null : Number(recordSelect?.value)
     };
@@ -126,16 +129,18 @@ function getFormData() {
 function validateForm(data) {
     if (!data.first_name || !data.last_name) return "First name and last name are required.";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) return "Enter a valid email address.";
-    if (data.password.length < 8) return "Temporary password must be at least 8 characters.";
     if (!["admin", "teacher", "student"].includes(data.role)) return "Choose Admin, Teacher, or Student.";
     if (data.role !== "admin" && (!Number.isSafeInteger(data.record_id) || data.record_id < 1)) {
         return "Select the matching school record.";
+    }
+    if (data.temporary_password && data.temporary_password.length < 8) {
+        return "Temporary passwords must be at least 8 characters.";
     }
     return null;
 }
 
 async function createAccount(data) {
-    const { data: result, error } = await supabase.functions.invoke("admin-create-school-account", {
+    const { data: result, error } = await supabase.functions.invoke("admin-invite-user", {
         body: {
             mode: "link-existing",
             first_name: data.first_name,
@@ -143,9 +148,9 @@ async function createAccount(data) {
             email: data.email,
             username: data.username,
             phone: data.phone,
-            password: data.password,
             role: data.role,
-            record_id: data.record_id
+            record_id: data.record_id,
+            temporary_password: data.temporary_password
         }
     });
 
@@ -153,7 +158,7 @@ async function createAccount(data) {
         const response = error.context;
         if (response?.status === 404) {
             throw new Error(
-                "The account service is not deployed. Run `supabase functions deploy admin-create-school-account` from the project directory."
+                "The account invitation service is not deployed. Run `supabase functions deploy admin-invite-user` from the project directory."
             );
         }
         if (response && typeof response.json === "function") {
@@ -163,20 +168,21 @@ async function createAccount(data) {
                 /only teacher and student accounts can be created here/i.test(details?.error || "")
             ) {
                 throw new Error(
-                    "The live account service is outdated and does not support Admin accounts yet. Deploy the updated function with `supabase functions deploy admin-create-school-account`, then try again."
+                    "The live account invitation service is outdated. Deploy `admin-invite-user` and try again."
                 );
             }
             throw new Error(details?.error || error.message);
         }
         if (error.name === "FunctionsFetchError") {
             throw new Error(
-                `Could not connect to the account service from ${window.location.origin}. Confirm admin-create-school-account is deployed and this origin is included in ALLOWED_ORIGINS.`
+                "Could not send the request to the account invitation service. Check your internet connection and try again. If the problem continues, verify the Supabase function and this site's CORS configuration."
             );
         }
         throw error;
     }
 
     if (!result?.success) throw new Error("The account could not be created.");
+    return result;
 }
 
 function setupSidebar() {
@@ -217,6 +223,16 @@ roleSelect?.addEventListener("change", () => {
     }
 });
 
+toggleTemporaryPasswordButton?.addEventListener("click", () => {
+    const showPasswordField = temporaryPasswordGroup?.hidden ?? true;
+    if (temporaryPasswordGroup) temporaryPasswordGroup.hidden = !showPasswordField;
+    if (!showPasswordField && temporaryPasswordInput) temporaryPasswordInput.value = "";
+    toggleTemporaryPasswordButton.setAttribute("aria-expanded", String(showPasswordField));
+    toggleTemporaryPasswordButton.textContent = showPasswordField
+        ? "Use email invitation instead"
+        : "Set a temporary password (optional)";
+});
+
 function updateRoleFields() {
     const needsSchoolRecord = roleSelect?.value !== "admin";
     if (recordGroup) recordGroup.hidden = !needsSchoolRecord;
@@ -237,9 +253,16 @@ form?.addEventListener("submit", async event => {
     if (saveButton) saveButton.disabled = true;
     if (btnText) btnText.textContent = "Submitting...";
     try {
-        await createAccount(data);
-        showMessage("Account created. Share the temporary password securely and ask the user to change it after signing in.", "success");
+        const result = await createAccount(data);
+        showMessage(data.temporary_password
+            ? `Account created for ${result.email || data.email} with a temporary password. Share it with the user through a secure channel.`
+            : `Invitation sent to ${result.email || data.email}. The user must follow the email link to set a password before signing in.`, "success");
         form.reset();
+        if (temporaryPasswordGroup) temporaryPasswordGroup.hidden = true;
+        if (toggleTemporaryPasswordButton) {
+            toggleTemporaryPasswordButton.setAttribute("aria-expanded", "false");
+            toggleTemporaryPasswordButton.textContent = "Set a temporary password (optional)";
+        }
         if (recordSelect) {
             recordSelect.disabled = true;
             recordSelect.innerHTML = '<option value="">Choose a role first</option>';

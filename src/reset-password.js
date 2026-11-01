@@ -5,6 +5,16 @@ const message = document.getElementById("resetMessage");
 const button = document.getElementById("updatePasswordButton");
 const passwordInput = document.getElementById("password");
 const confirmPasswordInput = document.getElementById("confirmPassword");
+const inviteParams = new URLSearchParams(window.location.hash.slice(1));
+const queryParams = new URLSearchParams(window.location.search);
+const isInvitation = inviteParams.get("type") === "invite" || queryParams.get("type") === "invite";
+
+if (isInvitation) {
+    const title = document.getElementById("passwordPageTitle");
+    const description = document.getElementById("passwordPageDescription");
+    if (title) title.textContent = "Set Your Password";
+    if (description) description.textContent = "Choose a password to activate your school portal account.";
+}
 
 function showMessage(text, type = "error") {
     if (!message) return;
@@ -70,7 +80,7 @@ form?.addEventListener("submit", async event => {
         const { error } = await supabase.auth.updateUser({ password });
         if (error) throw error;
 
-        showMessage("Password updated successfully. Redirecting to login...", "success");
+        showMessage("Password saved successfully. Redirecting to login...", "success");
         setTimeout(() => window.location.replace("/login.html"), 2000);
     } catch (error) {
         console.error("Update password error:", error);

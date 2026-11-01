@@ -29,35 +29,52 @@ async function getTeacher() {
     // Fetch teacher record by user_id
     let teacherRecord = null;
     try {
-        const { data } = await supabase
+        const { data, error } = await supabase
             .from("teachers")
-            .select("id, teacher_id, first_name, last_name, gender, phone, email, address, qualification, photo_url, user_id, status, created_at, updated_at")
+            .select("id, teacher_id, first_name, last_name, gender, phone, email, address, qualification, user_id, status, created_at, updated_at")
             .eq("user_id", user.id)
             .maybeSingle();
+        if (error) throw error;
         teacherRecord = data;
     } catch (e) {
-        console.warn("Teacher fetch warning:", e);
+        console.error("Teacher fetch failed:", e);
+        showMessage(`Unable to load your teacher record: ${e.message}`, "error");
+        return null;
     }
 
     // Fallback: match by email
     if (!teacherRecord && user.email) {
         try {
-            const { data } = await supabase
+            const { data, error } = await supabase
                 .from("teachers")
-                .select("id, teacher_id, first_name, last_name, gender, phone, email, address, qualification, photo_url, user_id, status, created_at, updated_at")
+                .select("id, teacher_id, first_name, last_name, gender, phone, email, address, qualification, user_id, status, created_at, updated_at")
                 .ilike("email", user.email.trim())
                 .maybeSingle();
+            if (error) throw error;
             if (data) {
                 teacherRecord = data;
-                await supabase.from("teachers").update({ user_id: user.id }).eq("id", teacherRecord.id);
+                if (!teacherRecord.user_id) {
+                    const { error: linkError } = await supabase
+                        .from("teachers")
+                        .update({ user_id: user.id })
+                        .eq("id", teacherRecord.id);
+                    if (linkError) throw linkError;
+                    teacherRecord.user_id = user.id;
+                }
             }
-        } catch (_) {}
+        } catch (e) {
+            console.error("Teacher email lookup/link failed:", e);
+            showMessage(`Unable to connect your teacher record: ${e.message}`, "error");
+            return null;
+        }
     }
 
     if (!teacherRecord) {
         showMessage("Your teacher record is not connected to your account. Contact administrator.", "error");
         return null;
     }
+
+    teacherRecord.photo_url = profile?.photo_url || null;
 
     // Merge cached local photo if present
     const cachedPhoto = localStorage.getItem(`sululta_teacher_photo_${teacherRecord.id}`);
@@ -231,22 +248,11 @@ function setupPhotoUpload() {
             }
 
             try {
-                // Update teachers table
-                await supabase
-                    .from("teachers")
-                    .update({
-                        photo_url: finalPhotoUrl,
-                        updated_at: new Date().toISOString()
-                    })
-                    .eq("id", teacher.id);
-
-                // Update profiles table
-                await supabase
+                const { error: profilePhotoError } = await supabase
                     .from("profiles")
-                    .update({
-                        photo_url: finalPhotoUrl
-                    })
-                    .eq("id", teacher.user_id);
+                    .update({ photo_url: finalPhotoUrl })
+                    .eq("id", currentUser.id);
+                if (profilePhotoError) throw profilePhotoError;
 
                 teacher.photo_url = finalPhotoUrl;
                 localStorage.setItem(`sululta_teacher_photo_${teacher.id}`, finalPhotoUrl);
