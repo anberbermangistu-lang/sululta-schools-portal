@@ -122,7 +122,7 @@
                         <div class="form-group full-width" id="temporaryPasswordGroup" hidden>
                             <label for="temporaryPassword">Temporary Password (at least 8 characters)</label>
                             <input type="password" id="temporaryPassword" minlength="8" autocomplete="new-password">
-                            <small>When set, no invitation email is sent. Share the password with the teacher through a secure channel.</small>
+                            <small>Use at least 8 characters. Leave this blank to send a password setup invitation instead. When set, no invitation email is sent; share the password with the teacher through a secure channel.</small>
                         </div>
                         <div class="form-group full-width">
                             <label for="address">Address</label>
@@ -177,7 +177,7 @@
             btn.disabled = true;
             const temporaryPassword = temporaryPasswordInput.value;
             if (temporaryPassword && temporaryPassword.length < 8) {
-                showAlert('Temporary passwords must be at least 8 characters.', 'error');
+                showAlert('Use at least 8 characters for a temporary password, or clear the field to send a password setup invitation.', 'error');
                 btn.disabled = false;
                 btn.textContent = 'Add Teacher';
                 return;

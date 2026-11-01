@@ -122,7 +122,7 @@ Deno.serve(async request => {
             return response(request, { error: "Temporary password must be text." }, 400);
         }
         if (temporaryPassword && temporaryPassword.length < 8) {
-            return response(request, { error: "Temporary passwords must be at least 8 characters." }, 400);
+            return response(request, { error: "Use at least 8 characters for a temporary password, or leave it blank to send a password setup invitation." }, 400);
         }
 
         if (payload?.mode === "link-existing") {

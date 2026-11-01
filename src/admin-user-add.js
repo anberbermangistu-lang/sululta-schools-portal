@@ -134,7 +134,7 @@ function validateForm(data) {
         return "Select the matching school record.";
     }
     if (data.temporary_password && data.temporary_password.length < 8) {
-        return "Temporary passwords must be at least 8 characters.";
+        return "Use at least 8 characters for a temporary password, or clear the field to send a password setup invitation.";
     }
     return null;
 }
